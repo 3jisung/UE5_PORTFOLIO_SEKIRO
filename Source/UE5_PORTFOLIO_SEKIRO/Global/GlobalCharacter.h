@@ -118,16 +118,16 @@ protected:
 
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	float HP;
+	int HP = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	float MaxHP;
+	int MaxHP = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	float Posture;
+	int Posture = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	float Power;
+	float Power = 0;
 
 	// 피격 가능 상태
 	bool HitState = true;

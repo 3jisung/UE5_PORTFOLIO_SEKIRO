@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "GlobalFunctionLibrary.h"
+#include "Engine/DataTable.h"
 #include "GlobalGameInstance.generated.h"
 
 /**
@@ -19,4 +20,14 @@ class UE5_PORTFOLIO_SEKIRO_API UGlobalGameInstance : public UGameInstance
 public:
 	UGlobalGameInstance();
 
+	struct FPlayerStatData* GetPlayerStat(FName _Name);
+	UStaticMesh* GetPlayerWeapon(FName _Name);
+
+
+private:
+	UPROPERTY()
+	UDataTable* PlayerStatData;
+
+	UPROPERTY()
+	UDataTable* PlayerWeaponData;
 };
