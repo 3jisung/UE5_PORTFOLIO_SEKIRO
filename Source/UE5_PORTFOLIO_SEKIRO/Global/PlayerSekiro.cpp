@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GlobalAnimInstance.h"
 #include "GlobalGameInstance.h"
+#include "GlobalEnums.h"
 #include "Components/StaticMeshComponent.h"
 
 
@@ -14,7 +15,7 @@ APlayerSekiro::APlayerSekiro()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->TargetArmLength = 800.0f;
+	SpringArmComponent->TargetArmLength = 1500.0f;
 	SpringArmComponent->bDoCollisionTest = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
 
@@ -34,17 +35,17 @@ void APlayerSekiro::BeginPlay()
 	//GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
 	//GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
 
-	//SetAniState(AIAniState::Idle);
+	SetAniState(SekiroState::Idle);
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 
-	StatData = GetGameInstance<UGlobalGameInstance>()->GetPlayerStat(TEXT("Sekiro"));
+	StatData = Inst->GetPlayerStat(TEXT("Sekiro"));
 	HP = StatData->HP;
 	MaxHP = StatData->MaxHP;
 	Posture = StatData->Posture;
 	Power = StatData->Power;
 
-	WeaponArrays.Add(GetGameInstance<UGlobalGameInstance>()->GetPlayerWeapon(TEXT("Katana")));
+	WeaponArrays.Add(Inst->GetPlayerWeapon(TEXT("Katana")));
 	WeaponMesh->SetStaticMesh(WeaponArrays[0]);
 }
 

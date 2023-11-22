@@ -75,18 +75,18 @@ public:
 	}
 
 	template<typename EnumType>
-	void SetAllAnimation(const TMap<EnumType, class UAnimMontage*>& _MapAnimation)
+	void SetAllAnimation(const TMap<EnumType, class UAnimMontage*>& _Animation)
 	{
-		for (TPair<EnumType, UAnimMontage*> Pair : _MapAnimation)
+		for (TPair<EnumType, UAnimMontage*> Pair : _Animation)
 		{
 			AllAnimations.Add(static_cast<int>(Pair.Key), Pair.Value);
 		}
 	}
 
 	template<typename EnumType>
-	void SetAllSound(const TMap<EnumType, class USoundBase*>& _MapSound)
+	void SetAllSound(const TMap<EnumType, class USoundBase*>& _Sound)
 	{
-		for (TPair<EnumType, USoundBase*> Pair : _MapSound)
+		for (TPair<EnumType, USoundBase*> Pair : _Sound)
 		{
 			AllSound.Add(static_cast<int>(Pair.Key), Pair.Value);
 		}

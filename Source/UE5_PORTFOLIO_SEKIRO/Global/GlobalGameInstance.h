@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "GlobalFunctionLibrary.h"
 #include "Engine/DataTable.h"
+#include "GlobalEnums.h"
 #include "GlobalGameInstance.generated.h"
 
 /**
@@ -22,6 +23,7 @@ public:
 
 	struct FPlayerStatData* GetPlayerStat(FName _Name);
 	UStaticMesh* GetPlayerWeapon(FName _Name);
+	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
 
 
 private:
@@ -30,4 +32,7 @@ private:
 
 	UPROPERTY()
 	UDataTable* PlayerWeaponData;
+
+	UPROPERTY()
+	UDataTable* PlayerAnimData;
 };

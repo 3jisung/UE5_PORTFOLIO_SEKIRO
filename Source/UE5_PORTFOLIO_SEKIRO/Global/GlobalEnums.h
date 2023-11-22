@@ -5,7 +5,52 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class GenichiroState : uint8
+enum class SekiroState : uint8
+{
+	None UMETA(DisplayName = "사용안함"),
+	Idle UMETA(DisplayName = "서있기"),
+
+	LeftWalk UMETA(DisplayName = "왼쪽걷기"),
+	RightWalk UMETA(DisplayName = "오른쪽걷기"),
+	ForwardWalk UMETA(DisplayName = "앞으로걷기"),
+	BackwardWalk UMETA(DisplayName = "뒤로걷기"),
+
+	LeftRun UMETA(DisplayName = "왼쪽뛰기"),
+	RightRun UMETA(DisplayName = "오른쪽뛰기"),
+	ForwardRun UMETA(DisplayName = "앞으로뛰기"),
+	BackwardRun UMETA(DisplayName = "뒤로뛰기"),
+
+	BasicAttack1 UMETA(DisplayName = "평타1"),
+	BasicAttack2 UMETA(DisplayName = "평타2"),
+	BasicAttack3 UMETA(DisplayName = "평타3"),
+
+	StabAttack UMETA(DisplayName = "찌르기"),
+	JumpAttack UMETA(DisplayName = "점프공격"),
+	DashAttack UMETA(DisplayName = "대쉬공격"),
+	
+	LightningReversal1 UMETA(DisplayName = "뇌반1"),
+	LightningReversal2 UMETA(DisplayName = "뇌반2"),
+
+	Guard UMETA(DisplayName = "가드"),
+	Parrying1 UMETA(DisplayName = "패링1"),
+	Parrying2 UMETA(DisplayName = "패링2"),
+	MikiriCounter UMETA(DisplayName = "간파하기"),
+
+	Hit UMETA(DisplayName = "히트"),
+	Stun UMETA(DisplayName = "스턴"),
+	Knockdown UMETA(DisplayName = "넉다운"),
+	Getup UMETA(DisplayName = "기상"),
+	Death UMETA(DisplayName = "죽음"),
+
+	Jump UMETA(DisplayName = "점프"),
+	Trample UMETA(DisplayName = "밟기"),
+
+	Sit UMETA(DisplayName = "정좌"),
+	DeathblowBoss UMETA(DisplayName = "보스인살"),
+};
+
+UENUM(BlueprintType)
+enum class MonsterState : uint8
 {
 	NONE UMETA(DisplayName = "사용안함"),
 	IDLE UMETA(DisplayName = "대기"),
