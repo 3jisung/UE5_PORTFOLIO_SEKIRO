@@ -2,8 +2,7 @@
 
 
 #include "GlobalCharacter.h"
-#include "GlobalGameInstance.h"
-#include "Data/PlayerAnimData.h"
+#include "GlobalAnimInstance.h"
 
 // Sets default values
 AGlobalCharacter::AGlobalCharacter()
@@ -17,14 +16,8 @@ AGlobalCharacter::AGlobalCharacter()
 void AGlobalCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-
-	FPlayerAnimData* AnimData = Inst->GetPlayerAnim(TEXT("Animations"));
-	SetAllAnimation(AnimData->Animations);
 
 	GlobalAnimInstance = Cast<UGlobalAnimInstance>(GetMesh()->GetAnimInstance());
-	GlobalAnimInstance->AllAnimations = AllAnimations;
 }
 
 // Called every frame

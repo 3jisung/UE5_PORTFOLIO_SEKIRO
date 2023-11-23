@@ -19,6 +19,13 @@ class UE5_PORTFOLIO_SEKIRO_API APlayerSekiro : public AGlobalCharacter
 public:
 	APlayerSekiro();
 
+	UFUNCTION(BlueprintCallable)
+	void MoveRight(float Val);
+
+	UFUNCTION(BlueprintCallable)
+	void MoveForward(float Val);
+
+
 	const struct FPlayerStatData* StatData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -40,4 +47,8 @@ private:
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
+
+	float Speed = 500.0f;
+
+	bool LockOn = false;
 };

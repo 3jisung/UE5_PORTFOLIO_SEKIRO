@@ -118,6 +118,12 @@ protected:
 
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
+	TMap<int, class UAnimMontage*> AllAnimations;
+
+	UPROPERTY(Category = "GlobalChracterValue", EditAnywhere, BlueprintReadWrite)
+	TMap<int, class USoundBase*> AllSound;
+
+	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
 	int HP = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
@@ -140,11 +146,6 @@ private:
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int AniState = 0;
 
-	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<int, class UAnimMontage*> AllAnimations;
-
 	class UGlobalAnimInstance* GlobalAnimInstance = nullptr;
 
-	UPROPERTY(Category = "GlobalChracterValue", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<int, class USoundBase*> AllSound;
 };
