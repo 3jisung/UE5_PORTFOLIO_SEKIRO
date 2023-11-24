@@ -25,6 +25,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Val);
 
+	UFUNCTION(BlueprintCallable)
+	void LockOnTarget();
+
+	void ToggleLockOn();
+
 
 	const struct FPlayerStatData* StatData;
 
@@ -50,5 +55,10 @@ private:
 
 	float Speed = 500.0f;
 
-	bool LockOn = false;
+	UPROPERTY(Category = "LockOn", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bLockOn = false;
+
+	float LockOnRange = 3000.0f;
+	float LockOnAngle = 30.0f;
+	AActor* LockedOnTarget;
 };
