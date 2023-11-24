@@ -152,7 +152,7 @@ void APlayerSekiro::MoveRight(float Val)
 	}
 	else
 	{
-		if (AniStateValue == SekiroState::RightWalk || AniStateValue == SekiroState::LeftWalk)
+		if (AniStateValue == SekiroState::RightWalk || AniStateValue == SekiroState::LeftWalk || AniStateValue == SekiroState::ForwardWalk)
 		{
 			SetAniState(SekiroState::Idle);
 		}
