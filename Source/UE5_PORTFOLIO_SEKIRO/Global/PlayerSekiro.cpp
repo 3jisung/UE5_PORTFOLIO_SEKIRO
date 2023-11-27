@@ -12,7 +12,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "GameFramework/Controller.h"
 
 
 APlayerSekiro::APlayerSekiro()
@@ -46,15 +45,18 @@ void APlayerSekiro::BeginPlay()
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 
+	// 캐릭터 기본 스탯 설정
 	StatData = Inst->GetPlayerStat(TEXT("Sekiro"));
 	HP = StatData->HP;
 	MaxHP = StatData->MaxHP;
 	Posture = StatData->Posture;
 	Power = StatData->Power;
 
+	// 캐릭터 무기 설정
 	WeaponArrays.Add(Inst->GetPlayerWeapon(TEXT("Katana")));
 	WeaponMesh->SetStaticMesh(WeaponArrays[0]);
 
+	// 캐릭터 애니메이션 설정
 	FPlayerAnimData* AnimData = Inst->GetPlayerAnim(TEXT("Animations"));
 	SetAllAnimation(AnimData->Animations);
 	GetGlobalAnimInstance()->AllAnimations = AllAnimations;
@@ -232,9 +234,10 @@ void APlayerSekiro::LockOnTarget()
 			}
 		}
 
-		if (ClosestHitActor)
+		// 찾은 액터 중 Monster 태그값을 가진 액터만 색출
+		if (ClosestHitActor && ClosestHitActor->ActorHasTag(TEXT("Monster")))
 		{
-			LockedOnTarget = ClosestHitActor;
+			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
 			ToggleLockOn();
 		}
 	}
@@ -247,14 +250,8 @@ void APlayerSekiro::LockOnTarget()
 
 void APlayerSekiro::ToggleLockOn()
 {
-	if (bLockOn)
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		bLockOn = false;
-	}
-	else
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-		bLockOn = true;
-	}
+	GetCharacterMovement()->bOrientRotationToMovement = bLockOn;
+
+	LockedOnTarget->LockOnIconOnOff(!bLockOn);
+	bLockOn = !bLockOn;
 }

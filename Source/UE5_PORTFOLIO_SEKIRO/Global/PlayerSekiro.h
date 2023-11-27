@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GlobalCharacter.h"
 #include "Data/PlayerStatData.h"
+#include "Monster.h"
 #include "PlayerSekiro.generated.h"
 
 /**
@@ -60,5 +61,5 @@ private:
 
 	float LockOnRange = 3000.0f;
 	float LockOnAngle = 30.0f;
-	AActor* LockedOnTarget;
+	AMonster* LockedOnTarget;
 };

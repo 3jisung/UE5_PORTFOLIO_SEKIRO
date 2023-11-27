@@ -18,7 +18,17 @@ class UE5_PORTFOLIO_SEKIRO_API AMonster : public AGlobalCharacter
 public:
 	AMonster();
 
+	void LockOnIconOnOff(bool bLockOn);
+
+
 protected:
 	UPROPERTY(Category = "Monster", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int DeathblowCount;
+
+
+private:
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* WidgetComponent;
+
+	TSubclassOf<UUserWidget> LockOnIconWidgetClass;
 };
