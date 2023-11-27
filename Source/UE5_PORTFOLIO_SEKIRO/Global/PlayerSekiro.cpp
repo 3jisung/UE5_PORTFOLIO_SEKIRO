@@ -225,8 +225,8 @@ void APlayerSekiro::LockOnTarget()
 					ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::None,
 					HitResult, true);
 
-				// 가장 가까운 적을 락온
-				if (bIsHit && HitResult.Distance < ClosestDist)
+				// Monster 태그를 가진 액터 중 가장 가까운 적 탐색
+				if (bIsHit && HitResult.GetActor()->ActorHasTag(TEXT("Monster")) && HitResult.Distance < ClosestDist)
 				{
 					ClosestDist = HitResult.Distance;
 					ClosestHitActor = HitResult.GetActor();
@@ -234,8 +234,7 @@ void APlayerSekiro::LockOnTarget()
 			}
 		}
 
-		// 찾은 액터 중 Monster 태그값을 가진 액터만 색출
-		if (ClosestHitActor && ClosestHitActor->ActorHasTag(TEXT("Monster")))
+		if (ClosestHitActor)
 		{
 			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
 			ToggleLockOn();
