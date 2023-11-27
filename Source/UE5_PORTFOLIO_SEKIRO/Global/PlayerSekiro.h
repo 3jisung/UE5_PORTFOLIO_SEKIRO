@@ -29,8 +29,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LockOnTarget();
 
-	void ToggleLockOn();
+	TArray<AActor*> TraceObjects(TArray<AActor*> _ActorsToNotTargeting);
 
+	UFUNCTION(BlueprintCallable)
+	void ResearchLockOnTarget(float Rate);
+
+	void ToggleLockOn();
+	
 
 	const struct FPlayerStatData* StatData;
 
@@ -62,4 +67,6 @@ private:
 	float LockOnRange = 3000.0f;
 	float LockOnAngle = 30.0f;
 	AMonster* LockedOnTarget;
+	
+	bool bResearchEnable = true;
 };
