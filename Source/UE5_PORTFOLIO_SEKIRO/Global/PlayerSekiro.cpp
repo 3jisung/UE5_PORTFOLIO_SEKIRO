@@ -232,7 +232,7 @@ TArray<AActor*> APlayerSekiro::TraceObjects(TArray<AActor*> _ActorsToNotTargetin
 
 	// 락온 대상 지정
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
-	// ECC_GameTraceChannel2 == Monster 콜리전 오브젝트 채널
+	// Monster 콜리전 프리셋은 ECC_GameTraceChannel2 콜리전 채널을 사용하고 있다.
 	// 즉 Monster 콜리전 프리셋을 사용하는 액터를 찾겠다는 의미
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 	ObjectTypeToLock.Emplace(ObjectType);
