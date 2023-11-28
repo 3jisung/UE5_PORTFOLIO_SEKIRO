@@ -232,9 +232,9 @@ TArray<AActor*> APlayerSekiro::TraceObjects(TArray<AActor*> _ActorsToNotTargetin
 
 	// 락온 대상 지정
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
-	//ObjectTypeToLock.Add(EObjectTypeQuery::ObjectTypeQuery3);
-	// ECollisionChannel::ECC_Pawn == EObjectTypeQuery::ObjectTypeQuery3 (폰 관련 오브젝트 타입)
-	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	// ECC_GameTraceChannel2 == Monster 콜리전 오브젝트 채널
+	// 즉 Monster 콜리전 프리셋을 사용하는 액터를 찾겠다는 의미
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 	ObjectTypeToLock.Emplace(ObjectType);
 
 	FHitResult HitResult;
@@ -256,8 +256,8 @@ TArray<AActor*> APlayerSekiro::TraceObjects(TArray<AActor*> _ActorsToNotTargetin
 				ObjectTypeToLock, false, _ActorsToNotTargeting, EDrawDebugTrace::None,
 				HitResult, true);
 
-			// 결과값 중 Monster 태그를 가진 액터 탐색(중복 제거)
-			if (bIsHit && HitResult.GetActor()->ActorHasTag(TEXT("Monster")))
+			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
+			if (bIsHit)
 			{
 				if (HitActor.Num() == 0)
 				{
