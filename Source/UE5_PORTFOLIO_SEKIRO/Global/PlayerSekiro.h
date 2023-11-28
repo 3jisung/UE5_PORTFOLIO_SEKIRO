@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GlobalCharacter.h"
+#include "GlobalEnums.h"
 #include "Data/PlayerStatData.h"
 #include "Monster.h"
 #include "PlayerSekiro.generated.h"
@@ -27,6 +28,15 @@ public:
 	void MoveForward(float Val);
 
 	UFUNCTION(BlueprintCallable)
+	void PlayerJump();
+
+	UFUNCTION(BlueprintCallable)
+	void StartedDash();
+
+	UFUNCTION(BlueprintCallable)
+	void PlayerDash(bool _bDash, float TriggeredSec);
+
+	UFUNCTION(BlueprintCallable)
 	void LockOnTarget();
 
 	TArray<AActor*> TraceObjects(TArray<AActor*> _ActorsToNotTargeting);
@@ -35,7 +45,7 @@ public:
 	void ResearchLockOnTarget(float Rate);
 
 	void ToggleLockOn();
-	
+
 
 	const struct FPlayerStatData* StatData;
 
@@ -53,6 +63,10 @@ protected:
 
 
 private:
+	UFUNCTION()
+	void MontageEnd(UAnimMontage* Anim, bool _Inter);
+
+
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
 
@@ -69,4 +83,13 @@ private:
 	AMonster* LockedOnTarget;
 	
 	bool bResearchEnable = true;
+
+	PlayerHitState HitState = PlayerHitState::OFFGUARD;
+
+	// 하단 무적 상태
+	// 하단 무적은 다른 HitState와 중복 적용될 수 있으므로 bool 변수로 따로 관리한다.
+	bool bLowInvincible = false;
+
+	bool bDash = false;
+	float PreDashTime = 0.f;
 };

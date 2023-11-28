@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+// 세키로 애니메이션 상태값
 UENUM(BlueprintType)
 enum class SekiroState : uint8
 {
@@ -47,6 +48,18 @@ enum class SekiroState : uint8
 
 	Sit UMETA(DisplayName = "정좌"),
 	DeathblowBoss UMETA(DisplayName = "보스인살"),
+};
+
+// 플레이어 피격 상태값
+UENUM(BlueprintType)
+enum class PlayerHitState : uint8
+{
+	NONE UMETA(DisplayName = "사용안함"),
+	OFFGUARD UMETA(DisplayName = "무방비"),
+	GUARD UMETA(DisplayName = "가드"),
+	PARRYING UMETA(DisplayName = "패링"),
+	INVINCIBLE UMETA(DisplayName = "무적"),
+	DASHINVINCIBLE UMETA(DisplayName = "대쉬무적"),
 };
 
 UENUM(BlueprintType)

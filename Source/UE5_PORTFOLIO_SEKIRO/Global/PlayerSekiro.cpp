@@ -6,7 +6,6 @@
 #include "Camera/CameraComponent.h"
 #include "GlobalAnimInstance.h"
 #include "GlobalGameInstance.h"
-#include "GlobalEnums.h"
 #include "Data/PlayerAnimData.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -61,9 +60,16 @@ void APlayerSekiro::BeginPlay()
 	SetAllAnimation(AnimData->Animations);
 	GetGlobalAnimInstance()->AllAnimations = AllAnimations;
 
+	// 애니메이션 종료 시 MontageEnd를 콜백한다.
+	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
+
 	// 락온 상태가 아닐 때 움직임을 Forward로 고정하기 위한 설정값.
 	// 락온 상태일 땐 false로 변경해야 한다.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	// 중력, 점프 높이 설정
+	GetCharacterMovement()->GravityScale = 1.8f;
+	GetCharacterMovement()->JumpZVelocity = 800.0f;
 }
 
 void APlayerSekiro::Tick(float _Delta)
@@ -111,8 +117,12 @@ void APlayerSekiro::MoveForward(float Val)
 {
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
-	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
-		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk)
+	// 조건문에 명시된 플레이어 상태값이 아닐 경우 return
+	if (AniStateValue != SekiroState::Idle
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
 	{
 		return;
 	}
@@ -121,18 +131,32 @@ void APlayerSekiro::MoveForward(float Val)
 	{
 		if (Controller)
 		{
-			// 컨트롤러는 기본적으로 charcter 하나씩 붙어 있다.
+			// 컨트롤러는 기본적으로 character 하나씩 붙어 있다.
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();	
 
 			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Val);
 
 			if (bLockOn)
 			{
-				SetAniState(Val > 0.f ? SekiroState::ForwardWalk : SekiroState::BackwardWalk);
+				if (bDash)
+				{
+					SetAniState(Val > 0.f ? SekiroState::ForwardRun : SekiroState::BackwardRun);
+				}
+				else
+				{
+					SetAniState(Val > 0.f ? SekiroState::ForwardWalk : SekiroState::BackwardWalk);
+				}
 			}
 			else
 			{
-				SetAniState(SekiroState::ForwardWalk);
+				if (bDash)
+				{
+					SetAniState(SekiroState::ForwardRun);
+				}
+				else
+				{
+					SetAniState(SekiroState::ForwardWalk);
+				}
 			}
 
 			return;
@@ -140,7 +164,9 @@ void APlayerSekiro::MoveForward(float Val)
 	}
 	else
 	{
-		if (AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::BackwardWalk)
+		// 키를 떼면 IDLE로 상태 전환
+		if (AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::BackwardWalk
+			|| AniStateValue == SekiroState::ForwardRun || AniStateValue == SekiroState::BackwardRun)
 		{
 			SetAniState(SekiroState::Idle);
 		}
@@ -151,8 +177,11 @@ void APlayerSekiro::MoveRight(float Val)
 {
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
-	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
-		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk)
+	if (AniStateValue != SekiroState::Idle
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
 	{
 		return;
 	}
@@ -167,11 +196,25 @@ void APlayerSekiro::MoveRight(float Val)
 
 			if (bLockOn)
 			{
-				SetAniState(Val > 0.f ? SekiroState::RightWalk : SekiroState::LeftWalk);
+				if (bDash)
+				{
+					SetAniState(Val > 0.f ? SekiroState::RightRun : SekiroState::LeftRun);
+				}
+				else
+				{
+					SetAniState(Val > 0.f ? SekiroState::RightWalk : SekiroState::LeftWalk);
+				}
 			}
 			else
 			{
-				SetAniState(SekiroState::ForwardWalk);
+				if (bDash)
+				{
+					SetAniState(SekiroState::ForwardRun);
+				}
+				else
+				{
+					SetAniState(SekiroState::ForwardWalk);
+				}
 			}
 			
 			return;
@@ -179,9 +222,118 @@ void APlayerSekiro::MoveRight(float Val)
 	}
 	else
 	{
-		if (AniStateValue == SekiroState::RightWalk || AniStateValue == SekiroState::LeftWalk || AniStateValue == SekiroState::ForwardWalk)
+		// 락온 상태가 아닐 때 키를 떼면 마지막 상태가 ForwardWalk 또는 ForwardRun 이므로 관련 조건문 추가
+		if (AniStateValue == SekiroState::RightWalk || AniStateValue == SekiroState::LeftWalk
+			|| AniStateValue == SekiroState::RightRun || AniStateValue == SekiroState::LeftRun
+			|| AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::ForwardRun)
 		{
 			SetAniState(SekiroState::Idle);
+		}
+	}
+}
+
+void APlayerSekiro::PlayerJump()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	// 대기, 가드, 걷기, 달리기 상태일 때만 점프 가능
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+	{
+		return;
+	}
+
+	// 점프 시 1.1초간 하단 무적
+	// 하단 무적은 다른 HitState와 중복 적용 가능하다.(대쉬 무적 제외)
+	bLowInvincible = true;
+
+	float delayTime = 1.1f;
+	FTimerHandle myTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			bLowInvincible = false;
+
+			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+		}), delayTime, false);
+
+	Jump();
+	SetAniState(SekiroState::Jump);
+}
+
+void APlayerSekiro::StartedDash()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	// 대쉬 시작 전 상태값이 대기, 가드, 걷기 상태일 때만 대쉬 무적 시간 적용
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+	{
+		return;
+	}
+
+	// 대쉬 키를 0.5초 내에 연속으로 눌렀을 경우 대쉬 무적 적용하지 않음.
+	// 대쉬 키를 연타하여 대쉬 무적을 과도하게 취하지 않도록 하기 위함
+	float CurDashTime = GetWorld()->GetTimeSeconds();
+	float IntervalTime = CurDashTime - PreDashTime;
+	if (PreDashTime != 0.f && IntervalTime <= 0.5f)
+	{
+		PreDashTime = CurDashTime;
+		return;
+	}
+
+	PreDashTime = CurDashTime;
+
+	// 대쉬 시작 시 0.3초간 대쉬 무적(대쉬 상태일 때만 적용)
+	// 0.3초가 지나기 전에 가드를 누를 경우 가드/패링 상태로 전환되어 무적이 취소되므로 OFFGUARD로 되돌릴 필요 없다.
+	HitState = PlayerHitState::DASHINVINCIBLE;
+	
+	float delayTime = 0.3f;
+	FTimerHandle myTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			if (HitState == PlayerHitState::DASHINVINCIBLE)
+			{
+				HitState = PlayerHitState::OFFGUARD;
+			}
+
+			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+		}), delayTime, false);
+}
+
+void APlayerSekiro::PlayerDash(bool _bDash, float TriggeredSec)
+{
+	if (_bDash)
+	{
+		Speed = 1800.0f;
+		bDash = _bDash;
+	}
+	else
+	{
+		// 대쉬 키를 눌렀다가 바로 떼어도 최소한 0.5초 동안은 대쉬 상태를 유지
+		float MinDashTime = 0.5f;
+
+		if (TriggeredSec < MinDashTime)
+		{
+			float delayTime = MinDashTime - TriggeredSec;
+			FTimerHandle myTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+				{
+					Speed = 500.0f;
+					bDash = false;
+
+					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+				}), delayTime, false);
+		}
+		else
+		{
+			Speed = 500.0f;
+			bDash = _bDash;
 		}
 	}
 }
@@ -357,4 +509,12 @@ void APlayerSekiro::ToggleLockOn()
 
 	LockedOnTarget->LockOnIconOnOff(!bLockOn);
 	bLockOn = !bLockOn;
+}
+
+void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
+{
+	if (GetAnimMontage(SekiroState::Jump) == Anim)
+	{
+		SetAniState(SekiroState::Idle);
+	}
 }
