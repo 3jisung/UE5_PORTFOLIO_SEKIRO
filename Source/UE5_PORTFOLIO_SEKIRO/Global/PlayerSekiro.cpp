@@ -37,7 +37,9 @@ void APlayerSekiro::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
+	// 애니메이션 종료 시 MontageEnd를 콜백한다.
+	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
+
 	//GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
 
 	SetAniState(SekiroState::Idle);
@@ -60,9 +62,6 @@ void APlayerSekiro::BeginPlay()
 	SetAllAnimation(AnimData->Animations);
 	GetGlobalAnimInstance()->AllAnimations = AllAnimations;
 
-	// 애니메이션 종료 시 MontageEnd를 콜백한다.
-	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
-
 	// 락온 상태가 아닐 때 움직임을 Forward로 고정하기 위한 설정값.
 	// 락온 상태일 땐 false로 변경해야 한다.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -76,9 +75,10 @@ void APlayerSekiro::Tick(float _Delta)
 {
 	Super::Tick(_Delta);
 
+	SekiroState AniStateValue = GetAniState<SekiroState>();
 	UCharacterMovementComponent* Move = Cast<UCharacterMovementComponent>(GetMovementComponent());
 
-	if (GetAniState<SekiroState>() == SekiroState::ForwardWalk)
+	if (AniStateValue == SekiroState::ForwardWalk)
 	{
 		Move->MaxWalkSpeed = Speed;
 	}
@@ -105,6 +105,15 @@ void APlayerSekiro::Tick(float _Delta)
 		// 프레임 마다 캐릭터와 카메라의 시점 최신화
 		SetActorRotation(FRotator(0.f, InterpRotation.Yaw, 0.f));
 		GetController()->SetControlRotation(InterpRotation);
+	}
+
+	// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
+	// 도중에 키 입력이 들어오면 적용하지 않음
+	if (bStartedDash && bInputWASD == false
+		&& (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
+	{
+		AddMovementInput(GetActorForwardVector(), 1.0f);
+		SetAniState(SekiroState::ForwardRun);
 	}
 }
 
@@ -267,7 +276,7 @@ void APlayerSekiro::StartedDash()
 {
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
-	// 대쉬 시작 전 상태값이 대기, 가드, 걷기 상태일 때만 대쉬 무적 시간 적용
+	// 대쉬 시작 전 상태값이 대기, 가드, 걷기 상태일 때만 대쉬 무적 및 디폴트 전방 대쉬 적용
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
@@ -289,21 +298,43 @@ void APlayerSekiro::StartedDash()
 
 	PreDashTime = CurDashTime;
 
+
 	// 대쉬 시작 시 0.3초간 대쉬 무적(대쉬 상태일 때만 적용)
 	// 0.3초가 지나기 전에 가드를 누를 경우 가드/패링 상태로 전환되어 무적이 취소되므로 OFFGUARD로 되돌릴 필요 없다.
 	HitState = PlayerHitState::DASHINVINCIBLE;
 	
-	float delayTime = 0.3f;
-	FTimerHandle myTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+	float InvincibleTime = 0.3f;
+	FTimerHandle InvincibleTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(InvincibleTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			if (HitState == PlayerHitState::DASHINVINCIBLE)
 			{
 				HitState = PlayerHitState::OFFGUARD;
 			}
 
-			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
-		}), delayTime, false);
+			GetWorld()->GetTimerManager().ClearTimer(InvincibleTimerHandle);
+		}), InvincibleTime, false);
+
+
+	// 방향키 입력 없이도 처음 0.5초간은 전방 대쉬가 가능하도록 구현(기술명 : 디폴트 전방 대쉬)
+	// 대쉬 방향은 현재 캐릭터가 바라보고 있는 방향(컨트롤러 방향 x)
+	bStartedDash = true;
+
+	float DefaultDashTime = 0.5f;
+	FTimerHandle DefaultDashTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(DefaultDashTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			bStartedDash = false;
+			AniStateValue = GetAniState<SekiroState>();
+
+			if (AniStateValue == SekiroState::ForwardRun || AniStateValue == SekiroState::BackwardRun
+				|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun)
+			{
+				SetAniState(SekiroState::Idle);
+			}
+
+			GetWorld()->GetTimerManager().ClearTimer(DefaultDashTimerHandle);
+		}), DefaultDashTime, false);
 }
 
 void APlayerSekiro::PlayerDash(bool _bDash, float TriggeredSec)
@@ -316,9 +347,10 @@ void APlayerSekiro::PlayerDash(bool _bDash, float TriggeredSec)
 	else
 	{
 		// 대쉬 키를 눌렀다가 바로 떼어도 최소한 0.5초 동안은 대쉬 상태를 유지
+		// 단, bStartedDash 값이 true 일 때만 적용
 		float MinDashTime = 0.5f;
 
-		if (TriggeredSec < MinDashTime)
+		if (bStartedDash)
 		{
 			float delayTime = MinDashTime - TriggeredSec;
 			FTimerHandle myTimerHandle;

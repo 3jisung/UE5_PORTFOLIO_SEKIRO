@@ -78,6 +78,9 @@ private:
 	UPROPERTY(Category = "LockOn", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bLockOn = false;
 
+	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bInputWASD = false;
+
 	float LockOnRange = 3000.0f;
 	float LockOnAngle = 30.0f;
 	AMonster* LockedOnTarget;
@@ -91,5 +94,6 @@ private:
 	bool bLowInvincible = false;
 
 	bool bDash = false;
+	bool bStartedDash = false;
 	float PreDashTime = 0.f;
 };
