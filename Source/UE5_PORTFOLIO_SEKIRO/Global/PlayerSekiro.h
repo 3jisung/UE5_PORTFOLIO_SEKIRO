@@ -34,7 +34,7 @@ public:
 	void StartedDash();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerDash(bool _bDash, float TriggeredSec);
+	void PlayerDash(bool ActionValue, float TriggeredSec);
 
 	UFUNCTION(BlueprintCallable)
 	void LockOnTarget();
@@ -46,6 +46,9 @@ public:
 
 	void ToggleLockOn();
 
+	UFUNCTION(BlueprintCallable)
+	void PlayerAttack(bool ActionValue, float TriggeredSec);
+
 
 	const struct FPlayerStatData* StatData;
 
@@ -53,7 +56,10 @@ public:
 	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<UStaticMesh*> WeaponArrays;
+	UStaticMeshComponent* GourdMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<UStaticMesh*> StaticMeshArrays;
 
 
 protected:

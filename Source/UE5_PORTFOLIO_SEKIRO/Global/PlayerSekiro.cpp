@@ -31,6 +31,9 @@ APlayerSekiro::APlayerSekiro()
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh(), TEXT("hand_r_weapon"));
+
+	GourdMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GourdMesh"));
+	GourdMesh->SetupAttachment(GetMesh(), TEXT("Gourd"));
 }
 
 void APlayerSekiro::BeginPlay()
@@ -53,9 +56,15 @@ void APlayerSekiro::BeginPlay()
 	Posture = StatData->Posture;
 	Power = StatData->Power;
 
-	// 캐릭터 무기 설정
-	WeaponArrays.Add(Inst->GetPlayerWeapon(TEXT("Katana")));
-	WeaponMesh->SetStaticMesh(WeaponArrays[0]);
+	// 캐릭터 무기 적용
+	StaticMeshArrays.Add(Inst->GetPlayerMesh(TEXT("Katana")));
+	WeaponMesh->SetStaticMesh(StaticMeshArrays[0]);
+
+	// StaticMeshArrays에 표주박 추가
+	// 실제 매쉬 적용은 회복 애니메이션 진행 중에만 적용
+	StaticMeshArrays.Add(Inst->GetPlayerMesh(TEXT("Gourd")));
+	//GourdMesh->SetStaticMesh(StaticMeshArrays[1]);
+	GourdMesh->SetStaticMesh(nullptr);
 
 	// 캐릭터 애니메이션 설정
 	FPlayerAnimData* AnimData = Inst->GetPlayerAnim(TEXT("Animations"));
@@ -246,7 +255,7 @@ void APlayerSekiro::PlayerJump()
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	// 대기, 가드, 걷기, 달리기 상태일 때만 점프 가능
-	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::StabAttack1
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
 		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
@@ -277,7 +286,7 @@ void APlayerSekiro::StartedDash()
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	// 대쉬 시작 전 상태값이 대기, 가드, 걷기 상태일 때만 대쉬 무적 및 디폴트 전방 대쉬 적용
-	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::StabAttack1
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
 		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
@@ -337,12 +346,12 @@ void APlayerSekiro::StartedDash()
 		}), DefaultDashTime, false);
 }
 
-void APlayerSekiro::PlayerDash(bool _bDash, float TriggeredSec)
+void APlayerSekiro::PlayerDash(bool ActionValue, float TriggeredSec)
 {
-	if (_bDash)
+	if (ActionValue)
 	{
 		Speed = 1800.0f;
-		bDash = _bDash;
+		bDash = ActionValue;
 	}
 	else
 	{
@@ -365,7 +374,7 @@ void APlayerSekiro::PlayerDash(bool _bDash, float TriggeredSec)
 		else
 		{
 			Speed = 500.0f;
-			bDash = _bDash;
+			bDash = ActionValue;
 		}
 	}
 }
@@ -541,6 +550,24 @@ void APlayerSekiro::ToggleLockOn()
 
 	LockedOnTarget->LockOnIconOnOff(!bLockOn);
 	bLockOn = !bLockOn;
+}
+
+void APlayerSekiro::PlayerAttack(bool ActionValue, float TriggeredSec)
+{
+	if (ActionValue)
+	{
+		if (TriggeredSec > 0.6f)
+		{
+			// 찌르기
+		}
+	}
+	else
+	{
+		if (TriggeredSec <= 0.6f)
+		{
+			// 평타
+		}
+	}
 }
 
 void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)

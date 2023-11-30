@@ -3,7 +3,7 @@
 
 #include "GlobalGameInstance.h"
 #include "Data/PlayerStatData.h"
-#include "Data/PlayerWeaponData.h"
+#include "Data/PlayerMeshData.h"
 #include "Data/PlayerAnimData.h"
 
 
@@ -20,12 +20,12 @@ UGlobalGameInstance::UGlobalGameInstance()
 	}
 
 	{
-		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_PlayerWeaponData.DT_PlayerWeaponData'");
+		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_PlayerMeshData.DT_PlayerMeshData'");
 		ConstructorHelpers::FObjectFinder<UDataTable> DataTable(*DataPath);
 
 		if (DataTable.Succeeded())
 		{
-			PlayerWeaponData = DataTable.Object;
+			PlayerMeshData = DataTable.Object;
 		}
 	}
 
@@ -59,14 +59,14 @@ FPlayerStatData* UGlobalGameInstance::GetPlayerStat(FName _Name)
 	return FindTable;
 }
 
-UStaticMesh* UGlobalGameInstance::GetPlayerWeapon(FName _Name)
+UStaticMesh* UGlobalGameInstance::GetPlayerMesh(FName _Name)
 {
-	if (nullptr == PlayerWeaponData)
+	if (nullptr == PlayerMeshData)
 	{
 		return nullptr;
 	}
 
-	FPlayerWeaponData* FindTable = PlayerWeaponData->FindRow<FPlayerWeaponData>(_Name, _Name.ToString());
+	FPlayerMeshData* FindTable = PlayerMeshData->FindRow<FPlayerMeshData>(_Name, _Name.ToString());
 
 	if (nullptr == FindTable)
 	{

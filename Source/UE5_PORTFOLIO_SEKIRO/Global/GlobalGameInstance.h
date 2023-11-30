@@ -22,7 +22,7 @@ public:
 	UGlobalGameInstance();
 
 	struct FPlayerStatData* GetPlayerStat(FName _Name);
-	UStaticMesh* GetPlayerWeapon(FName _Name);
+	UStaticMesh* GetPlayerMesh(FName _Name);
 	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
 
 
@@ -31,7 +31,7 @@ private:
 	UDataTable* PlayerStatData;
 
 	UPROPERTY()
-	UDataTable* PlayerWeaponData;
+	UDataTable* PlayerMeshData;
 
 	UPROPERTY()
 	UDataTable* PlayerAnimData;

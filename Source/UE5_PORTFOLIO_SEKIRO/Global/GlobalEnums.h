@@ -9,6 +9,7 @@ UENUM(BlueprintType)
 enum class SekiroState : uint8
 {
 	None UMETA(DisplayName = "사용안함"),
+
 	Idle UMETA(DisplayName = "서있기"),
 
 	LeftWalk UMETA(DisplayName = "왼쪽걷기"),
@@ -25,7 +26,8 @@ enum class SekiroState : uint8
 	BasicAttack2 UMETA(DisplayName = "평타2"),
 	BasicAttack3 UMETA(DisplayName = "평타3"),
 
-	StabAttack UMETA(DisplayName = "찌르기"),
+	StabAttack1 UMETA(DisplayName = "찌르기1"),
+	StabAttack2 UMETA(DisplayName = "찌르기2"),
 	JumpAttack UMETA(DisplayName = "점프공격"),
 	DashAttack UMETA(DisplayName = "대쉬공격"),
 	
@@ -38,15 +40,19 @@ enum class SekiroState : uint8
 	MikiriCounter UMETA(DisplayName = "간파하기"),
 
 	Hit UMETA(DisplayName = "히트"),
-	Stun UMETA(DisplayName = "스턴"),
+	Exhaust UMETA(DisplayName = "탈진"),
 	Knockdown UMETA(DisplayName = "넉다운"),
 	Getup UMETA(DisplayName = "기상"),
+	Shock UMETA(DisplayName = "타뢰"),
+	Heal UMETA(DisplayName = "회복"),
 	Death UMETA(DisplayName = "죽음"),
 
 	Jump UMETA(DisplayName = "점프"),
 	Trample UMETA(DisplayName = "밟기"),
 
 	Sit UMETA(DisplayName = "정좌"),
+
+	DeathblowNormal UMETA(DisplayName = "일반인살"),
 	DeathblowBoss UMETA(DisplayName = "보스인살"),
 };
 
