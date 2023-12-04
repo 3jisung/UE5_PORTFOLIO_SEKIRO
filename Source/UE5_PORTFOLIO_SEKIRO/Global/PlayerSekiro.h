@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PlayerJump();
 
+	void Landed(const FHitResult& Hit) override;
+
 	UFUNCTION(BlueprintCallable)
 	void StartedDash();
 
@@ -47,7 +49,13 @@ public:
 	void ToggleLockOn();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerAttack(bool ActionValue, float TriggeredSec);
+	void PlayerAttackStarted();
+
+	UFUNCTION(BlueprintCallable)
+	void PlayerAttackTriggered(bool ActionValue, float TriggeredSec);
+
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
 
 
 	const struct FPlayerStatData* StatData;
@@ -72,6 +80,11 @@ private:
 	UFUNCTION()
 	void MontageEnd(UAnimMontage* Anim, bool _Inter);
 
+	UFUNCTION()
+	void AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	UFUNCTION()
+	void AnimNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
@@ -102,4 +115,12 @@ private:
 	bool bDash = false;
 	bool bStartedDash = false;
 	float PreDashTime = 0.f;
+
+	UPROPERTY(Category = "AttackEnable", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bAttackEnable = false;
+
+	bool bAttackCombo = false;
+
+	// 평타 순서 기억
+	int BasicAttackCount = 0;
 };

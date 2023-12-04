@@ -44,7 +44,7 @@ void UGlobalAnimInstance::NativeUpdateAnimation(float _DeltaTime)
 	// 조건1. 몽타주 재생이 끝났다.
 	// 조건2. 이전에 이미 재생한 몽타주다.
 	// 조건3. 몽타주가 루프다.
-	if (false == Montage_IsPlaying(Montage))
+	if (false == Montage_IsPlaying(Montage) && CurMontage != Montage)
 	{
 		CurMontage = Montage;
 		Montage_Play(Montage, 1.0f);

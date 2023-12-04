@@ -42,8 +42,8 @@ void APlayerSekiro::BeginPlay()
 
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
-
-	//GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
+	GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
+	GetGlobalAnimInstance()->OnPlayMontageNotifyEnd.AddDynamic(this, &APlayerSekiro::AnimNotifyEnd);
 
 	SetAniState(SekiroState::Idle);
 
@@ -108,6 +108,7 @@ void APlayerSekiro::Tick(float _Delta)
 		}
 
 		LockedOnLocation.Z -= 150.0f;
+
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedOnLocation);
 		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
 		
@@ -278,7 +279,21 @@ void APlayerSekiro::PlayerJump()
 		}), delayTime, false);
 
 	Jump();
-	SetAniState(SekiroState::Jump);
+
+	SetAniState(SekiroState::JumpStart);
+}
+
+// 점프 후 착지 시 호출
+void APlayerSekiro::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue == SekiroState::JumpLoop)
+	{
+		SetAniState(SekiroState::JumpEnd);
+	}
 }
 
 void APlayerSekiro::StartedDash()
@@ -299,6 +314,7 @@ void APlayerSekiro::StartedDash()
 	// 대쉬 키를 연타하여 대쉬 무적을 과도하게 취하지 않도록 하기 위함
 	float CurDashTime = GetWorld()->GetTimeSeconds();
 	float IntervalTime = CurDashTime - PreDashTime;
+
 	if (PreDashTime != 0.f && IntervalTime <= 0.5f)
 	{
 		PreDashTime = CurDashTime;
@@ -552,28 +568,153 @@ void APlayerSekiro::ToggleLockOn()
 	bLockOn = !bLockOn;
 }
 
-void APlayerSekiro::PlayerAttack(bool ActionValue, float TriggeredSec)
+void APlayerSekiro::PlayerAttackStarted()
 {
-	if (ActionValue)
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::JumpLoop
+		
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun
+		
+		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
+		&& AniStateValue != SekiroState::BasicAttack3 && AniStateValue != SekiroState::StabAttack2)
 	{
-		if (TriggeredSec > 0.6f)
+		return;
+	}
+
+	// 콤보 공격 조건에 맞지 않을 시 return
+	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2)
+	{
+		if (bAttackCombo)
 		{
-			// 찌르기
+			if (AniStateValue != SekiroState::StabAttack2)
+			{
+				// 이전 평타 상태
+				// BasicAttack1 일 경우 BasicAttackCount = 0
+				BasicAttackCount = (int)GetAniState<SekiroState>() - 10;
+
+				// 공격 상태가 지속 중일 때 평타1, 2, 3 순서대로 전환
+				// 평타3 이후엔 다시 1로 전환
+				++BasicAttackCount;
+				if (BasicAttackCount > 2)
+				{
+					BasicAttackCount = 0;
+				}
+			}
+			else
+			{
+				BasicAttackCount = 0;
+			}
+		}
+		else
+		{
+			return;
 		}
 	}
 	else
 	{
-		if (TriggeredSec <= 0.6f)
+		BasicAttackCount = 0;
+	}
+
+	bAttackEnable = true;
+
+	if (AniStateValue == SekiroState::JumpLoop)
+	{
+		SetAniState(SekiroState::JumpAttack);
+		bAttackEnable = false;
+
+		return;
+	}
+	else if (AniStateValue == SekiroState::ForwardRun || AniStateValue == SekiroState::BackwardRun
+		|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun)
+	{
+		SetAniState(SekiroState::DashAttack);
+		bAttackEnable = false;
+
+		return;
+	}
+
+	SetAniState(SekiroState::StabAttack1);
+}
+
+void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
+{
+	// 공격은 클릭 당 한 번만 가능
+	if (bAttackEnable == false)
+	{
+		return;
+	}
+
+	else
+	{
+		if (ActionValue)
 		{
-			// 평타
+			if (TriggeredSec > 0.6f)
+			{
+				SetAniState(SekiroState::StabAttack2);
+			}
+		}
+		else
+		{
+			if (TriggeredSec <= 0.6f)
+			{
+				SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+			}
+
+			bAttackEnable = false;
 		}
 	}
 }
 
 void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
 {
-	if (GetAnimMontage(SekiroState::Jump) == Anim)
+	if (GetAnimMontage(SekiroState::JumpEnd) == Anim)
 	{
 		SetAniState(SekiroState::Idle);
 	}
+
+	else if (GetAnimMontage(SekiroState::JumpStart) == Anim)
+	{
+		SetAniState(SekiroState::JumpLoop);
+	}
+
+	else if (GetAnimMontage(SekiroState::JumpAttack) == Anim)
+	{
+		// 점프 공격 후 여전히 공중이면 점프 상태로, 땅에 닿았을 경우 idle로 전환
+		if (GetMovementComponent()->IsFalling())
+		{
+			SetAniState(SekiroState::JumpLoop);
+		}
+		else
+		{
+			SetAniState(SekiroState::Idle);
+		}
+	}
+}
+
+void APlayerSekiro::AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	if (NotifyName == "BasicAttack1" || NotifyName == "BasicAttack2"
+		|| NotifyName == "BasicAttack3" || NotifyName == "StabAttack2")
+	{
+		bAttackCombo = true;
+	}
+}
+
+void APlayerSekiro::AnimNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	if (NotifyName == "BasicAttack1" || NotifyName == "BasicAttack2"
+		|| NotifyName == "BasicAttack3" || NotifyName == "StabAttack2")
+	{
+		bAttackCombo = false;
+	}
+}
+
+void APlayerSekiro::AttackEnd()
+{
+	SetAniState(SekiroState::Idle);
 }

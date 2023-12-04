@@ -47,7 +47,9 @@ enum class SekiroState : uint8
 	Heal UMETA(DisplayName = "회복"),
 	Death UMETA(DisplayName = "죽음"),
 
-	Jump UMETA(DisplayName = "점프"),
+	JumpStart UMETA(DisplayName = "점프시작"),
+	JumpLoop UMETA(DisplayName = "점프중"),
+	JumpEnd UMETA(DisplayName = "점프종료"),
 	Trample UMETA(DisplayName = "밟기"),
 
 	Sit UMETA(DisplayName = "정좌"),
