@@ -55,7 +55,22 @@ public:
 	void PlayerAttackTriggered(bool ActionValue, float TriggeredSec);
 
 	UFUNCTION(BlueprintCallable)
+	void AttackBegin();
+
+	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackComboBegin();
+
+	UFUNCTION(BlueprintCallable)
+	void AttackComboEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void DashAttackMoveEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckBufferedInput();
 
 
 	const struct FPlayerStatData* StatData;
@@ -79,12 +94,6 @@ protected:
 private:
 	UFUNCTION()
 	void MontageEnd(UAnimMontage* Anim, bool _Inter);
-
-	UFUNCTION()
-	void AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
-
-	UFUNCTION()
-	void AnimNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;
@@ -123,4 +132,15 @@ private:
 
 	// 평타 순서 기억
 	int BasicAttackCount = 0;
+
+	bool bDashAttackMove = false;
+
+	// 선입력 공격 관련 bool 변수
+	bool bBufferedAttack = false;
+	bool bBufferedCompletedAction = false;
+	bool bEnteredTransition = false;
+	// 선입력을 고려한 TriggeredTime 보정값
+	float CorrectedTime = 0.f;
+	// 공격 연타 시간 제한
+	bool bAttackValid = true;
 };

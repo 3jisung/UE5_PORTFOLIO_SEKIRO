@@ -42,8 +42,8 @@ void APlayerSekiro::BeginPlay()
 
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
-	GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
-	GetGlobalAnimInstance()->OnPlayMontageNotifyEnd.AddDynamic(this, &APlayerSekiro::AnimNotifyEnd);
+	//GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
+	//GetGlobalAnimInstance()->OnPlayMontageNotifyEnd.AddDynamic(this, &APlayerSekiro::AnimNotifyEnd);
 
 	SetAniState(SekiroState::Idle);
 
@@ -125,6 +125,11 @@ void APlayerSekiro::Tick(float _Delta)
 		AddMovementInput(GetActorForwardVector(), 1.0f);
 		SetAniState(SekiroState::ForwardRun);
 	}
+
+	if (bDashAttackMove)
+	{
+		AddMovementInput(GetActorForwardVector(), 1.0f);
+	}
 }
 
 void APlayerSekiro::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -150,7 +155,7 @@ void APlayerSekiro::MoveForward(float Val)
 	{
 		if (Controller)
 		{
-			// 컨트롤러는 기본적으로 character 하나씩 붙어 있다.
+			// 컨트롤러는 기본적으로 character 당 하나씩 붙어 있다.
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();	
 
 			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Val);
@@ -210,7 +215,7 @@ void APlayerSekiro::MoveRight(float Val)
 		if (Controller)
 		{
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();
-			// 현재 내 회전을 가져와서 y축에 해당하는 축벡터를 얻어온다.
+			// 현재 내 회전을 가져와서 y축에 해당하는 축벡터를 얻어 온다.
 			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Val);
 
 			if (bLockOn)
@@ -257,10 +262,20 @@ void APlayerSekiro::PlayerJump()
 
 	// 대기, 가드, 걷기, 달리기 상태일 때만 점프 가능
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::StabAttack1
+		
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
 		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
-		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun
+		
+		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
+		&& AniStateValue != SekiroState::BasicAttack3)
+	{
+		return;
+	}
+
+	if (bEnteredTransition == false && (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2))
 	{
 		return;
 	}
@@ -302,12 +317,29 @@ void APlayerSekiro::StartedDash()
 
 	// 대쉬 시작 전 상태값이 대기, 가드, 걷기 상태일 때만 대쉬 무적 및 디폴트 전방 대쉬 적용
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::StabAttack1
+		
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
 		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
-		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun
+		
+		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
+		&& AniStateValue != SekiroState::BasicAttack3)
 	{
 		return;
+	}
+
+	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2)
+	{
+		if (bEnteredTransition)
+		{
+			SetAniState(SekiroState::Idle);
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	// 대쉬 키를 0.5초 내에 연속으로 눌렀을 경우 대쉬 무적 적용하지 않음.
@@ -570,6 +602,31 @@ void APlayerSekiro::ToggleLockOn()
 
 void APlayerSekiro::PlayerAttackStarted()
 {
+	// 선입력이 있는 경우 return
+	if (bBufferedAttack)
+	{
+		return;
+	}
+
+	// 연타 시간 0.2초로 제한
+	if (bAttackValid)
+	{
+		bAttackValid = false;
+
+		float delayTime = 0.2;
+		FTimerHandle myTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				bAttackValid = true;
+
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+			}), delayTime, false);
+	}
+	else
+	{
+		return;
+	}
+	
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::JumpLoop
@@ -604,6 +661,18 @@ void APlayerSekiro::PlayerAttackStarted()
 				{
 					BasicAttackCount = 0;
 				}
+
+				// Transition 노티파이 이전에 키입력을 하면 선입력 버퍼에 입력
+				// Transition 노티파이 이후에 키입력을 하면 공격 바로 실행
+				if (bEnteredTransition == false)
+				{
+					bBufferedAttack = true;
+					bAttackEnable = true;
+
+					CorrectedTime = GetWorld()->GetTimeSeconds();
+
+					return;
+				}
 			}
 			else
 			{
@@ -633,6 +702,7 @@ void APlayerSekiro::PlayerAttackStarted()
 		|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun)
 	{
 		SetAniState(SekiroState::DashAttack);
+		bDashAttackMove = true;
 		bAttackEnable = false;
 
 		return;
@@ -653,16 +723,33 @@ void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
 	{
 		if (ActionValue)
 		{
-			if (TriggeredSec > 0.6f)
+			if (bBufferedAttack)
+			{
+				return;
+			}
+
+			float CorrectedTriggeredSec = TriggeredSec - CorrectedTime;
+
+			if (CorrectedTriggeredSec > 0.6f)
 			{
 				SetAniState(SekiroState::StabAttack2);
+
+				CorrectedTime = 0.f;
+				bAttackEnable = false;
 			}
 		}
 		else
 		{
-			if (TriggeredSec <= 0.6f)
+			if (bBufferedAttack)
 			{
-				SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+				bBufferedCompletedAction = true;
+			}
+			else
+			{
+				if (TriggeredSec <= 0.6f)
+				{
+					SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+				}
 			}
 
 			bAttackEnable = false;
@@ -696,25 +783,56 @@ void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
 	}
 }
 
-void APlayerSekiro::AnimNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+void APlayerSekiro::AttackBegin()
 {
-	if (NotifyName == "BasicAttack1" || NotifyName == "BasicAttack2"
-		|| NotifyName == "BasicAttack3" || NotifyName == "StabAttack2")
-	{
-		bAttackCombo = true;
-	}
-}
-
-void APlayerSekiro::AnimNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
-{
-	if (NotifyName == "BasicAttack1" || NotifyName == "BasicAttack2"
-		|| NotifyName == "BasicAttack3" || NotifyName == "StabAttack2")
-	{
-		bAttackCombo = false;
-	}
+	UE_LOG(LogTemp, Error, TEXT("test1"));
+	bEnteredTransition = false;
 }
 
 void APlayerSekiro::AttackEnd()
 {
 	SetAniState(SekiroState::Idle);
+}
+
+void APlayerSekiro::AttackComboBegin()
+{
+	bAttackCombo = true;
+}
+
+void APlayerSekiro::AttackComboEnd()
+{
+	bAttackCombo = false;
+}
+
+void APlayerSekiro::DashAttackMoveEnd()
+{
+	bDashAttackMove = false;
+}
+
+void APlayerSekiro::CheckBufferedInput()
+{
+	UE_LOG(LogTemp, Error, TEXT("test2"));
+	if (bBufferedAttack)
+	{
+		// 선입력 버퍼에 있는 동안 키를 뗐을 경우 바로 평타 실행
+		if (bBufferedCompletedAction)
+		{
+			SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+
+			CorrectedTime = 0.f;
+
+			bBufferedCompletedAction = false;
+		}
+		else
+		{
+			// 선입력이 있을 때 아직 키를 누르고 있는 상태일 경우 Triggered Seconds 보정
+			SetAniState(SekiroState::StabAttack1);
+			
+			CorrectedTime = GetWorld()->GetTimeSeconds() - CorrectedTime;
+		}
+
+		bBufferedAttack = false;
+	}
+
+	bEnteredTransition = true;
 }
