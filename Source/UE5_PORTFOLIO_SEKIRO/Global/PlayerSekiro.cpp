@@ -116,20 +116,6 @@ void APlayerSekiro::Tick(float _Delta)
 		SetActorRotation(FRotator(0.f, InterpRotation.Yaw, 0.f));
 		GetController()->SetControlRotation(InterpRotation);
 	}
-
-	// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
-	// 도중에 키 입력이 들어오면 적용하지 않음
-	if (bStartedDash && bInputWASD == false
-		&& (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
-	{
-		AddMovementInput(GetActorForwardVector(), 1.0f);
-		SetAniState(SekiroState::ForwardRun);
-	}
-
-	if (bDashAttackMove)
-	{
-		AddMovementInput(GetActorForwardVector(), 1.0f);
-	}
 }
 
 void APlayerSekiro::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -280,6 +266,11 @@ void APlayerSekiro::PlayerJump()
 		return;
 	}
 
+	if (AniStateValue == SekiroState::StabAttack1)
+	{
+		bAttackEnable = false;
+	}
+
 	// 점프 시 1.1초간 하단 무적
 	// 하단 무적은 다른 HitState와 중복 적용 가능하다.(대쉬 무적 제외)
 	bLowInvincible = true;
@@ -376,6 +367,7 @@ void APlayerSekiro::StartedDash()
 	// 방향키 입력 없이도 처음 0.5초간은 전방 대쉬가 가능하도록 구현(기술명 : 디폴트 전방 대쉬)
 	// 대쉬 방향은 현재 캐릭터가 바라보고 있는 방향(컨트롤러 방향 x)
 	bStartedDash = true;
+	GetWorld()->GetTimerManager().SetTimer(StartedDashTimerHandle, this, &APlayerSekiro::StartedDashMove, 0.001f, true);
 
 	float DefaultDashTime = 0.5f;
 	FTimerHandle DefaultDashTimerHandle;
@@ -392,6 +384,25 @@ void APlayerSekiro::StartedDash()
 
 			GetWorld()->GetTimerManager().ClearTimer(DefaultDashTimerHandle);
 		}), DefaultDashTime, false);
+}
+
+void APlayerSekiro::StartedDashMove()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
+	// 도중에 키 입력이 들어오면 적용하지 않음
+	if (bStartedDash && bInputWASD == false
+		&& (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
+	{
+		AddMovementInput(GetActorForwardVector(), 1.0f);
+		SetAniState(SekiroState::ForwardRun);
+	}
+
+	if (bStartedDash == false)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StartedDashTimerHandle);
+	}
 }
 
 void APlayerSekiro::PlayerDash(bool ActionValue, float TriggeredSec)
@@ -608,7 +619,7 @@ void APlayerSekiro::PlayerAttackStarted()
 		return;
 	}
 
-	// 연타 시간 0.2초로 제한
+	// 연타 최소 시간 0.2초로 제한
 	if (bAttackValid)
 	{
 		bAttackValid = false;
@@ -705,6 +716,8 @@ void APlayerSekiro::PlayerAttackStarted()
 		bDashAttackMove = true;
 		bAttackEnable = false;
 
+		GetWorld()->GetTimerManager().SetTimer(DashAttackMoveTimerHandle, this, &APlayerSekiro::DashAttackMove, 0.001f, true);
+
 		return;
 	}
 
@@ -734,6 +747,8 @@ void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
 			{
 				SetAniState(SekiroState::StabAttack2);
 
+				GetWorld()->GetTimerManager().SetTimer(AttackMoveTimerHandle, this, &APlayerSekiro::AttackMove, 0.1f, false);
+
 				CorrectedTime = 0.f;
 				bAttackEnable = false;
 			}
@@ -749,12 +764,46 @@ void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
 				if (TriggeredSec <= 0.6f)
 				{
 					SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+
+					GetWorld()->GetTimerManager().SetTimer(AttackMoveTimerHandle, this, &APlayerSekiro::AttackMove, 0.15f, false);
 				}
 			}
 
 			bAttackEnable = false;
 		}
 	}
+}
+
+void APlayerSekiro::DashAttackMove()
+{
+	if (bDashAttackMove)
+	{
+		AddMovementInput(GetActorForwardVector(), 1.0f);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DashAttackMoveTimerHandle);
+	}
+}
+
+// 공격 시 캐릭터가 전진하는 기능
+void APlayerSekiro::AttackMove()
+{
+	float AttackMoveImpulse = 0.f;
+
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3)
+	{
+		AttackMoveImpulse = 3000.0f;
+	}
+	else if (AniStateValue == SekiroState::StabAttack2)
+	{
+		AttackMoveImpulse = 8000.0f;
+	}
+
+	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
 }
 
 void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
@@ -785,7 +834,6 @@ void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
 
 void APlayerSekiro::AttackBegin()
 {
-	UE_LOG(LogTemp, Error, TEXT("test1"));
 	bEnteredTransition = false;
 }
 
@@ -811,13 +859,14 @@ void APlayerSekiro::DashAttackMoveEnd()
 
 void APlayerSekiro::CheckBufferedInput()
 {
-	UE_LOG(LogTemp, Error, TEXT("test2"));
 	if (bBufferedAttack)
 	{
 		// 선입력 버퍼에 있는 동안 키를 뗐을 경우 바로 평타 실행
 		if (bBufferedCompletedAction)
 		{
 			SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+
+			GetWorld()->GetTimerManager().SetTimer(AttackMoveTimerHandle, this, &APlayerSekiro::AttackMove, 0.15f, false);
 
 			CorrectedTime = 0.f;
 

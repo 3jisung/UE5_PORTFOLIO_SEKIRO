@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartedDash();
 
+	void StartedDashMove();
+
 	UFUNCTION(BlueprintCallable)
 	void PlayerDash(bool ActionValue, float TriggeredSec);
 
@@ -53,6 +55,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlayerAttackTriggered(bool ActionValue, float TriggeredSec);
+
+	void DashAttackMove();
+
+	void AttackMove();
 
 	UFUNCTION(BlueprintCallable)
 	void AttackBegin();
@@ -125,13 +131,13 @@ private:
 	bool bStartedDash = false;
 	float PreDashTime = 0.f;
 
-	UPROPERTY(Category = "AttackEnable", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bAttackEnable = false;
-
 	bool bAttackCombo = false;
 
 	// 평타 순서 기억
 	int BasicAttackCount = 0;
+	// 패링 순서 기억(1, 2 애니메이션 번갈아 가면서 실행)
+	int ParryingCount = 0;
 
 	bool bDashAttackMove = false;
 
@@ -143,4 +149,9 @@ private:
 	float CorrectedTime = 0.f;
 	// 공격 연타 시간 제한
 	bool bAttackValid = true;
+
+	// 틱의 과부하를 줄이기 위해 틱 내 기능 일부를 별도의 타이머로 관리
+	FTimerHandle StartedDashTimerHandle;
+	FTimerHandle DashAttackMoveTimerHandle;
+	FTimerHandle AttackMoveTimerHandle;
 };
