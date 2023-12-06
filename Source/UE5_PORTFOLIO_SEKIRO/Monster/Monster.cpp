@@ -13,7 +13,7 @@ AMonster::AMonster()
 	Tags.Add(TEXT("Monster"));
 
 	// 락온 아이콘 설정
-	FSoftClassPath ClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Global/Monster/WBP_LockOnIcon.WBP_LockOnIcon_C'"));
+	FSoftClassPath ClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Monster/WBP_LockOnIcon.WBP_LockOnIcon_C'"));
 	LockOnIconWidgetClass = ClassPath.TryLoadClass<UUserWidget>();
 
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));

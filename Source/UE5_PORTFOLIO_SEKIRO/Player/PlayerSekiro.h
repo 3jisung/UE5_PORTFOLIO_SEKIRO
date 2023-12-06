@@ -33,12 +33,22 @@ public:
 	void Landed(const FHitResult& Hit) override;
 
 	UFUNCTION(BlueprintCallable)
-	void StartedDash();
+	void StartedPlayerDash();
 
-	void StartedDashMove();
+	void StartedPlayerDashMove();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerDash(bool ActionValue, float TriggeredSec);
+	void TriggeredPlayerDash(bool ActionValue, float TriggeredSec);
+
+	UFUNCTION(BlueprintCallable)
+	void StartedPlayerGuard();
+
+	UFUNCTION(BlueprintCallable)
+	void TriggeredPlayerGuard(bool ActionValue, float TriggeredSec);
+
+	void ManageParryingTimer();
+
+	void ManageGuardTimer();
 
 	UFUNCTION(BlueprintCallable)
 	void LockOnTarget();
@@ -51,10 +61,10 @@ public:
 	void ToggleLockOn();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerAttackStarted();
+	void StartedPlayerAttack();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerAttackTriggered(bool ActionValue, float TriggeredSec);
+	void TriggeredPlayerAttack(bool ActionValue, float TriggeredSec);
 
 	void DashAttackMove();
 
@@ -147,13 +157,19 @@ private:
 
 	bool bBufferedCompletedAttack = false;
 	bool bBufferedCompletedDash = false;
+	bool bBufferedCompletedGuard = false;
 	// 선입력을 고려한 TriggeredTime 보정값
 	float CorrectedTime = 0.f;
 	// 공격 연타 시간 제한
 	bool bAttackValid = true;
 
-	// 틱의 과부하를 줄이기 위해 틱 내 기능 일부를 별도의 타이머로 관리
+	float ParryingValidTime = 0.2f;
+	float MaxGuardValidTime = 0.4f;
+	float PreGuardTime = 0.f;
+
 	FTimerHandle StartedDashTimerHandle;
 	FTimerHandle DashAttackMoveTimerHandle;
 	FTimerHandle AttackMoveTimerHandle;
+	FTimerHandle ParryingTimerHandle;
+	FTimerHandle GuardTimerHandle;
 };
