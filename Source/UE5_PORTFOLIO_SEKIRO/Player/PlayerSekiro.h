@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlobalCharacter.h"
-#include "GlobalEnums.h"
-#include "Data/PlayerStatData.h"
-#include "Monster.h"
+#include "../Global/GlobalCharacter.h"
+#include "../Global/GlobalEnums.h"
+#include "../Global/Data/PlayerStatData.h"
+#include "../Monster/Monster.h"
 #include "PlayerSekiro.generated.h"
 
 /**
@@ -141,10 +141,12 @@ private:
 
 	bool bDashAttackMove = false;
 
-	// 선입력 공격 관련 bool 변수
-	bool bBufferedAttack = false;
-	bool bBufferedCompletedAction = false;
+	// 선입력 관련 변수
+	SekiroState BufferedAction;
 	bool bEnteredTransition = false;
+
+	bool bBufferedCompletedAttack = false;
+	bool bBufferedCompletedDash = false;
 	// 선입력을 고려한 TriggeredTime 보정값
 	float CorrectedTime = 0.f;
 	// 공격 연타 시간 제한

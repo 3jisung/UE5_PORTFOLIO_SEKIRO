@@ -4,9 +4,9 @@
 #include "PlayerSekiro.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GlobalAnimInstance.h"
-#include "GlobalGameInstance.h"
-#include "Data/PlayerAnimData.h"
+#include "../Global/GlobalAnimInstance.h"
+#include "../Global/GlobalGameInstance.h"
+#include "../Global/Data/PlayerAnimData.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -46,6 +46,10 @@ void APlayerSekiro::BeginPlay()
 	//GetGlobalAnimInstance()->OnPlayMontageNotifyEnd.AddDynamic(this, &APlayerSekiro::AnimNotifyEnd);
 
 	SetAniState(SekiroState::Idle);
+
+	// 선입력 버퍼 초기화
+	// 선입력 버퍼에 들어갈 수 있는 값 : None, BasicAttack(1, 2, 3), Jump, Dash, Guard
+	BufferedAction = SekiroState::None;
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 
@@ -255,15 +259,32 @@ void APlayerSekiro::PlayerJump()
 		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun
 		
 		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
-		&& AniStateValue != SekiroState::BasicAttack3)
+		&& AniStateValue != SekiroState::BasicAttack3 && AniStateValue != SekiroState::StabAttack2)
 	{
 		return;
 	}
 
-	if (bEnteredTransition == false && (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
-		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2))
+	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2)
 	{
-		return;
+		if (bAttackCombo && BufferedAction == SekiroState::None)
+		{
+			// 점프 선입력
+			if (bEnteredTransition == false)
+			{
+				BufferedAction = SekiroState::JumpStart;
+
+				return;
+			}
+			else
+			{
+				SetAniState(SekiroState::Idle);
+			}
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	if (AniStateValue == SekiroState::StabAttack1)
@@ -284,9 +305,8 @@ void APlayerSekiro::PlayerJump()
 			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 		}), delayTime, false);
 
-	Jump();
-
 	SetAniState(SekiroState::JumpStart);
+	Jump();
 }
 
 // 점프 후 착지 시 호출
@@ -315,7 +335,7 @@ void APlayerSekiro::StartedDash()
 		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun
 		
 		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
-		&& AniStateValue != SekiroState::BasicAttack3)
+		&& AniStateValue != SekiroState::BasicAttack3 && AniStateValue != SekiroState::StabAttack2)
 	{
 		return;
 	}
@@ -323,14 +343,31 @@ void APlayerSekiro::StartedDash()
 	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
 		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2)
 	{
-		if (bEnteredTransition)
+		if (bAttackCombo && BufferedAction == SekiroState::None)
 		{
-			SetAniState(SekiroState::Idle);
+			// 대쉬 선입력
+			if (bEnteredTransition == false)
+			{
+				CorrectedTime = GetWorld()->GetTimeSeconds();
+				BufferedAction = SekiroState::ForwardRun;
+				
+				return;
+			}
+			else
+			{
+				SetAniState(SekiroState::Idle);
+			}
 		}
 		else
 		{
 			return;
 		}
+	}
+
+	if (AniStateValue == SekiroState::StabAttack1)
+	{
+		SetAniState(SekiroState::Idle);
+		bAttackEnable = false;
 	}
 
 	// 대쉬 키를 0.5초 내에 연속으로 눌렀을 경우 대쉬 무적 적용하지 않음.
@@ -389,17 +426,24 @@ void APlayerSekiro::StartedDash()
 void APlayerSekiro::StartedDashMove()
 {
 	SekiroState AniStateValue = GetAniState<SekiroState>();
-
-	// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
-	// 도중에 키 입력이 들어오면 적용하지 않음
-	if (bStartedDash && bInputWASD == false
-		&& (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
+	
+	if (bStartedDash)
 	{
-		AddMovementInput(GetActorForwardVector(), 1.0f);
-		SetAniState(SekiroState::ForwardRun);
-	}
+		// 첫 대쉬 가속도 보정
+		if (AniStateValue == SekiroState::ForwardRun)
+		{
+			GetCharacterMovement()->AddImpulse(GetActorForwardVector() * 10.0f, true);
+		}
 
-	if (bStartedDash == false)
+		// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
+		// 도중에 키 입력이 들어오면 적용하지 않음
+		if (bInputWASD == false && (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
+		{
+			AddMovementInput(GetActorForwardVector(), 1.0f);
+			SetAniState(SekiroState::ForwardRun);
+		}
+	}
+	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(StartedDashTimerHandle);
 	}
@@ -414,18 +458,32 @@ void APlayerSekiro::PlayerDash(bool ActionValue, float TriggeredSec)
 	}
 	else
 	{
+		UE_LOG(LogTemp, Error, TEXT("test0"));
+		UE_LOG(LogTemp, Error, TEXT("%f"), TriggeredSec);
+		UE_LOG(LogTemp, Error, TEXT("%f"), CorrectedTime);
+		if (BufferedAction != SekiroState::None && bBufferedCompletedDash == false)
+		{
+			bBufferedCompletedDash = true;
+			UE_LOG(LogTemp, Error, TEXT("test1"));
+			return;
+		}
+		UE_LOG(LogTemp, Error, TEXT("test2"));
 		// 대쉬 키를 눌렀다가 바로 떼어도 최소한 0.5초 동안은 대쉬 상태를 유지
 		// 단, bStartedDash 값이 true 일 때만 적용
 		float MinDashTime = 0.5f;
 
 		if (bStartedDash)
 		{
-			float delayTime = MinDashTime - TriggeredSec;
+			float delayTime = MinDashTime + CorrectedTime;
+			UE_LOG(LogTemp, Error, TEXT("%f"), CorrectedTime);
+			CorrectedTime = 0.f;
+
 			FTimerHandle myTimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 				{
 					Speed = 500.0f;
 					bDash = false;
+					UE_LOG(LogTemp, Error, TEXT("test3"));
 
 					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 				}), delayTime, false);
@@ -614,7 +672,7 @@ void APlayerSekiro::ToggleLockOn()
 void APlayerSekiro::PlayerAttackStarted()
 {
 	// 선입력이 있는 경우 return
-	if (bBufferedAttack)
+	if (BufferedAction != SekiroState::None)
 	{
 		return;
 	}
@@ -657,7 +715,7 @@ void APlayerSekiro::PlayerAttackStarted()
 	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
 		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::StabAttack2)
 	{
-		if (bAttackCombo)
+		if (bAttackCombo && BufferedAction == SekiroState::None)
 		{
 			if (AniStateValue != SekiroState::StabAttack2)
 			{
@@ -672,22 +730,22 @@ void APlayerSekiro::PlayerAttackStarted()
 				{
 					BasicAttackCount = 0;
 				}
-
-				// Transition 노티파이 이전에 키입력을 하면 선입력 버퍼에 입력
-				// Transition 노티파이 이후에 키입력을 하면 공격 바로 실행
-				if (bEnteredTransition == false)
-				{
-					bBufferedAttack = true;
-					bAttackEnable = true;
-
-					CorrectedTime = GetWorld()->GetTimeSeconds();
-
-					return;
-				}
 			}
 			else
 			{
 				BasicAttackCount = 0;
+			}
+
+			// Transition 노티파이 이전에 키입력을 하면 선입력 버퍼에 입력
+			// Transition 노티파이 이후에 키입력을 하면 공격 바로 실행
+			if (bEnteredTransition == false)
+			{
+				CorrectedTime = GetWorld()->GetTimeSeconds();
+
+				BufferedAction = (SekiroState)((int)SekiroState::BasicAttack1 + BasicAttackCount);
+				bAttackEnable = true;
+
+				return;
 			}
 		}
 		else
@@ -736,14 +794,13 @@ void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
 	{
 		if (ActionValue)
 		{
-			if (bBufferedAttack)
+			if (BufferedAction != SekiroState::None)
 			{
 				return;
 			}
 
-			float CorrectedTriggeredSec = TriggeredSec - CorrectedTime;
-
-			if (CorrectedTriggeredSec > 0.6f)
+			// 선입력 시간 보정
+			if (TriggeredSec > 0.6f + CorrectedTime)
 			{
 				SetAniState(SekiroState::StabAttack2);
 
@@ -755,9 +812,9 @@ void APlayerSekiro::PlayerAttackTriggered(bool ActionValue, float TriggeredSec)
 		}
 		else
 		{
-			if (bBufferedAttack)
+			if (BufferedAction != SekiroState::None && bBufferedCompletedAttack == false)
 			{
-				bBufferedCompletedAction = true;
+				bBufferedCompletedAttack = true;
 			}
 			else
 			{
@@ -857,30 +914,69 @@ void APlayerSekiro::DashAttackMoveEnd()
 	bDashAttackMove = false;
 }
 
+// 선입력 체크
 void APlayerSekiro::CheckBufferedInput()
 {
-	if (bBufferedAttack)
+	if (BufferedAction != SekiroState::None)
 	{
-		// 선입력 버퍼에 있는 동안 키를 뗐을 경우 바로 평타 실행
-		if (bBufferedCompletedAction)
+		// 평타 선입력
+		if (BufferedAction == SekiroState::BasicAttack1 || BufferedAction == SekiroState::BasicAttack2
+			|| BufferedAction == SekiroState::BasicAttack3)
 		{
-			SetAniState((int)SekiroState::BasicAttack1 + BasicAttackCount);
+			// 선입력 버퍼에 있는 동안 키를 뗐을 경우 바로 평타 실행
+			if (bBufferedCompletedAttack)
+			{
+				SetAniState(BufferedAction);
 
-			GetWorld()->GetTimerManager().SetTimer(AttackMoveTimerHandle, this, &APlayerSekiro::AttackMove, 0.15f, false);
+				GetWorld()->GetTimerManager().SetTimer(AttackMoveTimerHandle, this, &APlayerSekiro::AttackMove, 0.15f, false);
 
-			CorrectedTime = 0.f;
+				CorrectedTime = 0.f;
 
-			bBufferedCompletedAction = false;
+				bBufferedCompletedAttack = false;
+			}
+			else
+			{
+				// 선입력이 있을 때 아직 키를 누르고 있는 상태일 경우 Triggered Seconds 보정
+				SetAniState(SekiroState::StabAttack1);
+
+				CorrectedTime = GetWorld()->GetTimeSeconds() - CorrectedTime;
+			}
 		}
-		else
+
+		// 점프 선입력
+		else if (BufferedAction == SekiroState::JumpStart)
 		{
-			// 선입력이 있을 때 아직 키를 누르고 있는 상태일 경우 Triggered Seconds 보정
-			SetAniState(SekiroState::StabAttack1);
+			SetAniState(SekiroState::Idle);
+			PlayerJump();
+		}
+
+		// 대쉬 선입력
+		else if (BufferedAction == SekiroState::ForwardRun)
+		{
+			UE_LOG(LogTemp, Error, TEXT("test10"));
+			SetAniState(SekiroState::Idle);
+			StartedDash();
+
+			if (bBufferedCompletedDash)
+			{
+				CorrectedTime = 0.f;
+				PlayerDash(false, 0.f);
+
+				bBufferedCompletedDash = false;
+			}
+			else
+			{
+				CorrectedTime = GetWorld()->GetTimeSeconds() - CorrectedTime;
+			}
+		}
+
+		// 가드 선입력
+		else if (BufferedAction == SekiroState::Guard)
+		{
 			
-			CorrectedTime = GetWorld()->GetTimeSeconds() - CorrectedTime;
 		}
 
-		bBufferedAttack = false;
+		BufferedAction = SekiroState::None;
 	}
 
 	bEnteredTransition = true;

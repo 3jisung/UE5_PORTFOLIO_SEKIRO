@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlobalCharacter.h"
+#include "../Global/GlobalCharacter.h"
 #include "Monster.generated.h"
 
 /**

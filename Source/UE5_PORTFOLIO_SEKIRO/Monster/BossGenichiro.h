@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Global/Monster.h"
+#include "Monster.h"
 #include "BossGenichiro.generated.h"
 
 /**
