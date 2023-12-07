@@ -547,12 +547,12 @@ void APlayerSekiro::StartedPlayerGuard()
 	}
 
 
-	// 가드 키를 0.2초 내에 연속으로 눌렀을 경우 점차 패링 판정 시간 감소(0.05초씩 감소)
+	// 가드 키를 0.3초 내에 연속으로 눌렀을 경우 점차 패링 판정 시간 감소(0.05초씩 감소)
 	// 가드 키를 연타하여 패링 판정을 쉽게 취하지 못하도록 하기 위함
 	float CurGuardTime = GetWorld()->GetTimeSeconds();
 	float IntervalTime = CurGuardTime - PreGuardTime;
 
-	if (PreGuardTime != 0.f && IntervalTime <= 0.2f)
+	if (PreGuardTime != 0.f && IntervalTime <= 0.3f)
 	{
 		ParryingValidTime -= 0.05f;
 
