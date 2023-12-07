@@ -568,6 +568,11 @@ void APlayerSekiro::StartedPlayerGuard()
 
 	PreGuardTime = CurGuardTime;
 
+	// 이전에 돌아가는 타이머가 있을 경우 초기화
+	GetWorld()->GetTimerManager().ClearTimer(ParryingTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(GuardTimerHandle);
+
+	bGuardTimer = true;
 
 	// 가드 시작 시 0.2초간 패링 유효, 그 이후 가드 판정
 	// 가드 연타로 인해 패링 유효 시간이 감소할 경우 그만큼 가드 유지 시간이 늘어난다.(0.4초는 그대로)
@@ -600,8 +605,11 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 			|| AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::BackwardWalk
 			|| AniStateValue == SekiroState::LeftWalk || AniStateValue == SekiroState::RightWalk)
 		{
-			HitState = PlayerHitState::GUARD;
-			SetAniState(SekiroState::Guard);
+			if (HitState != PlayerHitState::PARRYING)
+			{
+				HitState = PlayerHitState::GUARD;
+				SetAniState(SekiroState::Guard);
+			}	
 		}
 	}
 	else
@@ -638,6 +646,11 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 			{
 				SetAniState(SekiroState::Idle);
 			}
+
+			if (bGuardTimer == false && HitState == PlayerHitState::GUARD)
+			{
+				HitState = PlayerHitState::OFFGUARD;
+			}
 		}
 	}
 }
@@ -656,6 +669,8 @@ void APlayerSekiro::ManageParryingTimer()
 
 void APlayerSekiro::ManageGuardTimer()
 {
+	bGuardTimer = false;
+
 	if (HitState == PlayerHitState::GUARD)
 	{
 		HitState = PlayerHitState::OFFGUARD;

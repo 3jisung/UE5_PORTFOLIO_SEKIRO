@@ -22,10 +22,10 @@ public:
 	APlayerSekiro();
 
 	UFUNCTION(BlueprintCallable)
-	void MoveRight(float Val);
+	void MoveForward(float Val);
 
 	UFUNCTION(BlueprintCallable)
-	void MoveForward(float Val);
+	void MoveRight(float Val);
 
 	UFUNCTION(BlueprintCallable)
 	void PlayerJump();
@@ -166,6 +166,7 @@ private:
 	float ParryingValidTime = 0.2f;
 	float MaxGuardValidTime = 0.4f;
 	float PreGuardTime = 0.f;
+	bool bGuardTimer = false;
 
 	FTimerHandle StartedDashTimerHandle;
 	FTimerHandle DashAttackMoveTimerHandle;
