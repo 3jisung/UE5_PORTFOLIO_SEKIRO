@@ -16,19 +16,34 @@ public:
 	// Sets default values for this character's properties
 	AGlobalCharacter();
 
-	void SetHP(int _HP)
-	{
-		HP -= _HP;
-	}
-
-	void AddHP(int _HP)
-	{
-		HP += _HP;
-	}
-
 	int GetHP()
 	{
 		return HP;
+	}
+
+	void SetHP(int _HP)
+	{
+		HP = _HP;
+	}
+
+	int GetPosture()
+	{
+		return Posture;
+	}
+
+	void SetPosture(int _Posture)
+	{
+		Posture = _Posture;
+	}
+
+	int GetPower()
+	{
+		return Power;
+	}
+
+	void SetPower(int _Power)
+	{
+		Power = _Power;
 	}
 
 	int GetAniState()
@@ -133,13 +148,10 @@ protected:
 	int Posture = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
+	int MaxPosture = 0;
+
+	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
 	float Power = 0;
-
-	// 피격 가능 상태
-	bool HitState = true;
-
-	// 피격 무적 시간
-	float HitIgnoreTime = 0.3;
 
 
 private:

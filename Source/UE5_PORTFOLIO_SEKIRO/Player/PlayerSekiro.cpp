@@ -18,8 +18,6 @@ APlayerSekiro::APlayerSekiro()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	Tags.Add(TEXT("Player"));
-
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->TargetArmLength = 1500.0f;
 	SpringArmComponent->bDoCollisionTest = true;
@@ -51,13 +49,16 @@ void APlayerSekiro::BeginPlay()
 	// 선입력 버퍼에 들어갈 수 있는 값 : None, BasicAttack(1, 2, 3), Jump, Dash, Guard
 	BufferedAction = SekiroState::None;
 
+	Tags.Add(TEXT("Player"));
+
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 
 	// 캐릭터 기본 스탯 설정
 	StatData = Inst->GetPlayerStat(TEXT("Sekiro"));
-	HP = StatData->HP;
 	MaxHP = StatData->MaxHP;
-	Posture = StatData->Posture;
+	HP = MaxHP;
+	MaxPosture = StatData->MaxPosture;
+	Posture = MaxPosture;
 	Power = StatData->Power;
 
 	// 캐릭터 무기 적용

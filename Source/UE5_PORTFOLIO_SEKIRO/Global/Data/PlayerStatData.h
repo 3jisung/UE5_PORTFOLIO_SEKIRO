@@ -17,13 +17,10 @@ struct UE5_PORTFOLIO_SEKIRO_API FPlayerStatData : public FTableRowBase
 	~FPlayerStatData() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	int HP;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	int MaxHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	int Posture;
+	int MaxPosture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float Power;

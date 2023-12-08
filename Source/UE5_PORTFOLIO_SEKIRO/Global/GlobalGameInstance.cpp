@@ -5,6 +5,7 @@
 #include "Data/PlayerStatData.h"
 #include "Data/PlayerMeshData.h"
 #include "Data/PlayerAnimData.h"
+#include "Data/MonsterData.h"
 
 
 UGlobalGameInstance::UGlobalGameInstance()
@@ -36,6 +37,16 @@ UGlobalGameInstance::UGlobalGameInstance()
 		if (DataTable.Succeeded())
 		{
 			PlayerAnimData = DataTable.Object;
+		}
+	}
+
+	{
+		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_MonsterData.DT_MonsterData'");
+		ConstructorHelpers::FObjectFinder<UDataTable> DataTable(*DataPath);
+
+		if (DataTable.Succeeded())
+		{
+			MonsterData = DataTable.Object;
 		}
 	}
 
@@ -84,6 +95,23 @@ FPlayerAnimData* UGlobalGameInstance::GetPlayerAnim(FName _Name)
 	}
 
 	FPlayerAnimData* FindTable = PlayerAnimData->FindRow<FPlayerAnimData>(_Name, _Name.ToString());
+
+	if (nullptr == FindTable)
+	{
+		return nullptr;
+	}
+
+	return FindTable;
+}
+
+FMonsterData* UGlobalGameInstance::GetMonster(FName _Name)
+{
+	if (nullptr == MonsterData)
+	{
+		return nullptr;
+	}
+
+	FMonsterData* FindTable = MonsterData->FindRow<FMonsterData>(_Name, _Name.ToString());
 
 	if (nullptr == FindTable)
 	{

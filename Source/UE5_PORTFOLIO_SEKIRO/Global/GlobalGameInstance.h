@@ -24,6 +24,7 @@ public:
 	struct FPlayerStatData* GetPlayerStat(FName _Name);
 	UStaticMesh* GetPlayerMesh(FName _Name);
 	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
+	struct FMonsterData* GetMonster(FName _Name);
 
 
 private:
@@ -35,4 +36,7 @@ private:
 
 	UPROPERTY()
 	UDataTable* PlayerAnimData;
+
+	UPROPERTY()
+	UDataTable* MonsterData;
 };

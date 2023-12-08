@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../Global/GlobalCharacter.h"
+#include "../Global/Data/MonsterData.h"
 #include "Monster.generated.h"
 
 /**
@@ -18,16 +19,31 @@ class UE5_PORTFOLIO_SEKIRO_API AMonster : public AGlobalCharacter
 public:
 	AMonster();
 
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree()
+	{
+		return BehaviorTree;
+	}
+
+	class UBlackboardComponent* GetBlackboardComponent();
+
 	void LockOnIconOnOff(bool bLockOn);
 
+	const struct FMonsterData* MonsterData;
+	
 
 protected:
-	UPROPERTY(Category = "Monster", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	class UBlackboardComponent* BlackboardComponent;
+
+	UPROPERTY(Category = "Monster", EditAnywhere, BlueprintReadWrite)
 	int DeathblowCount;
 
-
-private:
-	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite)
 	class UWidgetComponent* WidgetComponent;
 
 	TSubclassOf<UUserWidget> LockOnIconWidgetClass;

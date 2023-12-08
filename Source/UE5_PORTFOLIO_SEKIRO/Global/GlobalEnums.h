@@ -70,14 +70,53 @@ enum class PlayerHitState : uint8
 	DASHINVINCIBLE UMETA(DisplayName = "대쉬무적"),
 };
 
+
+// 겐이치로 애니메이션 상태값
 UENUM(BlueprintType)
-enum class MonsterState : uint8
+enum class GenichiroState : uint8
+{
+	None UMETA(DisplayName = "사용안함"),
+
+	Idle UMETA(DisplayName = "서있기"),
+	LeftWalk UMETA(DisplayName = "왼쪽걷기"),
+	RightWalk UMETA(DisplayName = "오른쪽걷기"),
+	ForwardRun UMETA(DisplayName = "앞으로뛰기"),
+
+	BasicAttack1 UMETA(DisplayName = "평타1"),
+	BasicAttack2 UMETA(DisplayName = "평타2"),
+	BasicAttack3 UMETA(DisplayName = "평타3"),
+
+	StabAttack UMETA(DisplayName = "찌르기"),
+	TakeDownAttack UMETA(DisplayName = "내려찍기"),
+	BottomAttack UMETA(DisplayName = "하단베기"),
+
+	ElectricSlash1 UMETA(DisplayName = "뇌격1"),
+	ElectricSlash2 UMETA(DisplayName = "뇌격2"),
+
+	Guard UMETA(DisplayName = "가드"),
+	Parrying1 UMETA(DisplayName = "패링1"),
+	Parrying2 UMETA(DisplayName = "패링2"),
+
+	Hit UMETA(DisplayName = "히트"),
+	ExhaustStart UMETA(DisplayName = "탈진시작"),
+	ExhaustLoop UMETA(DisplayName = "탈진중"),
+	Shock UMETA(DisplayName = "타뢰"),
+	Death UMETA(DisplayName = "죽음"),
+
+	MikiriCounter1 UMETA(DisplayName = "간파1"),
+	MikiriCounter2 UMETA(DisplayName = "간파2"),
+
+	Deathblow1 UMETA(DisplayName = "인살1"),
+	Deathblow2 UMETA(DisplayName = "인살2"),
+	Deathblow3 UMETA(DisplayName = "인살3"),
+};
+
+// 몬스터 피격 상태값
+UENUM(BlueprintType)
+enum class MonsterHitState : uint8
 {
 	NONE UMETA(DisplayName = "사용안함"),
-	IDLE UMETA(DisplayName = "대기"),
-	MOVE UMETA(DisplayName = "이동"),
-	RETURN UMETA(DisplayName = "복귀"),
-	PATROL UMETA(DisplayName = "순찰"),
-	ATTACK UMETA(DisplayName = "공격"),
-	DEATH UMETA(DisplayName = "죽음"),
+	OFFGUARD UMETA(DisplayName = "무방비"),
+	SUPERARMOR UMETA(DisplayName = "슈퍼아머"),
+	INVINCIBLE UMETA(DisplayName = "무적"),
 };
