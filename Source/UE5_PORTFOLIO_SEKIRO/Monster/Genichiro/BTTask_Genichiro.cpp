@@ -174,3 +174,25 @@ bool UBTTask_Genichiro::IsDeathCheck(UBehaviorTreeComponent& OwnerComp)
 
 	return false;
 }
+
+UNavigationPath* UBTTask_Genichiro::PathFindNavPath(UBehaviorTreeComponent& OwnerComp, AActor* _Actor)
+{
+	return PathFindNavPath(OwnerComp, _Actor->GetActorLocation());
+}
+
+UNavigationPath* UBTTask_Genichiro::PathFindNavPath(UBehaviorTreeComponent& _OwnerComp, FVector _EndPos)
+{
+	// 찾아내는 경로를 TArray<FVector> 그냥 이런 데이터로 주지는 않는다.
+
+// 찾아내는 경로가 유효한가?
+	UNavigationPath* PathObject = nullptr;
+	FVector StartPos = GetGlobalCharacter(_OwnerComp)->GetActorLocation();
+	FVector EndPos = _EndPos;
+
+	PathObject = UNavigationSystemV1::FindPathToLocationSynchronously(
+		GetWorld(),
+		StartPos,
+		EndPos
+	);
+	return PathObject;
+}

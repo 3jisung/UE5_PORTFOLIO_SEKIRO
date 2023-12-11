@@ -31,7 +31,7 @@ void ABossGenichiro::BeginPlay()
 	Power = MonsterData->Power;
 	DeathblowCount = MonsterData->DeathblowCount;
 
-	// 비헤이비어 트리 설정
+	// 비헤이비어 트리 설정(현재는 블루프린트 클래스에 미리 넣는 구조)
 	BehaviorTree = MonsterData->AI;
 
 	// 애니메이션 설정
@@ -45,5 +45,5 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.0f);
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 300.0f);
 }

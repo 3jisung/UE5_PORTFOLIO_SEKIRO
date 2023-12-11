@@ -2,6 +2,7 @@
 
 
 #include "BT_Idle_Genichiro.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -10,6 +11,15 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	GetGlobalCharacter(OwnerComp)->SetAniState(GenichiroState::Idle);
 
+	GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), nullptr);
+
+	UCharacterMovementComponent* MoveCom = Cast<UCharacterMovementComponent>(GetGlobalCharacter(OwnerComp)->GetMovementComponent());
+
+	if (nullptr != MoveCom)
+	{
+		MoveCom->MaxWalkSpeed = 100.0f;
+	}
+
 	return EBTNodeResult::Type::InProgress;
 }
 
@@ -17,20 +27,40 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (1.0f <= GetStateTime(OwnerComp))
+	if (2.0f <= GetStateTime(OwnerComp))
 	{
-		//int Value = UGlobalFunctionLibrary::MainRandom.RandRange(0, 1);
+		ResetStateTime(OwnerComp);
+
+		AActor* ResultActor = GetTargetSearch(OwnerComp);
+
+		if (nullptr != ResultActor)
+		{
+			GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
+
+			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 2);
+			switch (BehaviorValue)
+			{
+			case 0:
+				SetStateChange(OwnerComp, GenichiroState::LeftWalk);
+				break;
+				
+			case 1:
+				SetStateChange(OwnerComp, GenichiroState::RightWalk);
+				break;
+
+			case 2:
+				SetStateChange(OwnerComp, GenichiroState::ForwardRun);
+				break;
+
+			default:
+				SetStateChange(OwnerComp, GenichiroState::Idle);
+				break;
+			}
+		}
+
+		else
+		{
+			return;
+		}
 	}
-
-	AActor* ResultActor = GetTargetSearch(OwnerComp);
-
-	if (nullptr != ResultActor)
-	{
-		GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
-		//UE_LOG(LogTemp, Error, TEXT("Targeting"));
-		SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
-		return;
-	}
-
-	return;
 }

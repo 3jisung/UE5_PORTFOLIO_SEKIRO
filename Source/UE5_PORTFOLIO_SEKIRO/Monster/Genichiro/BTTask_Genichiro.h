@@ -9,6 +9,8 @@
 #include "../../Global/GlobalEnums.h"
 #include "../../Global/GlobalCharacter.h"
 #include "../../Global/GlobalFunctionLibrary.h"
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
 #include "BTTask_Genichiro.generated.h"
 
 /**
@@ -44,4 +46,7 @@ public:
 	class AActor* GetTargetSearch(UBehaviorTreeComponent& OwnerComp);
 
 	bool IsDeathCheck(UBehaviorTreeComponent& OwnerComp);
+
+	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, AActor* _Actor);
+	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, FVector _Pos);
 };

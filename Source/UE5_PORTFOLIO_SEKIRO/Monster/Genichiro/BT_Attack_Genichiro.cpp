@@ -8,7 +8,7 @@ EBTNodeResult::Type UBT_Attack_Genichiro::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	GetGlobalCharacter(OwnerComp)->SetAniState(GenichiroState::BasicAttack1);
+	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
 
 	return EBTNodeResult::Type::InProgress;
 }
