@@ -15,8 +15,17 @@ EBTNodeResult::Type UBT_Run_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owner
 
 	if (nullptr != MoveCom)
 	{
-		MoveCom->MaxWalkSpeed = 500.0f;
+		MoveCom->MaxWalkSpeed = 800.0f;
 	}
+
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+	AActor* TargetActor = Cast<AActor>(TargetObject);
+	FVector TargetPos = TargetActor->GetActorLocation();
+
+	UNavigationPath* PathPoint = PathFindNavPath(OwnerComp, TargetPos);
+	GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("NavPath"), PathPoint);
+	GetBlackboardComponent(OwnerComp)->SetValueAsInt(TEXT("PathPointIndex"), 1);
+	GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
 
 	return EBTNodeResult::Type::InProgress;
 }
@@ -24,6 +33,114 @@ EBTNodeResult::Type UBT_Run_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owner
 void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+	AActor* TargetActor = Cast<AActor>(TargetObject);
+
+	if (nullptr == TargetActor)
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
+	}
+
+	if (true == IsDeathCheck(OwnerComp))
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
+	}
+
+	FVector ThisPos = GetGlobalCharacter(OwnerComp)->GetActorLocation();
+	FVector PointPos = TargetActor->GetActorLocation();			// 타겟까지 가는 길의 PathPoints[index] 가 들어갈 값
+	FVector TargetPos = TargetActor->GetActorLocation();		// 타겟의 현재 위치
+	FVector CheckLastPos = GetBlackboardComponent(OwnerComp)->GetValueAsVector(TEXT("LastTargetPos"));
+
+	if (TargetPos != CheckLastPos)
+	{
+		UNavigationPath* NewPath = PathFindNavPath(OwnerComp, TargetPos);
+		GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("NavPath"), NewPath);
+		GetBlackboardComponent(OwnerComp)->SetValueAsInt(TEXT("PathPointIndex"), 1);
+	}
+
+	UObject* NavObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("NavPath"));
+	UNavigationPath* NavPath = Cast<UNavigationPath>(NavObject);
+	int PathPointIndex = GetBlackboardComponent(OwnerComp)->GetValueAsInt(TEXT("PathPointIndex"));
+
+	if (nullptr == NavPath)
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
+	}
+
+	if (nullptr != NavPath && true == NavPath->PathPoints.IsEmpty())
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
+	}
+
+	if (nullptr != NavPath)
+	{
+		PointPos = NavPath->PathPoints[PathPointIndex];
+	}
+
+	ThisPos.Z = 0.0f;
+	PointPos.Z = 0.0f;
+	TargetPos.Z = 0.0f;
+
+	FVector PointDir = PointPos - ThisPos;
+	PointDir.Normalize();
+
+	FVector OtherForward = GetGlobalCharacter(OwnerComp)->GetActorForwardVector();
+	OtherForward.Normalize();
+
+	FVector Cross = FVector::CrossProduct(OtherForward, PointDir);
+
+	float Angle0 = PointDir.Rotation().Yaw;
+	float Angle1 = OtherForward.Rotation().Yaw;
+
+	if (FMath::Abs(Angle0 - Angle1) >= 10.0f)
+	{
+		FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.0f * DeltaSeconds });
+		GetGlobalCharacter(OwnerComp)->AddActorWorldRotation(Rot);
+	}
+	else
+	{
+		FRotator Rot = PointDir.Rotation();
+		GetGlobalCharacter(OwnerComp)->SetActorRotation(Rot);
+	}
+
+	GetGlobalCharacter(OwnerComp)->AddMovementInput(PointDir);
+
+	{
+		FVector Dir = PointPos - ThisPos;
+
+		// PathPoint[index]까지 접근 완료
+		if (50.0f >= Dir.Size())
+		{
+			if (NavPath->PathPoints.Num() - 1 > PathPointIndex)
+			{
+				GetBlackboardComponent(OwnerComp)->SetValueAsInt(TEXT("PathPointIndex"), ++PathPointIndex);
+			}
+		}
+	}
+
+	float SearchRange = GetBlackboardComponent(OwnerComp)->GetValueAsFloat(TEXT("SearchRange"));
+	float AttackRange = GetBlackboardComponent(OwnerComp)->GetValueAsFloat(TEXT("AttackRange"));
+
+	FVector LastDir = TargetPos - ThisPos;
+
+	// 타겟이 탐색 범위보다 멀어질 경우 Idle로 전환
+	if (SearchRange < LastDir.Size())
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
+	}
+
+	// 공격 범위까지 근접
+	if (AttackRange >= LastDir.Size())
+	{
+		SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
+		return;
+	}
 
 	return;
 }

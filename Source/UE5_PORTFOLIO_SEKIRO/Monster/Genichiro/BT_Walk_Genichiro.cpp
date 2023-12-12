@@ -73,8 +73,8 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
 		}
 
-		TargetPos.Z = 0.0f;
 		ThisPos.Z = 0.0f;
+		TargetPos.Z = 0.0f;
 
 		FVector TargetDir = TargetPos - ThisPos;
 		TargetDir.Normalize();

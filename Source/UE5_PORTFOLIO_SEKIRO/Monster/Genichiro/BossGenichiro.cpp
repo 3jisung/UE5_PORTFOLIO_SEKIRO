@@ -45,5 +45,5 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.0f);
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 300.0f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
 }

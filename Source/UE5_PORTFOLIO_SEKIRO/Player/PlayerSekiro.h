@@ -117,7 +117,9 @@ private:
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
 
-	float Speed = 500.0f;
+	float Speed = 0.f;
+	const float DefaultSpeed = 300.0f;
+	const float DashSpeed = 900.0f;
 
 	UPROPERTY(Category = "LockOn", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bLockOn = false;

@@ -19,12 +19,12 @@ APlayerSekiro::APlayerSekiro()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->TargetArmLength = 1300.0f;
+	SpringArmComponent->TargetArmLength = 500.0f;
 	SpringArmComponent->bDoCollisionTest = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->FieldOfView = 45.0f;
+	CameraComponent->FieldOfView = 90.0f;
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
@@ -61,6 +61,8 @@ void APlayerSekiro::BeginPlay()
 	Posture = MaxPosture;
 	Power = StatData->Power;
 
+	Speed = DefaultSpeed;
+
 	// 캐릭터 무기 적용
 	StaticMeshArrays.Add(Inst->GetPlayerMesh(TEXT("Katana")));
 	WeaponMesh->SetStaticMesh(StaticMeshArrays[0]);
@@ -92,13 +94,13 @@ void APlayerSekiro::Tick(float _Delta)
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 	UCharacterMovementComponent* Move = Cast<UCharacterMovementComponent>(GetMovementComponent());
 
-	if (AniStateValue == SekiroState::ForwardWalk)
+	if (AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::ForwardRun)
 	{
 		Move->MaxWalkSpeed = Speed;
 	}
 	else
 	{
-		Move->MaxWalkSpeed = Speed * 0.7f;
+		Move->MaxWalkSpeed = Speed * 0.85f;
 	}
 
 	if (bLockOn)
@@ -462,7 +464,7 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 {
 	if (ActionValue)
 	{
-		Speed = 1800.0f;
+		Speed = DashSpeed;
 		bDash = ActionValue;
 	}
 	else
@@ -484,7 +486,7 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 			FTimerHandle myTimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 				{
-					Speed = 500.0f;
+					Speed = DefaultSpeed;
 					bDash = false;
 
 					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
@@ -492,7 +494,7 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 		}
 		else
 		{
-			Speed = 500.0f;
+			Speed = DefaultSpeed;
 			bDash = ActionValue;
 		}
 	}
