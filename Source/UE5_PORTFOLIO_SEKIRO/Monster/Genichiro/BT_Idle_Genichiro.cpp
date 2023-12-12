@@ -27,7 +27,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (2.0f <= GetStateTime(OwnerComp))
+	if (1.0f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 
@@ -37,6 +37,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		{
 			GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
 
+			// Walk : 견제 / Run : 대상에게 바로 접근
 			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 2);
 			switch (BehaviorValue)
 			{

@@ -112,14 +112,15 @@ void APlayerSekiro::Tick(float _Delta)
 			return;
 		}
 
-		LockedOnLocation.Z -= 150.0f;
+		LockedOnLocation.Z -= 70.0f;
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedOnLocation);
 		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
 		
 		// 프레임 마다 캐릭터와 카메라의 시점 최신화
 		SetActorRotation(FRotator(0.f, InterpRotation.Yaw, 0.f));
-		GetController()->SetControlRotation(InterpRotation);
+		//GetController()->SetControlRotation(InterpRotation);
+		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch - 1.0f, InterpRotation.Yaw, InterpRotation.Roll));
 	}
 }
 
@@ -466,7 +467,7 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 	}
 	else
 	{
-		if (BufferedAction != SekiroState::None && bBufferedCompletedDash == false)
+		if (BufferedAction == SekiroState::ForwardRun && bBufferedCompletedDash == false)
 		{
 			bBufferedCompletedDash = true;
 			return;
@@ -615,7 +616,7 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 	}
 	else
 	{
-		if (BufferedAction != SekiroState::None && bBufferedCompletedGuard == false)
+		if (BufferedAction == SekiroState::Guard && bBufferedCompletedGuard == false)
 		{
 			bBufferedCompletedGuard = true;
 			return;
@@ -998,7 +999,8 @@ void APlayerSekiro::TriggeredPlayerAttack(bool ActionValue, float TriggeredSec)
 		}
 		else
 		{
-			if (BufferedAction != SekiroState::None && bBufferedCompletedAttack == false)
+			if ((BufferedAction == SekiroState::BasicAttack1 || BufferedAction == SekiroState::BasicAttack2
+				|| BufferedAction == SekiroState::BasicAttack3) && bBufferedCompletedAttack == false)
 			{
 				bBufferedCompletedAttack = true;
 			}

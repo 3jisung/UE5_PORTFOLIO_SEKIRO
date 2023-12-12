@@ -34,7 +34,7 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	AActor* TargetActor = Cast<AActor>(TargetObject);
 
 	FVector ThisPos = GetGlobalCharacter(OwnerComp)->GetActorLocation();
-	FVector TargetPos = TargetActor->GetActorLocation();		// 타겟의 현재 위치
+	FVector TargetPos = TargetActor->GetActorLocation();
 
 	if (nullptr == TargetActor)
 	{
@@ -42,6 +42,7 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		return;
 	}
 
+	// 3초간 Walk 후 상태 전환 
 	if (3.0f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
@@ -55,6 +56,7 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
 			return;
 		}
+		// 거리가 멀 경우 Run 상태로 전환하여 거리 좁히기
 		else
 		{
 			SetStateChange(OwnerComp, GenichiroState::ForwardRun);
@@ -100,9 +102,9 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		}
 
 		FVector MoveDir = TargetDir;
-
 		GenichiroState BehaviorState = UBTTask_Genichiro::GetGenichiroState(OwnerComp);
 
+		// 들어온 행동값에 따라 이동 방향 다르게 설정
 		if (BehaviorState == GenichiroState::LeftWalk)
 		{
 			MoveDir = TargetDir.RotateAngleAxis(-90.0f, FVector::UpVector);
