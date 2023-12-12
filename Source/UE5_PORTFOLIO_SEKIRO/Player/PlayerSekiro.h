@@ -125,7 +125,7 @@ private:
 	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bInputWASD = false;
 
-	float LockOnRange = 3000.0f;
+	float LockOnRange = 2500.0f;
 	float LockOnAngle = 30.0f;
 	AMonster* LockedOnTarget;
 	

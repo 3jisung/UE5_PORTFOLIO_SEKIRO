@@ -19,7 +19,7 @@ APlayerSekiro::APlayerSekiro()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->TargetArmLength = 1500.0f;
+	SpringArmComponent->TargetArmLength = 1300.0f;
 	SpringArmComponent->bDoCollisionTest = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
 
@@ -112,7 +112,7 @@ void APlayerSekiro::Tick(float _Delta)
 			return;
 		}
 
-		LockedOnLocation.Z -= 70.0f;
+		LockedOnLocation.Z -= 35.0f;
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedOnLocation);
 		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
@@ -120,7 +120,7 @@ void APlayerSekiro::Tick(float _Delta)
 		// 프레임 마다 캐릭터와 카메라의 시점 최신화
 		SetActorRotation(FRotator(0.f, InterpRotation.Yaw, 0.f));
 		//GetController()->SetControlRotation(InterpRotation);
-		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch - 1.0f, InterpRotation.Yaw, InterpRotation.Roll));
+		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch - 1.5f, InterpRotation.Yaw, InterpRotation.Roll));
 	}
 }
 
