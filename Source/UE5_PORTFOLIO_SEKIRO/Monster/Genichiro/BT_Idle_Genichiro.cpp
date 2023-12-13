@@ -9,6 +9,8 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
+	ResetStateTime(OwnerComp);
+
 	GetGlobalCharacter(OwnerComp)->SetAniState(GenichiroState::Idle);
 
 	GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), nullptr);
@@ -27,7 +29,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (1.0f <= GetStateTime(OwnerComp))
+	if (0.1f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 
@@ -38,7 +40,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
 
 			// Walk : 견제 / Run : 대상에게 바로 접근
-			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 2);
+			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 5);
 			switch (BehaviorValue)
 			{
 			case 0:
@@ -49,12 +51,8 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 				SetStateChange(OwnerComp, GenichiroState::RightWalk);
 				break;
 
-			case 2:
-				SetStateChange(OwnerComp, GenichiroState::ForwardRun);
-				break;
-
 			default:
-				SetStateChange(OwnerComp, GenichiroState::Idle);
+				SetStateChange(OwnerComp, GenichiroState::ForwardRun);
 				break;
 			}
 		}

@@ -24,9 +24,5 @@ public:
 protected:
 	void BeginPlay() override;
 	//void Tick(float _Delta) override;
-
-
-private:
-	void MontageEnd() override;
 	
 };
