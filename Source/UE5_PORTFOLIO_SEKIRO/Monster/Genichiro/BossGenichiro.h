@@ -19,6 +19,7 @@ class UE5_PORTFOLIO_SEKIRO_API ABossGenichiro : public AMonster
 public:
 	ABossGenichiro();
 
+	void AttackMove() override;
 
 protected:
 	void BeginPlay() override;
@@ -26,5 +27,6 @@ protected:
 
 
 private:
+	void MontageEnd() override;
 	
 };

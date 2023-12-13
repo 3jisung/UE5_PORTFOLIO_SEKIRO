@@ -26,7 +26,23 @@ public:
 
 	class UBlackboardComponent* GetBlackboardComponent();
 
+	int GetDeathblowCount()
+	{
+		return DeathblowCount;
+	}
+
+	void SetDeathblowCount(int _DeathblowCount)
+	{
+		DeathblowCount = _DeathblowCount;
+	}
+
 	void LockOnIconOnOff(bool bLockOn);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackMove() { UE_LOG(LogTemp, Error, TEXT("Monster AttackMove")); }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void MontageEnd() { UE_LOG(LogTemp, Error, TEXT("Monster MontageEnd")); }
 
 	const struct FMonsterData* MonsterData;
 	
@@ -47,4 +63,6 @@ protected:
 	class UWidgetComponent* WidgetComponent;
 
 	TSubclassOf<UUserWidget> LockOnIconWidgetClass;
+
+	FTimerHandle AttackMoveTimerHandle;
 };

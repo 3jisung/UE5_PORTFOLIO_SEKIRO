@@ -39,9 +39,7 @@ void APlayerSekiro::BeginPlay()
 	Super::BeginPlay();
 
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
-	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageEnd);
-	//GetGlobalAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &APlayerSekiro::AnimNotifyBegin);
-	//GetGlobalAnimInstance()->OnPlayMontageNotifyEnd.AddDynamic(this, &APlayerSekiro::AnimNotifyEnd);
+	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageBlendingOut);
 
 	SetAniState(SekiroState::Idle);
 
@@ -505,7 +503,7 @@ void APlayerSekiro::StartedPlayerGuard()
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
-		&& AniStateValue != SekiroState::JumpLoop
+		&& AniStateValue != SekiroState::JumpStart && AniStateValue != SekiroState::JumpLoop
 
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
@@ -605,7 +603,8 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 
 	if (ActionValue)
 	{
-		if (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::Guard || AniStateValue == SekiroState::JumpLoop
+		if (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::Guard
+			|| AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop
 			|| AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::BackwardWalk
 			|| AniStateValue == SekiroState::LeftWalk || AniStateValue == SekiroState::RightWalk)
 		{
@@ -638,7 +637,14 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 
 					if (AniStateValue == SekiroState::Guard)
 					{
-						SetAniState(SekiroState::Idle);
+						if (GetMovementComponent()->IsFalling())
+						{
+							SetAniState(SekiroState::JumpLoop);
+						}
+						else
+						{
+							SetAniState(SekiroState::Idle);
+						}
 					}
 
 					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
@@ -648,7 +654,14 @@ void APlayerSekiro::TriggeredPlayerGuard(bool ActionValue, float TriggeredSec)
 		{
 			if (AniStateValue == SekiroState::Guard)
 			{
-				SetAniState(SekiroState::Idle);
+				if (GetMovementComponent()->IsFalling())
+				{
+					SetAniState(SekiroState::JumpLoop);
+				}
+				else
+				{
+					SetAniState(SekiroState::Idle);
+				}
 			}
 
 			if (bGuardTimer == false && HitState == PlayerHitState::GUARD)
@@ -883,7 +896,8 @@ void APlayerSekiro::StartedPlayerAttack()
 	
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
-	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard && AniStateValue != SekiroState::JumpLoop
+	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
+		&& AniStateValue != SekiroState::JumpStart && AniStateValue != SekiroState::JumpLoop
 		
 		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
 		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
@@ -949,7 +963,7 @@ void APlayerSekiro::StartedPlayerAttack()
 
 	bAttackEnable = true;
 
-	if (AniStateValue == SekiroState::JumpLoop || GetCharacterMovement()->IsFalling())
+	if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop || GetCharacterMovement()->IsFalling())
 	{
 		SetAniState(SekiroState::JumpAttack);
 		bAttackEnable = false;
@@ -1047,25 +1061,15 @@ void APlayerSekiro::AttackMove()
 	}
 	else if (AniStateValue == SekiroState::StabAttack2)
 	{
-		AttackMoveImpulse = 8000.0f;
+		AttackMoveImpulse = 5000.0f;
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
 }
 
-void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
+void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
-	if (GetAnimMontage(SekiroState::JumpEnd) == Anim)
-	{
-		SetAniState(SekiroState::Idle);
-	}
-
-	else if (GetAnimMontage(SekiroState::JumpStart) == Anim)
-	{
-		SetAniState(SekiroState::JumpLoop);
-	}
-
-	else if (GetAnimMontage(SekiroState::JumpAttack) == Anim)
+	if (GetAnimMontage(SekiroState::JumpAttack) == Anim)
 	{
 		// 점프 공격 후 여전히 공중이면 점프 상태로, 땅에 닿았을 경우 idle로 전환
 		if (GetMovementComponent()->IsFalling())
@@ -1076,6 +1080,26 @@ void APlayerSekiro::MontageEnd(UAnimMontage* Anim, bool _Inter)
 		{
 			SetAniState(SekiroState::Idle);
 		}
+	}
+}
+
+void APlayerSekiro::MontageEnd()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue == SekiroState::JumpEnd)
+	{
+		SetAniState(SekiroState::Idle);
+	}
+
+	else if (AniStateValue == SekiroState::JumpStart)
+	{
+		SetAniState(SekiroState::JumpLoop);
+	}
+
+	else
+	{
+		SetAniState(SekiroState::Idle);
 	}
 }
 

@@ -71,6 +71,9 @@ public:
 	void AttackMove();
 
 	UFUNCTION(BlueprintCallable)
+	void MontageEnd();
+
+	UFUNCTION(BlueprintCallable)
 	void AttackBegin();
 
 	UFUNCTION(BlueprintCallable)
@@ -109,7 +112,7 @@ protected:
 
 private:
 	UFUNCTION()
-	void MontageEnd(UAnimMontage* Anim, bool _Inter);
+	void MontageBlendingOut(UAnimMontage* Anim, bool _Inter);
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArmComponent;

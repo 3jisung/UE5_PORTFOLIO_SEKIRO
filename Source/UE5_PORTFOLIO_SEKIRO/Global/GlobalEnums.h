@@ -117,6 +117,8 @@ enum class MonsterHitState : uint8
 {
 	NONE UMETA(DisplayName = "사용안함"),
 	OFFGUARD UMETA(DisplayName = "무방비"),
+	GUARD UMETA(DisplayName = "가드"),
+	PARRYING UMETA(DisplayName = "패링"),
 	SUPERARMOR UMETA(DisplayName = "슈퍼아머"),
 	INVINCIBLE UMETA(DisplayName = "무적"),
 };

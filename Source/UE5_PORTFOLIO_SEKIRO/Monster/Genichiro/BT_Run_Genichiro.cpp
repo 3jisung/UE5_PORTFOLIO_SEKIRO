@@ -138,9 +138,45 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 공격 범위까지 근접
 	if (AttackRange >= LastDir.Size())
 	{
-		SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
+		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 4);
+		switch (BehaviorValue)
+		{
+		case 0:
+			SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
+			break;
+
+		case 1:
+			SetStateChange(OwnerComp, GenichiroState::StabAttack);
+			break;
+
+		case 2:
+			SetStateChange(OwnerComp, GenichiroState::TakeDownAttack);
+			break;
+
+		case 3:
+			SetStateChange(OwnerComp, GenichiroState::BottomAttack);
+			break;
+
+		case 4:
+		{
+			ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
+
+			if (Genichiro->GetDeathblowCount() >= 2)
+			{
+				SetStateChange(OwnerComp, GenichiroState::BasicAttack1);
+			}
+			else
+			{
+				SetStateChange(OwnerComp, GenichiroState::ElectricSlash1);
+			}
+
+			break;
+		}
+		default:
+			SetStateChange(OwnerComp, GenichiroState::Idle);
+			break;
+		}
+
 		return;
 	}
-
-	return;
 }

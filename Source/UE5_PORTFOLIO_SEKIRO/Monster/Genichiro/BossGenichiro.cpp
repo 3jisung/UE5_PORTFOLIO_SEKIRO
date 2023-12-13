@@ -47,3 +47,84 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.0f);
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
 }
+
+void ABossGenichiro::AttackMove()
+{
+	float AttackMoveImpulse = 0.f;
+
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::BasicAttack1 || AniStateValue == GenichiroState::BasicAttack2
+		|| AniStateValue == GenichiroState::BasicAttack3)
+	{
+		AttackMoveImpulse = 3000.0f;
+	}
+	else if (AniStateValue == GenichiroState::StabAttack)
+	{
+		AttackMoveImpulse = 5000.0f;
+	}
+
+	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
+}
+
+void ABossGenichiro::MontageEnd()
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::StabAttack || AniStateValue == GenichiroState::BottomAttack)
+	{
+		GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
+	}
+
+	else if (AniStateValue == GenichiroState::BasicAttack1)
+	{
+		SetAniState(GenichiroState::BasicAttack2);
+	}
+
+	else if (AniStateValue == GenichiroState::BasicAttack2)
+	{
+		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 2);
+		switch (BehaviorValue)
+		{
+		case 0:
+			SetAniState(GenichiroState::BasicAttack3);
+			break;
+
+		case 1:
+			SetAniState(GenichiroState::StabAttack);
+			break;
+
+		case 2:
+			SetAniState(GenichiroState::BottomAttack);
+			break;
+
+		default:
+			GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
+			break;
+		}
+	}
+
+	else if (AniStateValue == GenichiroState::TakeDownAttack)
+	{
+		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 2);
+		switch (BehaviorValue)
+		{
+		case 0:
+			SetAniState(GenichiroState::StabAttack);
+			break;
+
+		case 1:
+			SetAniState(GenichiroState::BottomAttack);
+			break;
+
+		default:
+			GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
+			break;
+		}
+	}
+
+	else
+	{
+		GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
+	}
+}

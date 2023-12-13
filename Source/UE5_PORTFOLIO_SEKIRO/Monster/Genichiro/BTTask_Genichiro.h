@@ -9,6 +9,7 @@
 #include "../../Global/GlobalEnums.h"
 #include "../../Global/GlobalCharacter.h"
 #include "../../Global/GlobalFunctionLibrary.h"
+#include "BossGenichiro.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "BTTask_Genichiro.generated.h"
