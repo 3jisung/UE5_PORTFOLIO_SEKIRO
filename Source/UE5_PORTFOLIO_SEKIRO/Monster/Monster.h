@@ -44,11 +44,35 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void MontageEnd() { UE_LOG(LogTemp, Error, TEXT("Monster MontageEnd")); }
 
+	UFUNCTION(BlueprintCallable)
+	virtual void Damage() { UE_LOG(LogTemp, Error, TEXT("Monster Damage")); }
+
 	const struct FMonsterData* MonsterData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* WeaponMesh;
 	
 
 protected:
 	void BeginPlay() override;
+
+	UFUNCTION()
+	void BeginOverLap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void EndOverLap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBehaviorTree* BehaviorTree;

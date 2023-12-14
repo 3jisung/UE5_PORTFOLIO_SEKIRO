@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GlobalAnimInstance.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()
@@ -16,32 +18,32 @@ public:
 	// Sets default values for this character's properties
 	AGlobalCharacter();
 
-	int GetHP()
+	float GetHP()
 	{
 		return HP;
 	}
 
-	void SetHP(int _HP)
+	void SetHP(float _HP)
 	{
 		HP = _HP;
 	}
 
-	int GetPosture()
+	float GetPosture()
 	{
 		return Posture;
 	}
 
-	void SetPosture(int _Posture)
+	void SetPosture(float _Posture)
 	{
 		Posture = _Posture;
 	}
 
-	int GetPower()
+	float GetPower()
 	{
 		return Power;
 	}
 
-	void SetPower(int _Power)
+	void SetPower(float _Power)
 	{
 		Power = _Power;
 	}
@@ -118,8 +120,6 @@ public:
 		return AllSound[static_cast<int>(_Index)];
 	}
 
-	void SetHitState();
-
 
 protected:
 	// Called when the game starts or when spawned
@@ -139,19 +139,22 @@ protected:
 	TMap<int, class USoundBase*> AllSound;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	int HP = 0;
+	float HP = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	int MaxHP = 0;
+	float MaxHP = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	int Posture = 0;
+	float Posture = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
-	int MaxPosture = 0;
+	float MaxPosture = 0;
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
 	float Power = 0;
+
+	// 피격 이벤트 시 사용할 충돌 관리 변수
+	bool bCollisionActor = false;
 
 
 private:

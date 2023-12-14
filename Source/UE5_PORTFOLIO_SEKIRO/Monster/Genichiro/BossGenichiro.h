@@ -21,6 +21,8 @@ public:
 
 	void AttackMove() override;
 
+	void Damage() override;
+
 protected:
 	void BeginPlay() override;
 	//void Tick(float _Delta) override;

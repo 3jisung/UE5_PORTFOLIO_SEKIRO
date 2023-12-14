@@ -22,6 +22,9 @@ AMonster::AMonster()
 	WidgetComponent->SetDrawSize(FVector2D(10.f, 10.f));
 	WidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 30.f));
 	WidgetComponent->SetupAttachment(RootComponent);
+
+	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMesh->SetupAttachment(GetMesh(), TEXT("Weapon"));
 }
 
 void AMonster::BeginPlay()
@@ -29,6 +32,10 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	Tags.Add(TEXT("Monster"));
+
+	// 무기 콜리전 설정
+	WeaponMesh->OnComponentBeginOverlap.AddDynamic(this, &AMonster::BeginOverLap);
+	WeaponMesh->OnComponentEndOverlap.AddDynamic(this, &AMonster::EndOverLap);
 }
 
 UBlackboardComponent* AMonster::GetBlackboardComponent()
@@ -57,5 +64,33 @@ void AMonster::LockOnIconOnOff(bool bLockOn)
 	else
 	{
 		WidgetComponent->SetWidgetClass(nullptr);
+	}
+}
+
+void AMonster::BeginOverLap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+)
+{
+	if (OtherActor->ActorHasTag(TEXT("Player")))
+	{
+		bCollisionActor = true;
+	}
+}
+
+void AMonster::EndOverLap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+)
+{
+	if (OtherActor->ActorHasTag(TEXT("Player")))
+	{
+		bCollisionActor = false;
 	}
 }

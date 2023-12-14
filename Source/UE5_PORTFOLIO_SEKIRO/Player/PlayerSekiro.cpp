@@ -41,6 +41,10 @@ void APlayerSekiro::BeginPlay()
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageBlendingOut);
 
+	// 무기 콜리전 설정
+	WeaponMesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerSekiro::BeginOverLap);
+	WeaponMesh->OnComponentEndOverlap.AddDynamic(this, &APlayerSekiro::EndOverLap);
+
 	SetAniState(SekiroState::Idle);
 
 	// 선입력 버퍼 초기화
@@ -127,6 +131,128 @@ void APlayerSekiro::Tick(float _Delta)
 void APlayerSekiro::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void APlayerSekiro::BeginOverLap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult
+)
+{
+	if (OtherActor->ActorHasTag(TEXT("Monster")))
+	{
+		bCollisionActor = true;
+	}
+}
+
+void APlayerSekiro::EndOverLap(
+	UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex
+)
+{
+	if (OtherActor->ActorHasTag(TEXT("Monster")))
+	{
+		bCollisionActor = false;
+	}
+}
+
+float APlayerSekiro::TakeDamage(float DamageAmount,
+	struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	//if (DamageEvent.DamageTypeClass == UCustomDamageType::StaticClass())
+	//{
+	//	Cast<UCustomDamageType>(DamageEvent.DamageTypeClass)
+	//}
+
+	if (HitState == PlayerHitState::OFFGUARD)
+	{
+		HP -= DamageAmount;
+		Posture -= DamageAmount;
+
+		if (HP <= 0)
+		{
+			HP = 0;
+		}
+
+		if (Posture <= 0)
+		{
+			Posture = 0;
+		}
+
+		if (HP == 0)
+		{
+			HitState = PlayerHitState::INVINCIBLE;
+			SetAniState(SekiroState::Death);
+		}
+		else if (Posture == 0)
+		{
+			Posture = 100;
+
+			GetCharacterMovement()->AddImpulse(GetActorForwardVector() * -5000.0f, true);
+			SetAniState(SekiroState::Exhaust);
+		}
+		else
+		{
+			GetCharacterMovement()->AddImpulse(GetActorForwardVector() * -5000.0f, true);
+			SetAniState(SekiroState::Hit);
+		}
+	}
+	else if (HitState == PlayerHitState::GUARD)
+	{
+		Posture -= DamageAmount;
+
+		GetCharacterMovement()->AddImpulse(GetActorForwardVector() * -5000.0f, true);
+
+		if (Posture <= 0)
+		{
+			Posture = 100;
+
+			HitState = PlayerHitState::OFFGUARD;
+			SetAniState(SekiroState::Exhaust);
+		}
+	}
+	else if (HitState == PlayerHitState::PARRYING)
+	{
+		Posture -= (DamageAmount * 0.5);
+
+		GetCharacterMovement()->AddImpulse(GetActorForwardVector() * -5000.0f, true);
+
+		if (Posture <= 0)
+		{
+			Posture = 0.1f;
+		}
+
+		HitState = PlayerHitState::OFFGUARD;
+		SetAniState((int)SekiroState::Parrying1 + ParryingCount);
+
+		++ParryingCount;
+		if (ParryingCount > 1)
+		{
+			ParryingCount = 0;
+		}
+	}
+	else if (HitState == PlayerHitState::DASHINVINCIBLE)
+	{
+		SekiroState AniStateValue = GetAniState<SekiroState>();
+		AMonster* Monster = Cast<AMonster>(DamageCauser);
+
+		if (AniStateValue == SekiroState::ForwardRun)
+		{
+
+		}
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("hit test"));
+
+	return Damage;
 }
 
 void APlayerSekiro::MoveForward(float Val)

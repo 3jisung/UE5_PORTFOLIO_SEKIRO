@@ -21,6 +21,11 @@ class UE5_PORTFOLIO_SEKIRO_API APlayerSekiro : public AGlobalCharacter
 public:
 	APlayerSekiro();
 
+	float TakeDamage(float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser) override;
+
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Val);
 
@@ -108,6 +113,24 @@ protected:
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION()
+	void BeginOverLap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	UFUNCTION()
+	void EndOverLap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex
+	);
 
 
 private:

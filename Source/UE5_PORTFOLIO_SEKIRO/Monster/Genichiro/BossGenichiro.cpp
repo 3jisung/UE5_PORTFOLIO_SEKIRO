@@ -4,7 +4,9 @@
 #include "BossGenichiro.h"
 #include "../../Global/GlobalAnimInstance.h"
 #include "../../Global/GlobalGameInstance.h"
+#include "../../Player/PlayerSekiro.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
@@ -65,4 +67,49 @@ void ABossGenichiro::AttackMove()
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
+}
+
+void ABossGenichiro::Damage()
+{
+	if (bCollisionActor == false)
+	{
+		return;
+	}
+
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	float AttackDamage = 0.f;
+
+	if (AniStateValue == GenichiroState::BasicAttack1 || AniStateValue == GenichiroState::BasicAttack2
+		|| AniStateValue == GenichiroState::BasicAttack3)
+	{
+		AttackDamage = Power;
+	}
+	else if (AniStateValue == GenichiroState::StabAttack || AniStateValue == GenichiroState::TakeDownAttack
+		|| AniStateValue == GenichiroState::BottomAttack)
+	{
+		AttackDamage = Power * 2;
+	}
+	else if (AniStateValue == GenichiroState::ElectricSlash2)
+	{
+		AttackDamage = Power * 3;
+	}
+	else
+	{
+		AttackDamage = 0.f;
+	}
+
+	UObject* TargetObject = GetBlackboardComponent()->GetValueAsObject(TEXT("TargetActor"));
+	APlayerSekiro* TargetActor = Cast<APlayerSekiro>(TargetObject);
+
+	if (TargetActor == nullptr)
+	{
+		return;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("damage test"));
+		//UCustomDamageType CustomDamageType;
+		//UGameplayStatics::ApplyDamage(TargetActor, AttackDamage, GetController(), this, a);
+	}
 }

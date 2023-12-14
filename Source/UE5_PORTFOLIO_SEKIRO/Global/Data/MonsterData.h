@@ -18,10 +18,10 @@ struct UE5_PORTFOLIO_SEKIRO_API FMonsterData : public FTableRowBase
 	~FMonsterData() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	int MaxHP;
+	float MaxHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	int MaxPosture;
+	float MaxPosture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float Power;
