@@ -26,6 +26,12 @@ public:
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
 
+	void GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType);
+	void ExhaustAction();
+	void DeathAction();
+
+	void PostureRecoveryManagerTimer();
+
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Val);
 
@@ -153,8 +159,8 @@ private:
 	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bInputWASD = false;
 
-	float LockOnRange = 2500.0f;
-	float LockOnAngle = 30.0f;
+	const float LockOnRange = 2500.0f;
+	const float LockOnAngle = 30.0f;
 	AMonster* LockedOnTarget;
 	
 	bool bResearchEnable = true;
@@ -192,13 +198,24 @@ private:
 	bool bAttackValid = true;
 
 	float ParryingValidTime = 0.2f;
-	float MaxGuardValidTime = 0.4f;
+	const float MaxGuardValidTime = 0.4f;
 	float PreGuardTime = 0.f;
 	bool bGuardTimer = false;
+
+	// 뇌반 실패 시 받을 데미지 저장
+	float SavedDamage = 0.f;
+
+	// 체간 회복량
+	const float MaxPostureRecoveryAmount = 0.2f;
+	float PostureRecoveryAmount = 0.f;
+	// 가드 상태일 때 체간 회복 가능 상태인지 체크
+	// 가드만 누르면서 체간을 쉽게 회복하지 못하도록 하기 위함
+	bool bEnablePostureRecovery = true;
 
 	FTimerHandle StartedDashTimerHandle;
 	FTimerHandle DashAttackMoveTimerHandle;
 	FTimerHandle AttackMoveTimerHandle;
 	FTimerHandle ParryingTimerHandle;
 	FTimerHandle GuardTimerHandle;
+	FTimerHandle PostureRecoveryManagerTimerHandle;
 };

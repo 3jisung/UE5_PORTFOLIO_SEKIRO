@@ -18,6 +18,16 @@ EBTNodeResult::Type UBT_Attack_Genichiro::ExecuteTask(UBehaviorTreeComponent& Ow
 void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	if (IsDeathCheck(OwnerComp))
+	{
+		return;
+	}
+	
+	if (IsGetHitCheck(OwnerComp))
+	{
+		return;
+	}
 	
 	// 공격 시 방향 조정
 	{
@@ -60,7 +70,7 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	{
 		if (NotifyEvent.GetNotifyEventName() == TEXT("AnimNotify_ComboTrigger"))
 		{
-			ComboTime = NotifyEvent.GetTriggerTime();
+			ComboTime = NotifyEvent.GetTriggerTime() * (1 / Montage->RateScale);
 			break;
 		}
 	}
@@ -132,7 +142,7 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	// 단타형 공격 or 마지막 콤보 공격
 	else
 	{
-		float MontageLength = Montage->CalculateSequenceLength();
+		float MontageLength = Montage->CalculateSequenceLength() * (1 / Montage->RateScale);
 
 		if (MontageLength <= GetStateTime(OwnerComp))
 		{

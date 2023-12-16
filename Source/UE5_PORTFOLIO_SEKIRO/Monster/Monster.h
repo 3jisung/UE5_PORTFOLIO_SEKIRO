@@ -74,6 +74,9 @@ protected:
 		int32 OtherBodyIndex
 	);
 
+	virtual bool IsGetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
+	virtual bool IsDeathCheck() { UE_LOG(LogTemp, Error, TEXT("Monster DeathCheck")); return false; }
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBehaviorTree* BehaviorTree;
 
@@ -87,6 +90,8 @@ protected:
 	class UWidgetComponent* WidgetComponent;
 
 	TSubclassOf<UUserWidget> LockOnIconWidgetClass;
+
+	MonsterHitState HitState = MonsterHitState::OFFGUARD;
 
 	FTimerHandle AttackMoveTimerHandle;
 };

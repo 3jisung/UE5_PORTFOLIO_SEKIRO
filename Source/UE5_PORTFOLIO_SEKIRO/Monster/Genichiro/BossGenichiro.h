@@ -19,6 +19,18 @@ class UE5_PORTFOLIO_SEKIRO_API ABossGenichiro : public AMonster
 public:
 	ABossGenichiro();
 
+	float TakeDamage(float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser) override;
+
+	void ExhaustAction();
+	void DeathblowAction();
+	void DeathAction();
+
+	bool IsGetHitCheck() override;
+	bool IsDeathCheck() override;
+
 	void AttackMove() override;
 
 	void Damage() override;

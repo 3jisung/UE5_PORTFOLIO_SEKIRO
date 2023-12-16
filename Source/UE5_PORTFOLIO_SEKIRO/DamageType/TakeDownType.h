@@ -14,4 +14,6 @@ class UE5_PORTFOLIO_SEKIRO_API UTakeDownType : public UCustomDamageTypeBase
 {
 	GENERATED_BODY()
 	
+public:
+	UTakeDownType();
 };

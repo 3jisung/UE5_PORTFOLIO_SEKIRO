@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BottomType.h"
+#include "MikiriType.h"
 
 
-UBottomType::UBottomType()
+UMikiriType::UMikiriType()
 {
-	DamageMultiple = 2.0f;
-	PushPower = 3000.0f;
+	DamageMultiple = 4.0f;
+	PushPower = 0.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;
 	bEnableMikiri = false;
-	bEnableJumpEvasion = true;
+	bEnableJumpEvasion = false;
 	bEnableLightningReversal = false;
 }

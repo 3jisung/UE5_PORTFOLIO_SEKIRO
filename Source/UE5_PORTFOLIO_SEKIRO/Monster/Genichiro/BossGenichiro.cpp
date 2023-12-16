@@ -4,9 +4,7 @@
 #include "BossGenichiro.h"
 #include "../../Global/GlobalAnimInstance.h"
 #include "../../Global/GlobalGameInstance.h"
-#include "../../Player/PlayerSekiro.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
@@ -50,20 +48,121 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
 }
 
+float ABossGenichiro::TakeDamage(float DamageAmount,
+	struct FDamageEvent const& DamageEvent,
+	class AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UCustomDamageTypeBase* DamageType;
+
+	// 데미지 타입 확인
+	if (DamageEvent.DamageTypeClass == UBasicAttackType::StaticClass())
+	{
+		DamageType = Cast<UBasicAttackType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+	}
+	else if (DamageEvent.DamageTypeClass == UStabType::StaticClass())
+	{
+		DamageType = Cast<UStabType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+	}
+	else if (DamageEvent.DamageTypeClass == UMikiriType::StaticClass())
+	{
+		DamageType = Cast<UMikiriType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		Posture -= DamageAmount * (DamageType->DamageMultiple);
+
+		if (Posture <= 0)
+		{
+			ExhaustAction();
+		}
+		else
+		{
+			SetAniState(GenichiroState::MikiriCounter1);
+		}
+
+		return Damage;
+	}
+	else if (DamageEvent.DamageTypeClass == UTrampleType::StaticClass())
+	{
+		DamageType = Cast<UTrampleType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+	}
+	else
+	{
+		return Damage;
+	}
+
+	// 추가 구현
+
+	return Damage;
+}
+
+void ABossGenichiro::ExhaustAction()
+{
+	Posture = 0;
+
+	SetAniState(GenichiroState::ExhaustStart);
+	
+	//HitState = MonsterHitState::OFFGUARD;
+	//SetAniState(SekiroState::Exhaust);
+}
+
+void ABossGenichiro::DeathblowAction()
+{
+	//HitState = MonsterHitState::OFFGUARD;
+	//SetAniState(SekiroState::Exhaust);
+}
+
+void ABossGenichiro::DeathAction()
+{
+	//HitState = MonsterHitState::OFFGUARD;
+	//SetAniState(SekiroState::Death);
+}
+
+bool ABossGenichiro::IsGetHitCheck()
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::Hit || AniStateValue == GenichiroState::ExhaustStart
+		|| AniStateValue == GenichiroState::MikiriCounter1 || AniStateValue == GenichiroState::Shock
+		|| AniStateValue == GenichiroState::Deathblow1 || AniStateValue == GenichiroState::Guard
+		|| AniStateValue == GenichiroState::Parrying1 || AniStateValue == GenichiroState::Parrying2)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ABossGenichiro::IsDeathCheck()
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::Death)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void ABossGenichiro::AttackMove()
 {
 	float AttackMoveImpulse = 0.f;
 
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
-	if (AniStateValue == GenichiroState::BasicAttack1 || AniStateValue == GenichiroState::BasicAttack2
-		|| AniStateValue == GenichiroState::BasicAttack3)
-	{
-		AttackMoveImpulse = 3000.0f;
-	}
-	else if (AniStateValue == GenichiroState::StabAttack)
+	if (AniStateValue == GenichiroState::StabAttack)
 	{
 		AttackMoveImpulse = 5000.0f;
+	}
+	else
+	{
+		AttackMoveImpulse = 3000.0f;
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
@@ -77,30 +176,36 @@ void ABossGenichiro::Damage()
 	}
 
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
-
-	float AttackDamage = 0.f;
+	TSubclassOf<UDamageType> DamageType;
 
 	if (AniStateValue == GenichiroState::BasicAttack1 || AniStateValue == GenichiroState::BasicAttack2
 		|| AniStateValue == GenichiroState::BasicAttack3)
 	{
-		AttackDamage = Power;
+		DamageType = UBasicAttackType::StaticClass();
 	}
-	else if (AniStateValue == GenichiroState::StabAttack || AniStateValue == GenichiroState::TakeDownAttack
-		|| AniStateValue == GenichiroState::BottomAttack)
+	else if (AniStateValue == GenichiroState::StabAttack)
 	{
-		AttackDamage = Power * 2;
+		DamageType = UStabType::StaticClass();
+	}
+	else if (AniStateValue == GenichiroState::TakeDownAttack)
+	{
+		DamageType = UTakeDownType::StaticClass();
+	}
+	else if (AniStateValue == GenichiroState::BottomAttack)
+	{
+		DamageType = UBottomType::StaticClass();
 	}
 	else if (AniStateValue == GenichiroState::ElectricSlash2)
 	{
-		AttackDamage = Power * 3;
+		DamageType = UElectricSlashType::StaticClass();
 	}
 	else
 	{
-		AttackDamage = 0.f;
+		DamageType = UDamageType::StaticClass();
 	}
 
 	UObject* TargetObject = GetBlackboardComponent()->GetValueAsObject(TEXT("TargetActor"));
-	APlayerSekiro* TargetActor = Cast<APlayerSekiro>(TargetObject);
+	AActor* TargetActor = Cast<AActor>(TargetObject);
 
 	if (TargetActor == nullptr)
 	{
@@ -108,8 +213,6 @@ void ABossGenichiro::Damage()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("damage test"));
-		//UCustomDamageType CustomDamageType;
-		//UGameplayStatics::ApplyDamage(TargetActor, AttackDamage, GetController(), this, a);
+		UGameplayStatics::ApplyDamage(TargetActor, this->Power, GetController(), this, DamageType);
 	}
 }

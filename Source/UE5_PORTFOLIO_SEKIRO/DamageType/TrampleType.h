@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "CustomDamageTypeBase.h"
-#include "BottomType.generated.h"
+#include "TrampleType.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UBottomType : public UCustomDamageTypeBase
+class UE5_PORTFOLIO_SEKIRO_API UTrampleType : public UCustomDamageTypeBase
 {
 	GENERATED_BODY()
 	
 public:
-	UBottomType();
+	UTrampleType();
 };

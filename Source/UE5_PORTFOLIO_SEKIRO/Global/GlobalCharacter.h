@@ -7,6 +7,14 @@
 #include "GlobalAnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
+#include "Kismet/GameplayStatics.h"
+#include "../DamageType/BasicAttackType.h"
+#include "../DamageType/StabType.h"
+#include "../DamageType/TakeDownType.h"
+#include "../DamageType/BottomType.h"
+#include "../DamageType/ElectricSlashType.h"
+#include "../DamageType/MikiriType.h"
+#include "../DamageType/TrampleType.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()

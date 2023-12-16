@@ -14,4 +14,6 @@ class UE5_PORTFOLIO_SEKIRO_API UBasicAttackType : public UCustomDamageTypeBase
 {
 	GENERATED_BODY()
 	
+public:
+	UBasicAttackType();
 };

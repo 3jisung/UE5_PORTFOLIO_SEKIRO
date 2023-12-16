@@ -164,9 +164,24 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 	return ResultActor;
 }
 
+bool UBTTask_Genichiro::IsGetHitCheck(UBehaviorTreeComponent& OwnerComp)
+{
+	ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
+
+	if (Genichiro->IsGetHitCheck())
+	{
+		SetStateChange(OwnerComp, Genichiro->GetAniState<GenichiroState>());
+		return true;
+	}
+
+	return false;
+}
+
 bool UBTTask_Genichiro::IsDeathCheck(UBehaviorTreeComponent& OwnerComp)
 {
-	if (0 >= GetGlobalCharacter(OwnerComp)->GetHP())
+	ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
+
+	if (Genichiro->IsDeathCheck())
 	{
 		SetStateChange(OwnerComp, GenichiroState::Death);
 		return true;

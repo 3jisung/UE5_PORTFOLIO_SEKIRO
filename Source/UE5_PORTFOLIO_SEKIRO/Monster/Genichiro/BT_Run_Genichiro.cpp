@@ -36,6 +36,16 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
+	if (IsDeathCheck(OwnerComp))
+	{
+		return;
+	}
+
+	if (IsGetHitCheck(OwnerComp))
+	{
+		return;
+	}
+
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
 	AActor* TargetActor = Cast<AActor>(TargetObject);
 
