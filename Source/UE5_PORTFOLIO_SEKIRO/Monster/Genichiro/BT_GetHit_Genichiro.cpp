@@ -24,9 +24,13 @@ void UBT_GetHit_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		return;
 	}
 
-	// 방향, 위치 조정 추가
-	{
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+	AActor* TargetActor = Cast<AActor>(TargetObject);
 
+	if (nullptr == TargetActor)
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
 	}
 
 	UAnimMontage* Montage = GetGlobalCharacter(OwnerComp)->GetAnimMontage(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
@@ -34,8 +38,10 @@ void UBT_GetHit_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	if (Time <= GetStateTime(OwnerComp))
 	{
 		GenichiroState BehaviorState = UBTTask_Genichiro::GetGenichiroState(OwnerComp);
+
 		if (BehaviorState == GenichiroState::MikiriCounter1)
 		{
+			GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.0f);
 			SetStateChange(OwnerComp, GenichiroState::MikiriCounter2);
 		}
 		else

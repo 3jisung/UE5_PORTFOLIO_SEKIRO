@@ -38,6 +38,11 @@ void AMonster::BeginPlay()
 	WeaponMesh->OnComponentEndOverlap.AddDynamic(this, &AMonster::EndOverLap);
 }
 
+void AMonster::Tick(float _Delta)
+{
+	Super::Tick(_Delta);
+}
+
 UBlackboardComponent* AMonster::GetBlackboardComponent()
 {
 	if (nullptr == BlackboardComponent)

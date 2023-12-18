@@ -94,6 +94,9 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		PointPos = NavPath->PathPoints[PathPointIndex];
 	}
 
+	// 방향 조정
+	GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, PointPos, 10.0f);
+
 	ThisPos.Z = 0.0f;
 	PointPos.Z = 0.0f;
 	TargetPos.Z = 0.0f;
@@ -101,25 +104,7 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	FVector PointDir = PointPos - ThisPos;
 	PointDir.Normalize();
 
-	FVector OtherForward = GetGlobalCharacter(OwnerComp)->GetActorForwardVector();
-	OtherForward.Normalize();
-
-	FVector Cross = FVector::CrossProduct(OtherForward, PointDir);
-
-	float Angle0 = PointDir.Rotation().Yaw;
-	float Angle1 = OtherForward.Rotation().Yaw;
-
-	if (FMath::Abs(Angle0 - Angle1) >= 10.0f)
-	{
-		FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.0f * DeltaSeconds });
-		GetGlobalCharacter(OwnerComp)->AddActorWorldRotation(Rot);
-	}
-	else
-	{
-		FRotator Rot = PointDir.Rotation();
-		GetGlobalCharacter(OwnerComp)->SetActorRotation(Rot);
-	}
-
+	// 이동
 	GetGlobalCharacter(OwnerComp)->AddMovementInput(PointDir);
 
 	{

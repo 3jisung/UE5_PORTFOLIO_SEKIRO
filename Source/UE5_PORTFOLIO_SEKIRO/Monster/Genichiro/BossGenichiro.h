@@ -24,6 +24,7 @@ public:
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
 
+	void GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser);
 	void ExhaustAction();
 	void DeathblowAction();
 	void DeathAction();
@@ -37,6 +38,8 @@ public:
 
 protected:
 	void BeginPlay() override;
-	//void Tick(float _Delta) override;
+	void Tick(float _Delta) override;
 	
+private:
+	int ParryingCount = 0;
 };

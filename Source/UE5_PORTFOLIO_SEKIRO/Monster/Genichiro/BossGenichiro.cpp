@@ -48,6 +48,28 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
 }
 
+void ABossGenichiro::Tick(float _Delta)
+{
+	Super::Tick(_Delta);
+
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (bEnablePostureRecovery)
+	{
+		// 기본 자세 or 걷는 도중엔 체간 회복
+		if (AniStateValue == GenichiroState::Idle
+			|| AniStateValue == GenichiroState::LeftWalk || AniStateValue == GenichiroState::RightWalk)
+		{
+			Posture += PostureRecoveryAmount;
+		}
+
+		if (Posture > 100)
+		{
+			Posture = 100.0f;
+		}
+	}	
+}
+
 float ABossGenichiro::TakeDamage(float DamageAmount,
 	struct FDamageEvent const& DamageEvent,
 	class AController* EventInstigator,
@@ -57,7 +79,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 	UCustomDamageTypeBase* DamageType;
 
-	// 데미지 타입 확인
+	// 데미지 타입 확인 및 특수 이벤트 처리(찌르기, 간파하기, 트렘플, 뇌반)
 	if (DamageEvent.DamageTypeClass == UBasicAttackType::StaticClass())
 	{
 		DamageType = Cast<UBasicAttackType>(DamageEvent.DamageTypeClass->GetDefaultObject());
@@ -65,6 +87,11 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	else if (DamageEvent.DamageTypeClass == UStabType::StaticClass())
 	{
 		DamageType = Cast<UStabType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		if (HitState == MonsterHitState::GUARD)
+		{
+			HitState = MonsterHitState::PARRYING;
+		}
 	}
 	else if (DamageEvent.DamageTypeClass == UMikiriType::StaticClass())
 	{
@@ -92,9 +119,85 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 
-	// 추가 구현
+	// 공격 방향 체크
+	if (CheckAngle(DamageCauser->GetActorLocation(), 90.0f))
+	{
+		GetHitExecute(DamageAmount, DamageType, DamageCauser);
+
+		return Damage;
+	}
+
+	if (HitState == MonsterHitState::GUARD && DamageType->bEnableGuard)
+	{
+		Posture -= DamageAmount * (DamageType->DamageMultiple);
+
+		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+
+		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
+		bEnablePostureRecovery = false;
+		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
+
+		if (Posture <= 0)
+		{
+			ExhaustAction();
+		}
+	}
+	else if (HitState == MonsterHitState::PARRYING && DamageType->bEnableParrying)
+	{
+		// 패링 성공 시 체간 데미지 25% 감소
+		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
+
+		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+
+		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
+		bEnablePostureRecovery = false;
+		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
+
+		if (Posture <= 0)
+		{
+			Posture = 0.1f;
+		}
+
+		SetAniState((int)GenichiroState::Parrying1 + ParryingCount);
+
+		++ParryingCount;
+		if (ParryingCount > 1)
+		{
+			ParryingCount = 0;
+		}
+	}
+	else
+	{
+		GetHitExecute(DamageAmount, DamageType, DamageCauser);
+	}
 
 	return Damage;
+}
+
+void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser)
+{
+	HP -= DamageAmount * (DamageType->DamageMultiple);
+	Posture -= DamageAmount * (DamageType->DamageMultiple);
+
+	if (HP <= 0)
+	{
+		ExhaustAction();
+	}
+	else if (Posture <= 0)
+	{
+		ExhaustAction();
+	}
+	else
+	{
+		if (DamageCauser == nullptr)
+		{
+			return;
+		}
+
+		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+
+		SetAniState(GenichiroState::Hit);
+	}
 }
 
 void ABossGenichiro::ExhaustAction()
@@ -158,7 +261,7 @@ void ABossGenichiro::AttackMove()
 
 	if (AniStateValue == GenichiroState::StabAttack)
 	{
-		AttackMoveImpulse = 5000.0f;
+		AttackMoveImpulse = 6000.0f;
 	}
 	else
 	{

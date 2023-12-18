@@ -34,33 +34,7 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
 		AActor* TargetActor = Cast<AActor>(TargetObject);
 
-		FVector ThisPos = GetGlobalCharacter(OwnerComp)->GetActorLocation();
-		FVector TargetPos = TargetActor->GetActorLocation();
-
-		ThisPos.Z = 0.0f;
-		TargetPos.Z = 0.0f;
-
-		FVector TargetDir = TargetPos - ThisPos;
-		TargetDir.Normalize();
-
-		FVector OtherForward = GetGlobalCharacter(OwnerComp)->GetActorForwardVector();
-		OtherForward.Normalize();
-
-		FVector Cross = FVector::CrossProduct(OtherForward, TargetDir);
-
-		float Angle0 = TargetDir.Rotation().Yaw;
-		float Angle1 = OtherForward.Rotation().Yaw;
-
-		if (FMath::Abs(Angle0 - Angle1) >= 10.0f)
-		{
-			FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.0f * DeltaSeconds });
-			GetGlobalCharacter(OwnerComp)->AddActorWorldRotation(Rot);
-		}
-		else
-		{
-			FRotator Rot = TargetDir.Rotation();
-			GetGlobalCharacter(OwnerComp)->SetActorRotation(Rot);
-		}
+		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.0f);
 	}
 
 	UAnimMontage* Montage = GetGlobalCharacter(OwnerComp)->GetAnimMontage(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
@@ -146,8 +120,17 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 
 		if (MontageLength <= GetStateTime(OwnerComp))
 		{
-			ResetStateTime(OwnerComp);
-			SetStateChange(OwnerComp, GenichiroState::Idle);
+			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 5);
+			switch (BehaviorValue)
+			{
+			case 0:
+				SetStateChange(OwnerComp, GenichiroState::Idle);
+				break;
+
+			default:
+				SetStateChange(OwnerComp, GenichiroState::ForwardRun);
+				break;
+			}
 		}
 	}
 }

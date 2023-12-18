@@ -56,6 +56,11 @@ public:
 		Power = _Power;
 	}
 
+	void PostureRecoveryManagerTimer()
+	{
+		bEnablePostureRecovery = true;
+	}
+
 	int GetAniState()
 	{
 		return AniState;
@@ -128,6 +133,12 @@ public:
 		return AllSound[static_cast<int>(_Index)];
 	}
 
+	// 특정 액터와 Rotation 맞추는 함수
+	void AdjustAngle(float DeltaSeconds, FVector TargetPos, float Angle);
+
+	// 특정 액터와 Angle만큼의 Rotation 차이가 있는지 체크
+	bool CheckAngle(FVector TargetPos, float Angle);
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -163,6 +174,10 @@ protected:
 
 	// 피격 이벤트 시 사용할 충돌 관리 변수
 	bool bCollisionActor = false;
+
+	// 가드 상태일 때 체간 회복 가능 상태인지 체크
+	bool bEnablePostureRecovery = true;
+	FTimerHandle PostureRecoveryManagerTimerHandle;
 
 
 private:

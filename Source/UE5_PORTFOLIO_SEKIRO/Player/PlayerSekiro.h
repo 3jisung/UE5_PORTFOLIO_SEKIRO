@@ -26,7 +26,7 @@ public:
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
 
-	void GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType);
+	void GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser);
 	void ExhaustAction();
 	void DeathAction();
 
@@ -208,14 +208,10 @@ private:
 	// 체간 회복량
 	const float MaxPostureRecoveryAmount = 0.2f;
 	float PostureRecoveryAmount = 0.f;
-	// 가드 상태일 때 체간 회복 가능 상태인지 체크
-	// 가드만 누르면서 체간을 쉽게 회복하지 못하도록 하기 위함
-	bool bEnablePostureRecovery = true;
 
 	FTimerHandle StartedDashTimerHandle;
 	FTimerHandle DashAttackMoveTimerHandle;
 	FTimerHandle AttackMoveTimerHandle;
 	FTimerHandle ParryingTimerHandle;
 	FTimerHandle GuardTimerHandle;
-	FTimerHandle PostureRecoveryManagerTimerHandle;
 };

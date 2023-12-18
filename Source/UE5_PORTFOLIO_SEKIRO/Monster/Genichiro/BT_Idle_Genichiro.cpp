@@ -39,37 +39,39 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		return;
 	}
 
-	if (0.1f <= GetStateTime(OwnerComp))
+	AActor* ResultActor = GetTargetSearch(OwnerComp);
+
+	if (nullptr != ResultActor)
+	{
+		GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
+
+		// 방향 조정
+		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, ResultActor->GetActorLocation(), 10.0f);
+	}
+	else
+	{
+		return;
+	}
+
+	if (0.5f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 
-		AActor* ResultActor = GetTargetSearch(OwnerComp);
-
-		if (nullptr != ResultActor)
+		// Walk : 견제 / Run : 대상에게 바로 접근
+		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 9);
+		switch (BehaviorValue)
 		{
-			GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), ResultActor);
+		case 0:
+			SetStateChange(OwnerComp, GenichiroState::LeftWalk);
+			break;
 
-			// Walk : 견제 / Run : 대상에게 바로 접근
-			int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 9);
-			switch (BehaviorValue)
-			{
-			case 0:
-				SetStateChange(OwnerComp, GenichiroState::LeftWalk);
-				break;
-				
-			case 1:
-				SetStateChange(OwnerComp, GenichiroState::RightWalk);
-				break;
+		case 1:
+			SetStateChange(OwnerComp, GenichiroState::RightWalk);
+			break;
 
-			default:
-				SetStateChange(OwnerComp, GenichiroState::ForwardRun);
-				break;
-			}
-		}
-
-		else
-		{
-			return;
+		default:
+			SetStateChange(OwnerComp, GenichiroState::ForwardRun);
+			break;
 		}
 	}
 }

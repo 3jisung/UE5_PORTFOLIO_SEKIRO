@@ -85,45 +85,24 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
 		}
 
+		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetPos, 10.0f);
+
 		ThisPos.Z = 0.0f;
 		TargetPos.Z = 0.0f;
 
-		FVector TargetDir = TargetPos - ThisPos;
-		TargetDir.Normalize();
+		FVector MoveDir = TargetPos - ThisPos;
+		MoveDir.Normalize();
 
-		FVector OtherForward = GetGlobalCharacter(OwnerComp)->GetActorForwardVector();
-		OtherForward.Normalize();
-
-		// 벡터곱을 통해 타겟과의 각도 방향을 알 수 있다.(정확히는 벡터곱의 Z값)
-		FVector Cross = FVector::CrossProduct(OtherForward, TargetDir);
-
-		float Angle0 = TargetDir.Rotation().Yaw;
-		float Angle1 = OtherForward.Rotation().Yaw;
-
-		// 정면 벡터를 기준으로 타겟과 방향이 10.0f 이상 어긋날 경우 방향 조정
-		if (FMath::Abs(Angle0 - Angle1) >= 10.0f)
-		{
-			FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.0f * DeltaSeconds });
-			GetGlobalCharacter(OwnerComp)->AddActorWorldRotation(Rot);
-		}
-		// 그 외에는 방향값 그대로 유지
-		else
-		{
-			FRotator Rot = TargetDir.Rotation();
-			GetGlobalCharacter(OwnerComp)->SetActorRotation(Rot);
-		}
-
-		FVector MoveDir = TargetDir;
 		GenichiroState BehaviorState = UBTTask_Genichiro::GetGenichiroState(OwnerComp);
 
 		// 들어온 행동값에 따라 이동 방향 다르게 설정
 		if (BehaviorState == GenichiroState::LeftWalk)
 		{
-			MoveDir = TargetDir.RotateAngleAxis(-90.0f, FVector::UpVector);
+			MoveDir = MoveDir.RotateAngleAxis(-90.0f, FVector::UpVector);
 		}
 		else if (BehaviorState == GenichiroState::RightWalk)
 		{
-			MoveDir = TargetDir.RotateAngleAxis(90.0f, FVector::UpVector);
+			MoveDir = MoveDir.RotateAngleAxis(90.0f, FVector::UpVector);
 		}
 		else
 		{
