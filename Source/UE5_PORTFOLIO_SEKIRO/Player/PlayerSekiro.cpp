@@ -182,6 +182,7 @@ void APlayerSekiro::BeginOverLap(
 	if (OtherActor->ActorHasTag(TEXT("Monster")))
 	{
 		bCollisionActor = true;
+		CollidedTarget = OtherActor;
 	}
 }
 
@@ -195,6 +196,7 @@ void APlayerSekiro::EndOverLap(
 	if (OtherActor->ActorHasTag(TEXT("Monster")))
 	{
 		bCollisionActor = false;
+		CollidedTarget = nullptr;
 	}
 }
 
@@ -247,6 +249,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	{
 		if (AniStateValue == SekiroState::ForwardRun && DamageType->bEnableMikiri)
 		{
+			BufferedAction = SekiroState::None;
+			
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
 
@@ -263,6 +267,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	// 뇌격은 공중에 있으면 뇌반 가능, 그 외에는 타뢰
 	else if (DamageType->bEnableLightningReversal && GetMovementComponent()->IsFalling())
 	{
+		BufferedAction = SekiroState::None;
+
 		HP -= (DamageAmount * 0.5f);
 
 		if (HP <= 0)
@@ -287,6 +293,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	// 그 외 일반적인 피격 처리
 	if (HitState == PlayerHitState::GUARD && DamageType->bEnableGuard)
 	{
+		BufferedAction = SekiroState::None;
+		
 		Posture -= DamageAmount * (DamageType->DamageMultiple);
 
 		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * DamageType->PushPower, true);
@@ -304,6 +312,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	}
 	else if (HitState == PlayerHitState::PARRYING && DamageType->bEnableParrying)
 	{
+		BufferedAction = SekiroState::None;
+		
 		// 패링 성공 시 체간 데미지 25% 감소
 		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
 
@@ -337,6 +347,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser)
 {
+	BufferedAction = SekiroState::None;
+	
 	HP -= DamageAmount * (DamageType->DamageMultiple);
 	Posture -= DamageAmount * (DamageType->DamageMultiple);
 
@@ -347,7 +359,6 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 	else if (DamageType->GetClass() == UElectricSlashType::StaticClass())
 	{
 		SetAniState(SekiroState::Shock);
-		return;
 	}
 	else if (Posture <= 0)
 	{
@@ -389,6 +400,53 @@ void APlayerSekiro::DeathAction()
 
 	HitState = PlayerHitState::INVINCIBLE;
 	SetAniState(SekiroState::Death);
+}
+
+void APlayerSekiro::Damage()
+{
+	if (bCollisionActor == false)
+	{
+		return;
+	}
+
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+	TSubclassOf<UDamageType> DamageType;
+
+	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
+		|| AniStateValue == SekiroState::BasicAttack3 || AniStateValue == SekiroState::DashAttack
+		|| AniStateValue == SekiroState::JumpAttack)
+	{
+		DamageType = UBasicAttackType::StaticClass();
+	}
+	else if (AniStateValue == SekiroState::StabAttack2)
+	{
+		DamageType = UStabType::StaticClass();
+	}
+	else if (AniStateValue == SekiroState::MikiriCounter)
+	{
+		DamageType = UMikiriType::StaticClass();
+	}
+	else if (AniStateValue == SekiroState::LightningReversal2)
+	{
+		DamageType = UElectricSlashType::StaticClass();
+	}
+	else if (AniStateValue == SekiroState::Trample)
+	{
+		DamageType = UTrampleType::StaticClass();
+	}
+	else
+	{
+		DamageType = UDamageType::StaticClass();
+	}
+
+	if (CollidedTarget == nullptr)
+	{
+		return;
+	}
+	else
+	{
+		UGameplayStatics::ApplyDamage(CollidedTarget, this->Power, GetController(), this, DamageType);
+	}
 }
 
 

@@ -13,6 +13,8 @@ EBTNodeResult::Type UBT_Run_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owner
 
 	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
 
+	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
+
 	UCharacterMovementComponent* MoveCom = Cast<UCharacterMovementComponent>(GetGlobalCharacter(OwnerComp)->GetMovementComponent());
 
 	if (nullptr != MoveCom)
@@ -36,12 +38,7 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	if (IsDeathCheck(OwnerComp))
-	{
-		return;
-	}
-
-	if (IsGetHitCheck(OwnerComp))
+	if (AnimChangeCheck(OwnerComp))
 	{
 		return;
 	}
@@ -50,12 +47,6 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	AActor* TargetActor = Cast<AActor>(TargetObject);
 
 	if (nullptr == TargetActor)
-	{
-		SetStateChange(OwnerComp, GenichiroState::Idle);
-		return;
-	}
-
-	if (true == IsDeathCheck(OwnerComp))
 	{
 		SetStateChange(OwnerComp, GenichiroState::Idle);
 		return;

@@ -164,26 +164,14 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 	return ResultActor;
 }
 
-bool UBTTask_Genichiro::IsGetHitCheck(UBehaviorTreeComponent& OwnerComp)
+bool UBTTask_Genichiro::AnimChangeCheck(UBehaviorTreeComponent& OwnerComp)
 {
 	ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
+	uint8 Enum = GetBlackboardComponent(OwnerComp)->GetValueAsEnum(TEXT("GenichiroState"));
 
-	if (Genichiro->IsGetHitCheck())
+	if (Genichiro->GetAniState() != Enum)
 	{
 		SetStateChange(OwnerComp, Genichiro->GetAniState<GenichiroState>());
-		return true;
-	}
-
-	return false;
-}
-
-bool UBTTask_Genichiro::IsDeathCheck(UBehaviorTreeComponent& OwnerComp)
-{
-	ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
-
-	if (Genichiro->IsDeathCheck())
-	{
-		SetStateChange(OwnerComp, GenichiroState::Death);
 		return true;
 	}
 
@@ -197,9 +185,6 @@ UNavigationPath* UBTTask_Genichiro::PathFindNavPath(UBehaviorTreeComponent& Owne
 
 UNavigationPath* UBTTask_Genichiro::PathFindNavPath(UBehaviorTreeComponent& _OwnerComp, FVector _EndPos)
 {
-	// 찾아내는 경로를 TArray<FVector> 그냥 이런 데이터로 주지는 않는다.
-
-// 찾아내는 경로가 유효한가?
 	UNavigationPath* PathObject = nullptr;
 	FVector StartPos = GetGlobalCharacter(_OwnerComp)->GetActorLocation();
 	FVector EndPos = _EndPos;

@@ -36,6 +36,16 @@ public:
 		DeathblowCount = _DeathblowCount;
 	}
 
+	MonsterHitState GetHitState()
+	{
+		return HitState;
+	}
+
+	void SetHitState(MonsterHitState _HitState)
+	{
+		HitState = _HitState;
+	}
+
 	void LockOnIconOnOff(bool bLockOn);
 
 	UFUNCTION(BlueprintCallable)
@@ -43,9 +53,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void MontageEnd() { UE_LOG(LogTemp, Error, TEXT("Monster MontageEnd")); }
-
-	UFUNCTION(BlueprintCallable)
-	virtual void Damage() { UE_LOG(LogTemp, Error, TEXT("Monster Damage")); }
 
 	const struct FMonsterData* MonsterData;
 
@@ -75,8 +82,10 @@ protected:
 		int32 OtherBodyIndex
 	);
 
-	virtual bool IsGetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
-	virtual bool IsDeathCheck() { UE_LOG(LogTemp, Error, TEXT("Monster DeathCheck")); return false; }
+	virtual bool GetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
+	virtual bool BlockCheck() { UE_LOG(LogTemp, Error, TEXT("Monster BlockCheck")); return false; }
+	virtual bool IsExhaust() { UE_LOG(LogTemp, Error, TEXT("Monster ExhaustCheck")); return false; }
+	virtual bool IsDeath() { UE_LOG(LogTemp, Error, TEXT("Monster DeathCheck")); return false; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBehaviorTree* BehaviorTree;

@@ -127,7 +127,11 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 
-	if (HitState == MonsterHitState::GUARD && DamageType->bEnableGuard)
+	if (HitState == MonsterHitState::INVINCIBLE)
+	{
+		return Damage;
+	}
+	else if (HitState == MonsterHitState::GUARD && DamageType->bEnableGuard)
 	{
 		Posture -= DamageAmount * (DamageType->DamageMultiple);
 
@@ -140,6 +144,10 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		if (Posture <= 0)
 		{
 			ExhaustAction();
+		}
+		else
+		{
+			SetAniState(GenichiroState::Guard);
 		}
 	}
 	else if (HitState == MonsterHitState::PARRYING && DamageType->bEnableParrying)
@@ -194,6 +202,11 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 			return;
 		}
 
+		if (HitState == MonsterHitState::SUPERARMOR)
+		{
+			return;
+		}
+
 		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
 
 		SetAniState(GenichiroState::Hit);
@@ -222,13 +235,26 @@ void ABossGenichiro::DeathAction()
 	//SetAniState(SekiroState::Death);
 }
 
-bool ABossGenichiro::IsGetHitCheck()
+bool ABossGenichiro::GetHitCheck()
 {
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
-	if (AniStateValue == GenichiroState::Hit || AniStateValue == GenichiroState::ExhaustStart
-		|| AniStateValue == GenichiroState::MikiriCounter1 || AniStateValue == GenichiroState::Shock
-		|| AniStateValue == GenichiroState::Deathblow1 || AniStateValue == GenichiroState::Guard
+	if (AniStateValue == GenichiroState::Hit || AniStateValue == GenichiroState::MikiriCounter1
+		|| AniStateValue == GenichiroState::Shock || AniStateValue == GenichiroState::Deathblow1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ABossGenichiro::BlockCheck()
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::Guard
 		|| AniStateValue == GenichiroState::Parrying1 || AniStateValue == GenichiroState::Parrying2)
 	{
 		return true;
@@ -239,7 +265,21 @@ bool ABossGenichiro::IsGetHitCheck()
 	}
 }
 
-bool ABossGenichiro::IsDeathCheck()
+bool ABossGenichiro::IsExhaust()
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::ExhaustStart)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ABossGenichiro::IsDeath()
 {
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
@@ -307,15 +347,12 @@ void ABossGenichiro::Damage()
 		DamageType = UDamageType::StaticClass();
 	}
 
-	UObject* TargetObject = GetBlackboardComponent()->GetValueAsObject(TEXT("TargetActor"));
-	AActor* TargetActor = Cast<AActor>(TargetObject);
-
-	if (TargetActor == nullptr)
+	if (CollidedTarget == nullptr)
 	{
 		return;
 	}
 	else
 	{
-		UGameplayStatics::ApplyDamage(TargetActor, this->Power, GetController(), this, DamageType);
+		UGameplayStatics::ApplyDamage(CollidedTarget, this->Power, GetController(), this, DamageType);
 	}
 }

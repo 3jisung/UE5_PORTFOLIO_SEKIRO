@@ -46,6 +46,11 @@ public:
 		Posture = _Posture;
 	}
 
+	float GetMaxPosture()
+	{
+		return MaxPosture;
+	}
+
 	float GetPower()
 	{
 		return Power;
@@ -133,6 +138,9 @@ public:
 		return AllSound[static_cast<int>(_Index)];
 	}
 
+	UFUNCTION(BlueprintCallable)
+	virtual void Damage() { UE_LOG(LogTemp, Error, TEXT("Global Damage")); }
+
 	// 특정 액터와 Rotation 맞추는 함수
 	void AdjustAngle(float DeltaSeconds, FVector TargetPos, float Angle);
 
@@ -174,6 +182,7 @@ protected:
 
 	// 피격 이벤트 시 사용할 충돌 관리 변수
 	bool bCollisionActor = false;
+	AActor* CollidedTarget = nullptr;
 
 	// 가드 상태일 때 체간 회복 가능 상태인지 체크
 	bool bEnablePostureRecovery = true;

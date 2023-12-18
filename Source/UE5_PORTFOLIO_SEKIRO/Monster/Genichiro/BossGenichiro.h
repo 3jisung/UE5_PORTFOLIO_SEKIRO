@@ -29,8 +29,10 @@ public:
 	void DeathblowAction();
 	void DeathAction();
 
-	bool IsGetHitCheck() override;
-	bool IsDeathCheck() override;
+	bool GetHitCheck() override;
+	bool BlockCheck() override;
+	bool IsExhaust() override;
+	bool IsDeath() override;
 
 	void AttackMove() override;
 

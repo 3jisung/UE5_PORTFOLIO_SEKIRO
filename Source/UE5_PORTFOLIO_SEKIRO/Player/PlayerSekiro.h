@@ -30,7 +30,7 @@ public:
 	void ExhaustAction();
 	void DeathAction();
 
-	void PostureRecoveryManagerTimer();
+	void Damage() override;
 
 	UFUNCTION(BlueprintCallable)
 	void MoveForward(float Val);

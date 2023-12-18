@@ -84,6 +84,7 @@ void AMonster::BeginOverLap(
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
 		bCollisionActor = true;
+		CollidedTarget = OtherActor;
 	}
 }
 
@@ -97,5 +98,6 @@ void AMonster::EndOverLap(
 	if (OtherActor->ActorHasTag(TEXT("Player")))
 	{
 		bCollisionActor = false;
+		CollidedTarget = nullptr;
 	}
 }

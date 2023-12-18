@@ -46,8 +46,8 @@ public:
 
 	class AActor* GetTargetSearch(UBehaviorTreeComponent& OwnerComp);
 
-	bool IsGetHitCheck(UBehaviorTreeComponent& OwnerComp);
-	bool IsDeathCheck(UBehaviorTreeComponent& OwnerComp);
+	bool AnimChangeCheck(UBehaviorTreeComponent& OwnerComp);
+	//bool IsDeath(UBehaviorTreeComponent& OwnerComp);
 
 	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, AActor* _Actor);
 	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, FVector _Pos);
