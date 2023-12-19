@@ -95,7 +95,13 @@ bool AGlobalCharacter::CheckAngle(FVector TargetPos, float Angle)
 	}
 }
 
-TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, FVector _TraceDir, float _TraceAngle, float _TraceRange)
+TArray<AActor*> AGlobalCharacter::TraceObjects(
+	EObjectTypeQuery _ObjectType,
+	FVector _TraceDir,
+	float _TraceAngle,
+	float _TraceRange,
+	float _SphereRadius
+)
 {
 	FVector TraceDirVector = _TraceDir;
 
@@ -121,7 +127,7 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, FVe
 			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
 
 			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
-				GetWorld(), StartPoint, EndPoint, 200.f,
+				GetWorld(), StartPoint, EndPoint, _SphereRadius,
 				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::None,
 				HitResult, true);
 
@@ -154,7 +160,14 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, FVe
 	return HitActor;
 }
 
-TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, TArray<AActor*> _ActorsToNotTargeting, FVector _TraceDir, float _TraceAngle, float _TraceRange)
+TArray<AActor*> AGlobalCharacter::TraceObjects(
+	EObjectTypeQuery _ObjectType,
+	TArray<AActor*> _ActorsToNotTargeting,
+	FVector _TraceDir,
+	float _TraceAngle,
+	float _TraceRange,
+	float _SphereRadius
+)
 {
 	FVector TraceDirVector = _TraceDir;
 
@@ -177,7 +190,7 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, TAr
 			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
 
 			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
-				GetWorld(), StartPoint, EndPoint, 200.f,
+				GetWorld(), StartPoint, EndPoint, _SphereRadius,
 				ObjectTypeToLock, false, _ActorsToNotTargeting, EDrawDebugTrace::None,
 				HitResult, true);
 

@@ -37,6 +37,7 @@ enum class SekiroState : uint8
 	Guard UMETA(DisplayName = "가드"),
 	Parrying1 UMETA(DisplayName = "패링1"),
 	Parrying2 UMETA(DisplayName = "패링2"),
+	Blocked UMETA(DisplayName = "경직"),
 	MikiriCounter UMETA(DisplayName = "간파하기"),
 
 	Hit UMETA(DisplayName = "히트"),
@@ -96,6 +97,7 @@ enum class GenichiroState : uint8
 	Guard UMETA(DisplayName = "가드"),
 	Parrying1 UMETA(DisplayName = "패링1"),
 	Parrying2 UMETA(DisplayName = "패링2"),
+	Blocked UMETA(DisplayName = "경직"),
 
 	Hit UMETA(DisplayName = "히트"),
 	ExhaustStart UMETA(DisplayName = "탈진시작"),

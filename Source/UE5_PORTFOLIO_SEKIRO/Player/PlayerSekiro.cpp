@@ -198,6 +198,16 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UElectricSlashType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 	}
+	else if (DamageEvent.DamageTypeClass == UParryType::StaticClass())
+	{
+		DamageType = Cast<UParryType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		SetAniState(SekiroState::Blocked);
+
+		BufferedAction = SekiroState::None;
+
+		return Damage;
+	}
 	else
 	{
 		return Damage;
@@ -215,13 +225,18 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	{
 		if (AniStateValue == SekiroState::ForwardRun && DamageType->bEnableMikiri)
 		{
-			BufferedAction = SekiroState::None;
-			
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
 
+			BufferedAction = SekiroState::None;
+
 			TSubclassOf<UDamageType> HitDamageType = UMikiriType::StaticClass();
 			UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
+		}
+		// 하단 베기는 대쉬 무적으로 회피 불가능
+		else if (DamageType->GetClass() == UBottomType::StaticClass())
+		{
+			GetHitExecute(DamageAmount, DamageType, DamageCauser);
 		}
 
 		return Damage;
@@ -233,8 +248,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	// 뇌격은 공중에 있으면 뇌반 가능, 그 외에는 타뢰
 	else if (DamageType->bEnableLightningReversal && GetMovementComponent()->IsFalling())
 	{
-		BufferedAction = SekiroState::None;
-
 		HP -= (DamageAmount * 0.5f);
 
 		if (HP <= 0)
@@ -245,6 +258,9 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 		SavedDamage = DamageAmount;
 		SetAniState(SekiroState::LightningReversal1);
+
+		BufferedAction = SekiroState::None;
+
 		return Damage;
 	}
 	// Rotation 체크(상대방의 위치와 90도 이상 차이날 경우 무적 상태가 아닌 이상 무조건 피격)
@@ -259,8 +275,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	// 그 외 일반적인 피격 처리
 	if (HitState == PlayerHitState::GUARD && DamageType->bEnableGuard)
 	{
-		BufferedAction = SekiroState::None;
-		
 		Posture -= DamageAmount * (DamageType->DamageMultiple);
 
 		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * DamageType->PushPower, true);
@@ -275,11 +289,11 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		{
 			ExhaustAction();
 		}
+
+		BufferedAction = SekiroState::None;
 	}
 	else if (HitState == PlayerHitState::PARRYING && DamageType->bEnableParrying)
 	{
-		BufferedAction = SekiroState::None;
-		
 		// 패링 성공 시 체간 데미지 25% 감소
 		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
 
@@ -302,6 +316,12 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		{
 			ParryingCount = 0;
 		}
+
+		BufferedAction = SekiroState::None;
+
+		// 패링 시 체간 반사 데미지
+		TSubclassOf<UDamageType> HitDamageType = UParryType::StaticClass();
+		UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
 	}
 	else
 	{
@@ -372,7 +392,7 @@ void APlayerSekiro::Damage()
 {
 	// 범위에 있는 Monster 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 200.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 100.0f, 100.0f);
 
 	if (HitActor.Num() == 0)
 	{
@@ -995,7 +1015,7 @@ void APlayerSekiro::LockOnTarget()
 	{
 		// Monster 콜리전 탐색
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange, 200.0f);
 
 		float ClosestDist = LockOnRange;
 		AActor* ClosestHitActor = nullptr;
@@ -1044,7 +1064,7 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 		ActorsToNotTargeting.Add(LockedOnTarget);
 
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f, 200.0f);
 
 		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
 		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
@@ -1334,6 +1354,17 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 	{
 		HitState = PlayerHitState::OFFGUARD;
 		SetAniState(SekiroState::Idle);
+	}
+	else if (Anim == GetAnimMontage(SekiroState::Blocked))
+	{
+		float delayTime = 0.3f;
+		FTimerHandle myTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				SetAniState(SekiroState::Idle);
+
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+			}), delayTime, false);
 	}
 }
 

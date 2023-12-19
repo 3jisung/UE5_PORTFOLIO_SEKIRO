@@ -54,6 +54,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void MontageEnd() { UE_LOG(LogTemp, Error, TEXT("Monster MontageEnd")); }
 
+	UFUNCTION(BlueprintCallable)
+	void OffGuard()
+	{
+		HitState = MonsterHitState::OFFGUARD;
+	}
+
 	const struct FMonsterData* MonsterData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -15,6 +15,7 @@
 #include "../DamageType/ElectricSlashType.h"
 #include "../DamageType/MikiriType.h"
 #include "../DamageType/TrampleType.h"
+#include "../DamageType/ParryType.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()
@@ -149,9 +150,22 @@ public:
 
 	// 특정 오브젝트 탐색
 	// 탐색 제외 액터가 없는 경우(this 제외)
-	TArray<AActor*> TraceObjects(EObjectTypeQuery _ObjectType, FVector _TraceDir, float _TraceAngle, float _TraceRange);
+	TArray<AActor*> TraceObjects(
+		EObjectTypeQuery _ObjectType,
+		FVector _TraceDir,
+		float _TraceAngle,
+		float _TraceRange,
+		float _SphereRadius
+	);
 	// 탐색 제외 액터가 있는 경우
-	TArray<AActor*> TraceObjects(EObjectTypeQuery _ObjectType, TArray<AActor*> _ActorsToNotTargeting, FVector _TraceDir, float _TraceAngle, float _TraceRange);
+	TArray<AActor*> TraceObjects(
+		EObjectTypeQuery _ObjectType,
+		TArray<AActor*> _ActorsToNotTargeting,
+		FVector _TraceDir,
+		float _TraceAngle,
+		float _TraceRange,
+		float _SphereRadius
+	);
 
 
 protected:

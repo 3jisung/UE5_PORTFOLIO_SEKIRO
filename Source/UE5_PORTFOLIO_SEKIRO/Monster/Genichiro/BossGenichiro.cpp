@@ -45,7 +45,7 @@ void ABossGenichiro::BeginPlay()
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.0f);
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 200.0f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 150.0f);
 }
 
 void ABossGenichiro::Tick(float _Delta)
@@ -114,6 +114,25 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UTrampleType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 	}
+	else if (DamageEvent.DamageTypeClass == UParryType::StaticClass())
+	{
+		DamageType = Cast<UParryType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		Posture -= DamageAmount * (DamageType->DamageMultiple);
+
+		GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+		if (Posture <= 0)
+		{
+			ExhaustAction();
+		}
+		else if (AniStateValue == GenichiroState::BasicAttack3)
+		{
+			SetAniState(GenichiroState::Blocked);
+		}
+
+		return Damage;
+	}
 	else
 	{
 		return Damage;
@@ -173,6 +192,9 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		{
 			ParryingCount = 0;
 		}
+
+		TSubclassOf<UDamageType> HitDamageType = UParryType::StaticClass();
+		UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
 	}
 	else
 	{
@@ -315,7 +337,7 @@ void ABossGenichiro::Damage()
 {
 	// 범위에 있는 Player 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 200.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 100.0f, 100.0f);
 
 	if (HitActor.Num() == 0)
 	{
