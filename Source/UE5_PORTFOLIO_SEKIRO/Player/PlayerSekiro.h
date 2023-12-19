@@ -100,6 +100,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CheckBufferedInput();
 
+	void ClearBuffer();
+
 
 	const struct FPlayerStatData* StatData;
 

@@ -47,6 +47,7 @@ public:
 	}
 
 	void LockOnIconOnOff(bool bLockOn);
+	void DeathblowIconOnOff(bool bExhaust);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackMove() { UE_LOG(LogTemp, Error, TEXT("Monster AttackMove")); }
@@ -70,6 +71,9 @@ protected:
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 
+	UFUNCTION()
+	virtual void MontageBlendingOut(UAnimMontage* Anim, bool _Inter) { UE_LOG(LogTemp, Error, TEXT("Monster BlendingOut")); }
+
 	virtual bool GetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
 	virtual bool BlockCheck() { UE_LOG(LogTemp, Error, TEXT("Monster BlockCheck")); return false; }
 	virtual bool IsExhaust() { UE_LOG(LogTemp, Error, TEXT("Monster ExhaustCheck")); return false; }
@@ -85,9 +89,13 @@ protected:
 	int DeathblowCount;
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite)
-	class UWidgetComponent* WidgetComponent;
+	class UWidgetComponent* LockOnWidgetComponent;
+
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite)
+	class UWidgetComponent* DeathblowWidgetComponent;
 
 	TSubclassOf<UUserWidget> LockOnIconWidgetClass;
+	TSubclassOf<UUserWidget> DeathblowIconWidgetClass;
 
 	MonsterHitState HitState = MonsterHitState::OFFGUARD;
 

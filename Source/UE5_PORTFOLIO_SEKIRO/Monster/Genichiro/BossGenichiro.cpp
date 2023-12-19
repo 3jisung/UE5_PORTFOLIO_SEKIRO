@@ -18,6 +18,9 @@ void ABossGenichiro::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 애니메이션 종료 시 MontageEnd를 콜백한다.
+	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &ABossGenichiro::MontageBlendingOut);
+
 	Tags.Add(TEXT("아시나 겐이치로"));
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
@@ -68,6 +71,20 @@ void ABossGenichiro::Tick(float _Delta)
 			Posture = 100.0f;
 		}
 	}	
+}
+
+void ABossGenichiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
+{
+	GenichiroState AniStateValue = GetAniState<GenichiroState>();
+
+	if (AniStateValue == GenichiroState::ExhaustStart)
+	{
+		DeathblowIconOnOff(true);
+	}
+	else if (AniStateValue == GenichiroState::ExhaustLoop)
+	{
+		DeathblowIconOnOff(false);
+	}
 }
 
 float ABossGenichiro::TakeDamage(float DamageAmount,

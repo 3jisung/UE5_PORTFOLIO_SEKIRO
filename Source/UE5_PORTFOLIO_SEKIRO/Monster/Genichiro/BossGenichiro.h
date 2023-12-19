@@ -43,5 +43,7 @@ protected:
 	void Tick(float _Delta) override;
 	
 private:
+	void MontageBlendingOut(UAnimMontage* Anim, bool _Inter) override;
+
 	int ParryingCount = 0;
 };

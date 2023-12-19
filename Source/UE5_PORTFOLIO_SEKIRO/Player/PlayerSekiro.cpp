@@ -175,6 +175,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
+	ClearBuffer();
+
 	UCustomDamageTypeBase* DamageType;
 
 	// 데미지 타입 확인
@@ -204,8 +206,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 		SetAniState(SekiroState::Blocked);
 
-		BufferedAction = SekiroState::None;
-
 		return Damage;
 	}
 	else
@@ -227,8 +227,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		{
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
-
-			BufferedAction = SekiroState::None;
 
 			TSubclassOf<UDamageType> HitDamageType = UMikiriType::StaticClass();
 			UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
@@ -259,8 +257,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		SavedDamage = DamageAmount;
 		SetAniState(SekiroState::LightningReversal1);
 
-		BufferedAction = SekiroState::None;
-
 		return Damage;
 	}
 	// Rotation 체크(상대방의 위치와 90도 이상 차이날 경우 무적 상태가 아닌 이상 무조건 피격)
@@ -289,8 +285,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		{
 			ExhaustAction();
 		}
-
-		BufferedAction = SekiroState::None;
 	}
 	else if (HitState == PlayerHitState::PARRYING && DamageType->bEnableParrying)
 	{
@@ -317,8 +311,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 			ParryingCount = 0;
 		}
 
-		BufferedAction = SekiroState::None;
-
 		// 패링 시 체간 반사 데미지
 		TSubclassOf<UDamageType> HitDamageType = UParryType::StaticClass();
 		UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
@@ -333,8 +325,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser)
 {
-	BufferedAction = SekiroState::None;
-	
 	HP -= DamageAmount * (DamageType->DamageMultiple);
 	Posture -= DamageAmount * (DamageType->DamageMultiple);
 
@@ -1128,12 +1118,12 @@ void APlayerSekiro::StartedPlayerAttack()
 		return;
 	}
 
-	// 연타 최소 시간 0.2초로 제한
+	// 연타 제한 시간
 	if (bAttackValid)
 	{
 		bAttackValid = false;
 
-		float delayTime = 0.2;
+		float delayTime = 0.1;
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
@@ -1322,6 +1312,9 @@ void APlayerSekiro::AttackMove()
 
 void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
+	bEnteredTransition = false;
+	bAttackCombo = false;
+	
 	if (Anim == GetAnimMontage(SekiroState::JumpAttack))
 	{
 		// 점프 공격 후 여전히 공중이면 점프 상태로, 땅에 닿았을 경우 idle로 전환
@@ -1334,10 +1327,8 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 			SetAniState(SekiroState::Idle);
 		}
 	}
-	else if(Anim == GetAnimMontage(SekiroState::Hit) || Anim == GetAnimMontage(SekiroState::Exhaust)
-		|| Anim == GetAnimMontage(SekiroState::Shock) || Anim == GetAnimMontage(SekiroState::Heal)
-		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2)
-		|| Anim == GetAnimMontage(SekiroState::LightningReversal2))
+	else if(Anim == GetAnimMontage(SekiroState::Hit)
+		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2))
 	{
 		SetAniState(SekiroState::Idle);
 	}
@@ -1491,4 +1482,16 @@ void APlayerSekiro::CheckBufferedInput()
 	}
 
 	bEnteredTransition = true;
+}
+
+void APlayerSekiro::ClearBuffer()
+{
+	BufferedAction = SekiroState::None;
+
+	bAttackEnable = false;
+	bDashAttackMove = false;
+
+	bBufferedCompletedAttack = false;
+	bBufferedCompletedDash = false;
+	bBufferedCompletedGuard = false;
 }
