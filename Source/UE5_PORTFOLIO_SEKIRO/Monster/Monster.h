@@ -64,24 +64,6 @@ protected:
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 
-	UFUNCTION()
-	void BeginOverLap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-
-	UFUNCTION()
-	void EndOverLap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
-
 	virtual bool GetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
 	virtual bool BlockCheck() { UE_LOG(LogTemp, Error, TEXT("Monster BlockCheck")); return false; }
 	virtual bool IsExhaust() { UE_LOG(LogTemp, Error, TEXT("Monster ExhaustCheck")); return false; }

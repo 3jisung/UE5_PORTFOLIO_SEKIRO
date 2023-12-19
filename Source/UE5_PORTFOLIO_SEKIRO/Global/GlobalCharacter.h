@@ -147,6 +147,12 @@ public:
 	// 특정 액터와 Angle만큼의 Rotation 차이가 있는지 체크
 	bool CheckAngle(FVector TargetPos, float Angle);
 
+	// 특정 오브젝트 탐색
+	// 탐색 제외 액터가 없는 경우(this 제외)
+	TArray<AActor*> TraceObjects(EObjectTypeQuery _ObjectType, FVector _TraceDir, float _TraceAngle, float _TraceRange);
+	// 탐색 제외 액터가 있는 경우
+	TArray<AActor*> TraceObjects(EObjectTypeQuery _ObjectType, TArray<AActor*> _ActorsToNotTargeting, FVector _TraceDir, float _TraceAngle, float _TraceRange);
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -179,10 +185,6 @@ protected:
 
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
 	float Power = 0;
-
-	// 피격 이벤트 시 사용할 충돌 관리 변수
-	bool bCollisionActor = false;
-	AActor* CollidedTarget = nullptr;
 
 	// 가드 상태일 때 체간 회복 가능 상태인지 체크
 	bool bEnablePostureRecovery = true;

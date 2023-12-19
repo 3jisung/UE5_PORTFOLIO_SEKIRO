@@ -313,7 +313,11 @@ void ABossGenichiro::AttackMove()
 
 void ABossGenichiro::Damage()
 {
-	if (bCollisionActor == false)
+	// 범위에 있는 Player 콜리전 탐색
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 200.0f);
+
+	if (HitActor.Num() == 0)
 	{
 		return;
 	}
@@ -347,12 +351,8 @@ void ABossGenichiro::Damage()
 		DamageType = UDamageType::StaticClass();
 	}
 
-	if (CollidedTarget == nullptr)
+	for (AActor* Target : HitActor)
 	{
-		return;
-	}
-	else
-	{
-		UGameplayStatics::ApplyDamage(CollidedTarget, this->Power, GetController(), this, DamageType);
+		UGameplayStatics::ApplyDamage(Target, this->Power, GetController(), this, DamageType);
 	}
 }

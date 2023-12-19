@@ -94,3 +94,118 @@ bool AGlobalCharacter::CheckAngle(FVector TargetPos, float Angle)
 		return false;
 	}
 }
+
+TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, FVector _TraceDir, float _TraceAngle, float _TraceRange)
+{
+	FVector TraceDirVector = _TraceDir;
+
+	TArray<AActor*> ActorsToNotTargeting;
+	ActorsToNotTargeting.Add(this);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
+	EObjectTypeQuery ObjectType = _ObjectType;
+	ObjectTypeToLock.Emplace(ObjectType);
+
+	FHitResult HitResult;
+	TArray<AActor*> HitActor;
+
+	FVector StartPoint = GetActorLocation();
+
+	// perspective 관점으로 탐색
+	for (size_t i = 0; i < _TraceAngle * 2; i += 5)
+	{
+		for (size_t j = 0; j < _TraceAngle; j += 5)
+		{
+			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, FVector::LeftVector);
+			FVector DirectionY = DirectionX.RotateAngleAxis(-_TraceAngle + i, FVector::UpVector);
+			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
+
+			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
+				GetWorld(), StartPoint, EndPoint, 200.f,
+				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::None,
+				HitResult, true);
+
+			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
+			if (bIsHit)
+			{
+				if (HitActor.Num() == 0)
+				{
+					HitActor.Add(HitResult.GetActor());
+				}
+				else
+				{
+					for (size_t k = 0; k < HitActor.Num(); k++)
+					{
+						if (HitActor[k] == HitResult.GetActor())
+						{
+							break;
+						}
+
+						if (k == HitActor.Num() - 1)
+						{
+							HitActor.Add(HitResult.GetActor());
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return HitActor;
+}
+
+TArray<AActor*> AGlobalCharacter::TraceObjects(EObjectTypeQuery _ObjectType, TArray<AActor*> _ActorsToNotTargeting, FVector _TraceDir, float _TraceAngle, float _TraceRange)
+{
+	FVector TraceDirVector = _TraceDir;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
+	EObjectTypeQuery ObjectType = _ObjectType;
+	ObjectTypeToLock.Emplace(ObjectType);
+
+	FHitResult HitResult;
+	TArray<AActor*> HitActor;
+
+	FVector StartPoint = GetActorLocation();
+
+	// perspective 관점으로 탐색
+	for (size_t i = 0; i < _TraceAngle * 2; i += 5)
+	{
+		for (size_t j = 0; j < _TraceAngle; j += 5)
+		{
+			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, FVector::LeftVector);
+			FVector DirectionY = DirectionX.RotateAngleAxis(-_TraceAngle + i, FVector::UpVector);
+			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
+
+			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
+				GetWorld(), StartPoint, EndPoint, 200.f,
+				ObjectTypeToLock, false, _ActorsToNotTargeting, EDrawDebugTrace::None,
+				HitResult, true);
+
+			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
+			if (bIsHit)
+			{
+				if (HitActor.Num() == 0)
+				{
+					HitActor.Add(HitResult.GetActor());
+				}
+				else
+				{
+					for (size_t k = 0; k < HitActor.Num(); k++)
+					{
+						if (HitActor[k] == HitResult.GetActor())
+						{
+							break;
+						}
+
+						if (k == HitActor.Num() - 1)
+						{
+							HitActor.Add(HitResult.GetActor());
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return HitActor;
+}

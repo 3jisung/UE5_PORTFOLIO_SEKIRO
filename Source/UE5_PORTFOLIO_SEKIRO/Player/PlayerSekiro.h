@@ -64,8 +64,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LockOnTarget();
 
-	TArray<AActor*> TraceObjects(TArray<AActor*> _ActorsToNotTargeting);
-
 	UFUNCTION(BlueprintCallable)
 	void ResearchLockOnTarget(float Rate);
 
@@ -120,24 +118,6 @@ protected:
 	void Tick(float _Delta) override;
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION()
-	void BeginOverLap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult
-	);
-
-	UFUNCTION()
-	void EndOverLap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
-
 
 private:
 	UFUNCTION()
@@ -149,20 +129,18 @@ private:
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
 
-	float Speed = 0.f;
-	const float DefaultSpeed = 300.0f;
-	const float DashSpeed = 900.0f;
-
 	UPROPERTY(Category = "LockOn", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bLockOn = false;
 
 	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bInputWASD = false;
 
-	const float LockOnRange = 2500.0f;
-	const float LockOnAngle = 30.0f;
+	float Speed = 0.f;
+	const float DefaultSpeed = 300.0f;
+	const float DashSpeed = 900.0f;
+
+	float LockOnRange = 2500.0f;
 	AMonster* LockedOnTarget;
-	
 	bool bResearchEnable = true;
 
 	PlayerHitState HitState = PlayerHitState::OFFGUARD;
@@ -173,6 +151,7 @@ private:
 
 	bool bDash = false;
 	bool bStartedDash = false;
+	bool bDashAttackMove = false;
 	float PreDashTime = 0.f;
 
 	bool bAttackEnable = false;
@@ -182,8 +161,6 @@ private:
 	int BasicAttackCount = 0;
 	// 패링 순서 기억(1, 2 애니메이션 번갈아 가면서 실행)
 	int ParryingCount = 0;
-
-	bool bDashAttackMove = false;
 
 	// 선입력 관련 변수
 	SekiroState BufferedAction;

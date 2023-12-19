@@ -32,10 +32,6 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	Tags.Add(TEXT("Monster"));
-
-	// 무기 콜리전 설정
-	WeaponMesh->OnComponentBeginOverlap.AddDynamic(this, &AMonster::BeginOverLap);
-	WeaponMesh->OnComponentEndOverlap.AddDynamic(this, &AMonster::EndOverLap);
 }
 
 void AMonster::Tick(float _Delta)
@@ -69,35 +65,5 @@ void AMonster::LockOnIconOnOff(bool bLockOn)
 	else
 	{
 		WidgetComponent->SetWidgetClass(nullptr);
-	}
-}
-
-void AMonster::BeginOverLap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult
-)
-{
-	if (OtherActor->ActorHasTag(TEXT("Player")))
-	{
-		bCollisionActor = true;
-		CollidedTarget = OtherActor;
-	}
-}
-
-void AMonster::EndOverLap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex
-)
-{
-	if (OtherActor->ActorHasTag(TEXT("Player")))
-	{
-		bCollisionActor = false;
-		CollidedTarget = nullptr;
 	}
 }

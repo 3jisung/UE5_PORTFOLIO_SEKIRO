@@ -41,10 +41,6 @@ void APlayerSekiro::BeginPlay()
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageBlendingOut);
 
-	// 무기 콜리전 설정
-	WeaponMesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerSekiro::BeginOverLap);
-	WeaponMesh->OnComponentEndOverlap.AddDynamic(this, &APlayerSekiro::EndOverLap);
-
 	SetAniState(SekiroState::Idle);
 
 	// 선입력 버퍼 초기화
@@ -168,36 +164,6 @@ void APlayerSekiro::Tick(float _Delta)
 void APlayerSekiro::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void APlayerSekiro::BeginOverLap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult
-)
-{
-	if (OtherActor->ActorHasTag(TEXT("Monster")))
-	{
-		bCollisionActor = true;
-		CollidedTarget = OtherActor;
-	}
-}
-
-void APlayerSekiro::EndOverLap(
-	UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex
-)
-{
-	if (OtherActor->ActorHasTag(TEXT("Monster")))
-	{
-		bCollisionActor = false;
-		CollidedTarget = nullptr;
-	}
 }
 
 float APlayerSekiro::TakeDamage(float DamageAmount,
@@ -404,7 +370,11 @@ void APlayerSekiro::DeathAction()
 
 void APlayerSekiro::Damage()
 {
-	if (bCollisionActor == false)
+	// 범위에 있는 Monster 콜리전 탐색
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 200.0f);
+
+	if (HitActor.Num() == 0)
 	{
 		return;
 	}
@@ -439,13 +409,9 @@ void APlayerSekiro::Damage()
 		DamageType = UDamageType::StaticClass();
 	}
 
-	if (CollidedTarget == nullptr)
+	for (AActor* Target : HitActor)
 	{
-		return;
-	}
-	else
-	{
-		UGameplayStatics::ApplyDamage(CollidedTarget, this->Power, GetController(), this, DamageType);
+		UGameplayStatics::ApplyDamage(Target, this->Power, GetController(), this, DamageType);
 	}
 }
 
@@ -1027,11 +993,9 @@ void APlayerSekiro::LockOnTarget()
 {
 	if (bLockOn == false)
 	{
-		// 락온 제외 액터
-		TArray<AActor*> ActorsToNotTargeting;
-		ActorsToNotTargeting.Add(this);
-
-		TArray<AActor*> HitActor = TraceObjects(ActorsToNotTargeting);
+		// Monster 콜리전 탐색
+		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange);
 
 		float ClosestDist = LockOnRange;
 		AActor* ClosestHitActor = nullptr;
@@ -1048,7 +1012,7 @@ void APlayerSekiro::LockOnTarget()
 			}
 		}
 
-		if (ClosestHitActor)
+		if (ClosestHitActor != nullptr)
 		{
 			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
 			ToggleLockOn();
@@ -1059,66 +1023,6 @@ void APlayerSekiro::LockOnTarget()
 	{
 		ToggleLockOn();
 	}
-}
-
-// 화면 시점 기준으로 전방의 몬스터를 찾는 함수
-TArray<AActor*> APlayerSekiro::TraceObjects(TArray<AActor*> _ActorsToNotTargeting)
-{
-	FVector CameraForwardVector = CameraComponent->GetForwardVector();
-
-	// 락온 대상 지정
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
-	// Monster 콜리전 프리셋은 ECC_GameTraceChannel2 콜리전 채널을 사용하고 있다.
-	// 즉 Monster 콜리전 프리셋을 사용하는 액터를 찾겠다는 의미
-	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-	ObjectTypeToLock.Emplace(ObjectType);
-
-	FHitResult HitResult;
-	TArray<AActor*> HitActor;
-
-	FVector StartPoint = GetActorLocation();
-
-	// perspective 관점으로 탐색
-	for (size_t i = 0; i < LockOnAngle * 2; i += 5)
-	{
-		for (size_t j = 0; j < LockOnAngle; j += 5)
-		{
-			FVector DirectionX = CameraForwardVector.RotateAngleAxis(-LockOnAngle * 0.5 + j, FVector::LeftVector);
-			FVector DirectionY = DirectionX.RotateAngleAxis(-LockOnAngle + i, FVector::UpVector);
-			FVector EndPoint = StartPoint + DirectionY * LockOnRange;
-
-			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
-				GetWorld(), StartPoint, EndPoint, 200.f,
-				ObjectTypeToLock, false, _ActorsToNotTargeting, EDrawDebugTrace::None,
-				HitResult, true);
-
-			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
-			if (bIsHit)
-			{
-				if (HitActor.Num() == 0)
-				{
-					HitActor.Add(HitResult.GetActor());
-				}
-				else
-				{
-					for (size_t k = 0; k < HitActor.Num(); k++)
-					{
-						if (HitActor[k] == HitResult.GetActor())
-						{
-							break;
-						}
-
-						if (k == HitActor.Num() - 1)
-						{
-							HitActor.Add(HitResult.GetActor());
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return HitActor;
 }
 
 // 현재의 락온 대상을 기준으로 X축 상에서 가장 가까운 적을 재탐색(실제 거리 무관, 각도로만 판단)
@@ -1139,7 +1043,8 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 		ActorsToNotTargeting.Add(this);
 		ActorsToNotTargeting.Add(LockedOnTarget);
 
-		TArray<AActor*> HitActor = TraceObjects(ActorsToNotTargeting);
+		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f);
 
 		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
 		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
@@ -1165,7 +1070,7 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 			}
 		}
 
-		if (ClosestHitActor)
+		if (ClosestHitActor != nullptr)
 		{
 			ToggleLockOn();		// 기존 락온 해제
 			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
