@@ -26,8 +26,6 @@ public:
 
 	void GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser);
 	void ExhaustAction();
-	void DeathblowAction();
-	void DeathAction();
 
 	bool GetHitCheck() override;
 	bool BlockCheck() override;

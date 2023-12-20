@@ -16,6 +16,7 @@
 #include "../DamageType/MikiriType.h"
 #include "../DamageType/TrampleType.h"
 #include "../DamageType/ParryType.h"
+#include "../DamageType/DeathblowType.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()

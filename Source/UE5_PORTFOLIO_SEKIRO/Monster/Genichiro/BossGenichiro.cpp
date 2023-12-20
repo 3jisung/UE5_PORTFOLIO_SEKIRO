@@ -21,6 +21,7 @@ void ABossGenichiro::BeginPlay()
 	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &ABossGenichiro::MontageBlendingOut);
 
+	Tags.Add(TEXT("보스"));
 	Tags.Add(TEXT("아시나 겐이치로"));
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
@@ -73,20 +74,6 @@ void ABossGenichiro::Tick(float _Delta)
 	}	
 }
 
-void ABossGenichiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
-{
-	GenichiroState AniStateValue = GetAniState<GenichiroState>();
-
-	if (AniStateValue == GenichiroState::ExhaustStart)
-	{
-		DeathblowIconOnOff(true);
-	}
-	else if (AniStateValue == GenichiroState::ExhaustLoop)
-	{
-		DeathblowIconOnOff(false);
-	}
-}
-
 float ABossGenichiro::TakeDamage(float DamageAmount,
 	struct FDamageEvent const& DamageEvent,
 	class AController* EventInstigator,
@@ -120,8 +107,20 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		{
 			ExhaustAction();
 		}
+		// 간파하기 피격 시 위치, 회전값 조정
 		else
 		{
+			/*
+			FVector AdjustLocation = GetActorLocation() - DamageCauser->GetActorLocation();
+			AdjustLocation.Normalize();
+			AdjustLocation = AdjustLocation * 150.0f;
+			SetActorLocation(DamageCauser->GetActorLocation() + AdjustLocation);
+			*/
+
+			FRotator AdjustRotation = GetActorRotation();
+			AdjustRotation.Yaw = DamageCauser->GetActorRotation().Yaw + 180.0f;
+			SetActorRotation(AdjustRotation);
+			
 			SetAniState(GenichiroState::MikiriCounter1);
 		}
 
@@ -147,6 +146,40 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		{
 			SetAniState(GenichiroState::Blocked);
 		}
+
+		return Damage;
+	}
+	else if (DamageEvent.DamageTypeClass == UElectricSlashType::StaticClass())
+	{
+		DamageType = Cast<UElectricSlashType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		HP -= DamageAmount * (DamageType->DamageMultiple);
+		Posture -= DamageAmount * (DamageType->DamageMultiple);
+
+		if (HP <= 0)
+		{
+			HP = 0.1f;
+		}
+		else if (Posture <= 0)
+		{
+			Posture = 0.1f;
+		}
+
+		SetAniState(GenichiroState::Shock);
+
+		return Damage;
+	}
+	else if (DamageEvent.DamageTypeClass == UDeathblowType::StaticClass())
+	{
+		DamageType = Cast<UDeathblowType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+
+		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 2000.0f, true);
+
+		FRotator AdjustRotation = GetActorRotation();
+		AdjustRotation.Yaw = DamageCauser->GetActorRotation().Yaw + 180.0f;
+		SetActorRotation(AdjustRotation);
+
+		SetAniState(GenichiroState::Deathblow1);
 
 		return Damage;
 	}
@@ -257,21 +290,6 @@ void ABossGenichiro::ExhaustAction()
 	Posture = 0;
 
 	SetAniState(GenichiroState::ExhaustStart);
-	
-	//HitState = MonsterHitState::OFFGUARD;
-	//SetAniState(SekiroState::Exhaust);
-}
-
-void ABossGenichiro::DeathblowAction()
-{
-	//HitState = MonsterHitState::OFFGUARD;
-	//SetAniState(SekiroState::Exhaust);
-}
-
-void ABossGenichiro::DeathAction()
-{
-	//HitState = MonsterHitState::OFFGUARD;
-	//SetAniState(SekiroState::Death);
 }
 
 bool ABossGenichiro::GetHitCheck()
@@ -354,7 +372,7 @@ void ABossGenichiro::Damage()
 {
 	// 범위에 있는 Player 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 100.0f, 100.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
 
 	if (HitActor.Num() == 0)
 	{
@@ -393,5 +411,17 @@ void ABossGenichiro::Damage()
 	for (AActor* Target : HitActor)
 	{
 		UGameplayStatics::ApplyDamage(Target, this->Power, GetController(), this, DamageType);
+	}
+}
+
+void ABossGenichiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
+{
+	if (Anim == GetAnimMontage(GenichiroState::ExhaustStart))
+	{
+		bEnableDeathblow = true;
+	}
+	else if (Anim == GetAnimMontage(GenichiroState::ExhaustLoop))
+	{
+		DeathblowIconOnOff(false);
 	}
 }

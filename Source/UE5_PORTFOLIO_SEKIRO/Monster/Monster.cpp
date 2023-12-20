@@ -84,9 +84,11 @@ void AMonster::DeathblowIconOnOff(bool bExhaust)
 	if (bExhaust)
 	{
 		DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
+		bEnableDeathblow = true;
 	}
 	else
 	{
 		DeathblowWidgetComponent->SetWidgetClass(nullptr);
+		bEnableDeathblow = false;
 	}
 }

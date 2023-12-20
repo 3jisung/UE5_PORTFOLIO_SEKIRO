@@ -62,14 +62,6 @@ public:
 	void ManageGuardTimer();
 
 	UFUNCTION(BlueprintCallable)
-	void LockOnTarget();
-
-	UFUNCTION(BlueprintCallable)
-	void ResearchLockOnTarget(float Rate);
-
-	void ToggleLockOn();
-
-	UFUNCTION(BlueprintCallable)
 	void StartedPlayerAttack();
 
 	UFUNCTION(BlueprintCallable)
@@ -78,6 +70,17 @@ public:
 	void DashAttackMove();
 
 	void AttackMove();
+
+	UFUNCTION(BlueprintCallable)
+	void LockOnTarget();
+
+	UFUNCTION(BlueprintCallable)
+	void ResearchLockOnTarget(float Rate);
+
+	void ToggleLockOn();
+
+	UFUNCTION(BlueprintCallable)
+	void SearchDeathblowTarget();
 
 	UFUNCTION(BlueprintCallable)
 	void MontageEnd();

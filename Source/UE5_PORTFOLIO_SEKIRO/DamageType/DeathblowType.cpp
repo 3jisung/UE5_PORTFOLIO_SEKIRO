@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MikiriType.h"
+#include "DeathblowType.h"
 
 
-UMikiriType::UMikiriType()
+UDeathblowType::UDeathblowType()
 {
-	DamageMultiple = 3.0f;
+	DamageMultiple = 0.0f;
 	PushPower = 0.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;

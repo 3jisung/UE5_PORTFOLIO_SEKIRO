@@ -65,6 +65,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* WeaponMesh;
+
+	// 인살 가능 상태
+	bool bEnableDeathblow = false;
 	
 
 protected:

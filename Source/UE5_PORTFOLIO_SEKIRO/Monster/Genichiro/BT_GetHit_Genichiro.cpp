@@ -55,7 +55,6 @@ void UBT_GetHit_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 
 		if (BehaviorState == GenichiroState::MikiriCounter1)
 		{
-			GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.0f);
 			SetStateChange(OwnerComp, GenichiroState::MikiriCounter2);
 		}
 		else

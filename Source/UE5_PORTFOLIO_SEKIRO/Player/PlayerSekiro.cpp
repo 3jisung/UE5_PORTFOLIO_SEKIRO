@@ -382,7 +382,7 @@ void APlayerSekiro::Damage()
 {
 	// 범위에 있는 Monster 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 100.0f, 100.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
 
 	if (HitActor.Num() == 0)
 	{
@@ -998,118 +998,6 @@ void APlayerSekiro::ManageGuardTimer()
 	}
 }
 
-// 락온 가능한 대상을 찾아 카메라 시점을 고정하도록 하는 함수
-void APlayerSekiro::LockOnTarget()
-{
-	if (bLockOn == false)
-	{
-		// Monster 콜리전 탐색
-		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange, 200.0f);
-
-		float ClosestDist = LockOnRange;
-		AActor* ClosestHitActor = nullptr;
-
-		// 가장 가까운 적 탐색(Num 값이 0일 경우 자동 종료)
-		for (size_t i = 0; i < HitActor.Num(); i++)
-		{
-			FVector LockedOnLocation = HitActor[i]->GetActorLocation();
-			float Dis = (GetActorLocation() - LockedOnLocation).Size();
-			if (Dis < ClosestDist)
-			{
-				ClosestDist = Dis;
-				ClosestHitActor = HitActor[i];
-			}
-		}
-
-		if (ClosestHitActor != nullptr)
-		{
-			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
-			ToggleLockOn();
-		}
-	}
-	// 휠 키를 누를 때마다 락온 상태 토글
-	else
-	{
-		ToggleLockOn();
-	}
-}
-
-// 현재의 락온 대상을 기준으로 X축 상에서 가장 가까운 적을 재탐색(실제 거리 무관, 각도로만 판단)
-// 마우스의 Action Value 중 X값(Rate)을 받아와 부호에 따라 탐색 방향 결정(-, + 방향)
-void APlayerSekiro::ResearchLockOnTarget(float Rate)
-{
-	// 마우스의 움직임이 일정 값 이상일 경우에만 함수 실행(적절한 감도 설정)
-	if (FMath::Abs(Rate) < 3.0f)
-	{
-		return;
-	}
-
-	if (bResearchEnable)
-	{
-		bResearchEnable = false;
-
-		TArray<AActor*> ActorsToNotTargeting;
-		ActorsToNotTargeting.Add(this);
-		ActorsToNotTargeting.Add(LockedOnTarget);
-
-		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f, 200.0f);
-
-		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
-		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-		float FinalAngle = 180.0f;
-
-		AActor* ClosestHitActor = nullptr;
-
-		for (size_t i = 0; i < HitActor.Num(); i++)
-		{
-			FVector HitActorUnitVector = (HitActor[i]->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			float Dot = FVector::DotProduct(MiddleUnitVector, HitActorUnitVector);
-			float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));							// 두 벡터 사이의 각도
-
-			FVector crossPrdt = FVector::CrossProduct(MiddleUnitVector, HitActorUnitVector);	// Z 값 : 각도의 방향
-
-			// MiddleUnitVector를 기준으로 Rate 방향에 따른 각도 차이가 가장 적게 나는 액터를 탐색
-			// 플레이어와의 거리는 고려하지 않고, 각도로만 판단
-			if (((Rate > 0.f && crossPrdt.Z > 0) || (Rate < 0.f && crossPrdt.Z < 0))
-				&& Angle < FinalAngle)
-			{
-				FinalAngle = Angle;
-				ClosestHitActor = HitActor[i];
-			}
-		}
-
-		if (ClosestHitActor != nullptr)
-		{
-			ToggleLockOn();		// 기존 락온 해제
-			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
-			ToggleLockOn();		// 새로운 대상에게 락온
-		}
-
-		// delayTime 뒤 bResearchEnable 값을 다시 true로 변환
-		// 함수가 한 번에 여러 번 호출되지 않도록 타이머로 제한
-		float delayTime = 0.2;
-		FTimerHandle myTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
-			{
-				// 내가 원하는 코드 구현
-				bResearchEnable = true;
-
-				// 타이머 초기화
-				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
-			}), delayTime, false); // 반복 실행을 하고 싶으면 false 대신 true 대입
-	}
-}
-
-void APlayerSekiro::ToggleLockOn()
-{
-	GetCharacterMovement()->bOrientRotationToMovement = bLockOn;
-
-	LockedOnTarget->LockOnIconOnOff(!bLockOn);
-	bLockOn = !bLockOn;
-}
-
 void APlayerSekiro::StartedPlayerAttack()
 {
 	// 선입력이 있는 경우 return
@@ -1310,6 +1198,163 @@ void APlayerSekiro::AttackMove()
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
 }
 
+// 락온 가능한 대상을 찾아 카메라 시점을 고정하도록 하는 함수
+void APlayerSekiro::LockOnTarget()
+{
+	if (bLockOn == false)
+	{
+		// Monster 콜리전 탐색
+		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange, 200.0f);
+
+		float ClosestDist = LockOnRange;
+		AActor* ClosestHitActor = nullptr;
+
+		// 가장 가까운 적 탐색(Num 값이 0일 경우 자동 종료)
+		for (size_t i = 0; i < HitActor.Num(); i++)
+		{
+			FVector LockedOnLocation = HitActor[i]->GetActorLocation();
+			float Dis = (GetActorLocation() - LockedOnLocation).Size();
+			
+			if (Dis < ClosestDist)
+			{
+				ClosestDist = Dis;
+				ClosestHitActor = HitActor[i];
+			}
+		}
+
+		if (ClosestHitActor != nullptr)
+		{
+			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
+			ToggleLockOn();
+		}
+	}
+	// 휠 키를 누를 때마다 락온 상태 토글
+	else
+	{
+		ToggleLockOn();
+	}
+}
+
+// 현재의 락온 대상을 기준으로 X축 상에서 가장 가까운 적을 재탐색(실제 거리 무관, 각도로만 판단)
+// 마우스의 Action Value 중 X값(Rate)을 받아와 부호에 따라 탐색 방향 결정(-, + 방향)
+void APlayerSekiro::ResearchLockOnTarget(float Rate)
+{
+	// 마우스의 움직임이 일정 값 이상일 경우에만 함수 실행(적절한 감도 설정)
+	if (FMath::Abs(Rate) < 3.0f)
+	{
+		return;
+	}
+
+	if (bResearchEnable)
+	{
+		bResearchEnable = false;
+
+		TArray<AActor*> ActorsToNotTargeting;
+		ActorsToNotTargeting.Add(this);
+		ActorsToNotTargeting.Add(LockedOnTarget);
+
+		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f, 200.0f);
+
+		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
+		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+		float FinalAngle = 180.0f;
+
+		AActor* ClosestHitActor = nullptr;
+
+		for (size_t i = 0; i < HitActor.Num(); i++)
+		{
+			FVector HitActorUnitVector = (HitActor[i]->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			float Dot = FVector::DotProduct(MiddleUnitVector, HitActorUnitVector);
+			float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));							// 두 벡터 사이의 각도
+
+			FVector crossPrdt = FVector::CrossProduct(MiddleUnitVector, HitActorUnitVector);	// Z 값 : 각도의 방향
+
+			// MiddleUnitVector를 기준으로 Rate 방향에 따른 각도 차이가 가장 적게 나는 액터를 탐색
+			// 플레이어와의 거리는 고려하지 않고, 각도로만 판단
+			if (((Rate > 0.f && crossPrdt.Z > 0) || (Rate < 0.f && crossPrdt.Z < 0))
+				&& Angle < FinalAngle)
+			{
+				FinalAngle = Angle;
+				ClosestHitActor = HitActor[i];
+			}
+		}
+
+		if (ClosestHitActor != nullptr)
+		{
+			ToggleLockOn();		// 기존 락온 해제
+			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
+			ToggleLockOn();		// 새로운 대상에게 락온
+		}
+
+		// delayTime 뒤 bResearchEnable 값을 다시 true로 변환
+		// 함수가 한 번에 여러 번 호출되지 않도록 타이머로 제한
+		float delayTime = 0.2;
+		FTimerHandle myTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				// 내가 원하는 코드 구현
+				bResearchEnable = true;
+
+				// 타이머 초기화
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+			}), delayTime, false); // 반복 실행을 하고 싶으면 false 대신 true 대입
+	}
+}
+
+void APlayerSekiro::ToggleLockOn()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = bLockOn;
+
+	LockedOnTarget->LockOnIconOnOff(!bLockOn);
+	bLockOn = !bLockOn;
+}
+
+void APlayerSekiro::SearchDeathblowTarget()
+{
+	// 범위에 있는 Monster 콜리전 탐색
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
+
+	if (HitActor.Num() == 0)
+	{
+		return;
+	}
+
+	float ClosestDist = FLT_MAX;
+	AMonster* ClosestTarget = nullptr;
+
+	// 가장 가까운 적 탐색(Num 값이 0일 경우 자동 종료)
+	for (size_t i = 0; i < HitActor.Num(); i++)
+	{
+		AMonster* Target = Cast<AMonster>(HitActor[i]);
+		FVector LockedOnLocation = Target->GetActorLocation();
+		float Dis = (GetActorLocation() - LockedOnLocation).Size();
+		
+		if (Target->bEnableDeathblow && Dis < ClosestDist)
+		{
+			ClosestDist = Dis;
+			ClosestTarget = Target;
+		}
+	}
+
+	if (ClosestTarget != nullptr)
+	{
+		ClearBuffer();
+		UGameplayStatics::ApplyDamage(ClosestTarget, this->Power, GetController(), this, UDeathblowType::StaticClass());
+
+		if (ClosestTarget->ActorHasTag(TEXT("보스")))
+		{
+			SetAniState(SekiroState::DeathblowBoss);
+		}
+		else
+		{
+			SetAniState(SekiroState::DeathblowNormal);
+		}
+	}
+}
+
 void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
 	bEnteredTransition = false;
@@ -1328,7 +1373,8 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 		}
 	}
 	else if(Anim == GetAnimMontage(SekiroState::Hit)
-		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2))
+		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2)
+		|| Anim == GetAnimMontage(SekiroState::DeathblowNormal) || Anim == GetAnimMontage(SekiroState::DeathblowBoss))
 	{
 		SetAniState(SekiroState::Idle);
 	}
