@@ -120,6 +120,7 @@ void UBTTask_Genichiro::SetStateChange(UBehaviorTreeComponent& OwnerComp, uint8 
 	}
 
 	BlockBoard->SetValueAsEnum(TEXT("GenichiroState"), _State);
+	GetGlobalCharacter(OwnerComp)->SetAniState(_State);
 
 	ResetStateTime(OwnerComp);
 
@@ -135,7 +136,6 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 	AGlobalCharacter* Pawn = GetGlobalCharacter(OwnerComp);
 
 	float SearchRange = GetBlackboardComponent(OwnerComp)->GetValueAsFloat(TEXT("SearchRange"));
-
 
 	AActor* ResultActor = nullptr;
 
@@ -166,12 +166,12 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 
 bool UBTTask_Genichiro::AnimChangeCheck(UBehaviorTreeComponent& OwnerComp)
 {
-	ABossGenichiro* Genichiro = Cast<ABossGenichiro>(GetGlobalCharacter(OwnerComp));
 	uint8 Enum = GetBlackboardComponent(OwnerComp)->GetValueAsEnum(TEXT("GenichiroState"));
 
-	if (Genichiro->GetAniState() != Enum)
+	if (GetGlobalCharacter(OwnerComp)->GetAniState() != Enum)
 	{
-		SetStateChange(OwnerComp, Genichiro->GetAniState<GenichiroState>());
+		SetStateChange(OwnerComp, GetGlobalCharacter(OwnerComp)->GetAniState<GenichiroState>());
+
 		return true;
 	}
 

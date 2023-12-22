@@ -11,7 +11,10 @@ EBTNodeResult::Type UBT_Run_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owner
 
 	ResetStateTime(OwnerComp);
 
-	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
+	if (AnimChangeCheck(OwnerComp))
+	{
+		return EBTNodeResult::Type::Failed;
+	}
 
 	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
 

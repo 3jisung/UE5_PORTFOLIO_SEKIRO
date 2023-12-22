@@ -5,48 +5,48 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
-#include "FadeInOutWidget.generated.h"
+#include "DeathblowWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UFadeInOutWidget : public UUserWidget
+class UE5_PORTFOLIO_SEKIRO_API UDeathblowWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-
 public:
 	void NativeConstruct() override;
+	void NativeDestruct() override;
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void FadeIn()
+	void IconOn()
 	{
-		FadeInState = true;
-		ScreenOpacity = 1;
+		bOnIcon = true;
+		IconOpacity = 0;
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void FadeOut()
+	void IconOff()
 	{
-		FadeOutState = true;
-		ScreenOpacity = 0;
+		bOffIcon = true;
+		IconOpacity = 1;
 	}
 
-	UPROPERTY(Category = "Screen", EditAnywhere, BlueprintReadWrite)
-	UImage* FadeScreen = nullptr;
+	UPROPERTY(Category = "Icon", EditAnywhere, BlueprintReadWrite)
+	UImage* DeathblowIcon = nullptr;
 
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float ScreenOpacity = 0;
+	float IconOpacity = 0;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	bool FadeInState = false;
+	bool bOnIcon = false;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	bool FadeOutState = false;
+	bool bOffIcon = false;
 
 	float SumTime = 0;
 };

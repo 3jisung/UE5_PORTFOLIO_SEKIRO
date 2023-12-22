@@ -144,10 +144,11 @@ public:
 	virtual void Damage() { UE_LOG(LogTemp, Error, TEXT("Global Damage")); }
 
 	// 특정 액터와 Rotation 맞추는 함수
+	void AdjustAngle(FVector TargetPos);
 	void AdjustAngle(float DeltaSeconds, FVector TargetPos, float Angle);
 
 	// 특정 액터와 Angle만큼의 Rotation 차이가 있는지 체크
-	bool CheckAngle(FVector TargetPos, float Angle);
+	float CalculateAngle(FVector TargetPos);
 
 	// 특정 오브젝트 탐색
 	// 탐색 제외 액터가 없는 경우(this 제외)

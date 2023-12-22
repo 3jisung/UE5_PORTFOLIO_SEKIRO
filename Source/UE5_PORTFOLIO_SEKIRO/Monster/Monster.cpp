@@ -25,7 +25,7 @@ AMonster::AMonster()
 
 	// 인살 아이콘 설정
 	FSoftClassPath DeathblowIconClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Monster/WBP_DeathblowIcon.WBP_DeathblowIcon_C'"));
-	DeathblowIconWidgetClass = DeathblowIconClassPath.TryLoadClass<UUserWidget>();
+	DeathblowIconWidgetClass = DeathblowIconClassPath.TryLoadClass<UDeathblowWidget>();
 
 	DeathblowWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DeathblowWidgetComponent"));
 	DeathblowWidgetComponent->SetWidgetClass(nullptr);

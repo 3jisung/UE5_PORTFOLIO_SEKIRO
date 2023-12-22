@@ -39,6 +39,7 @@ enum class SekiroState : uint8
 	Parrying2 UMETA(DisplayName = "패링2"),
 	Blocked UMETA(DisplayName = "경직"),
 	MikiriCounter UMETA(DisplayName = "간파하기"),
+	ReadyToDeathblowMikiri UMETA(DisplayName = "간파인살준비"),
 
 	Hit UMETA(DisplayName = "히트"),
 	Exhaust UMETA(DisplayName = "탈진"),
@@ -102,6 +103,7 @@ enum class GenichiroState : uint8
 	Hit UMETA(DisplayName = "히트"),
 	ExhaustStart UMETA(DisplayName = "탈진시작"),
 	ExhaustLoop UMETA(DisplayName = "탈진중"),
+	ExhaustEnd UMETA(DisplayName = "탈진종료"),
 	Shock UMETA(DisplayName = "타뢰"),
 	Death UMETA(DisplayName = "죽음"),
 

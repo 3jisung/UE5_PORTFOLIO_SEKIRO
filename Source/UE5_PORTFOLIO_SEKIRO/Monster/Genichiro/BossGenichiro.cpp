@@ -71,7 +71,7 @@ void ABossGenichiro::Tick(float _Delta)
 		{
 			Posture = 100.0f;
 		}
-	}	
+	}
 }
 
 float ABossGenichiro::TakeDamage(float DamageAmount,
@@ -117,9 +117,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 			SetActorLocation(DamageCauser->GetActorLocation() + AdjustLocation);
 			*/
 
-			FRotator AdjustRotation = GetActorRotation();
-			AdjustRotation.Yaw = DamageCauser->GetActorRotation().Yaw + 180.0f;
-			SetActorRotation(AdjustRotation);
+			AdjustAngle(DamageCauser->GetActorLocation());
 			
 			SetAniState(GenichiroState::MikiriCounter1);
 		}
@@ -175,9 +173,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 2000.0f, true);
 
-		FRotator AdjustRotation = GetActorRotation();
-		AdjustRotation.Yaw = DamageCauser->GetActorRotation().Yaw + 180.0f;
-		SetActorRotation(AdjustRotation);
+		AdjustAngle(DamageCauser->GetActorLocation());
 
 		SetAniState(GenichiroState::Deathblow1);
 
@@ -188,16 +184,15 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 
+	if (HitState == MonsterHitState::INVINCIBLE)
+	{
+		return Damage;
+	}
 	// 공격 방향 체크
-	if (CheckAngle(DamageCauser->GetActorLocation(), 90.0f))
+	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.0f)
 	{
 		GetHitExecute(DamageAmount, DamageType, DamageCauser);
 
-		return Damage;
-	}
-
-	if (HitState == MonsterHitState::INVINCIBLE)
-	{
 		return Damage;
 	}
 	else if (HitState == MonsterHitState::GUARD && DamageType->bEnableGuard)
@@ -416,12 +411,5 @@ void ABossGenichiro::Damage()
 
 void ABossGenichiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
-	if (Anim == GetAnimMontage(GenichiroState::ExhaustStart))
-	{
-		bEnableDeathblow = true;
-	}
-	else if (Anim == GetAnimMontage(GenichiroState::ExhaustLoop))
-	{
-		DeathblowIconOnOff(false);
-	}
+	
 }

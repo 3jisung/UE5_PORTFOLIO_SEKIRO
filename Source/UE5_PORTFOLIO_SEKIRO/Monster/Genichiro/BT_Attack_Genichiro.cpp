@@ -10,7 +10,10 @@ EBTNodeResult::Type UBT_Attack_Genichiro::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	ResetStateTime(OwnerComp);
 
-	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
+	if (AnimChangeCheck(OwnerComp))
+	{
+		return EBTNodeResult::Type::Failed;
+	}
 
 	if (GetGenichiroState(OwnerComp) == GenichiroState::BasicAttack1 || GetGenichiroState(OwnerComp) == GenichiroState::BasicAttack2
 		|| GetGenichiroState(OwnerComp) == GenichiroState::BasicAttack3)

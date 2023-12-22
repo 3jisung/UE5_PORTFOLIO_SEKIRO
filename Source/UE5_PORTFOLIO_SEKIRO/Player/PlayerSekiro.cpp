@@ -213,6 +213,11 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 
+	if (DamageType->bEnableGuard == false)
+	{
+		// 위태할 위(危) 문자 표시
+	}
+
 	// 특수 피격 이벤트 처리
 	if (HitState == PlayerHitState::INVINCIBLE)
 	{
@@ -223,10 +228,25 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		&& (AniStateValue == SekiroState::ForwardRun || AniStateValue == SekiroState::BackwardRun
 			|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun))
 	{
-		if (AniStateValue == SekiroState::ForwardRun && DamageType->bEnableMikiri)
+		if (AniStateValue == SekiroState::ForwardRun && DamageType->bEnableMikiri
+			&& CalculateAngle(DamageCauser->GetActorLocation()) <= 45.0f)
 		{
+			AdjustAngle(DamageCauser->GetActorLocation());
+
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
+			/*
+			float PostureDamage = Cast<UMikiriType>(UMikiriType::StaticClass()->GetDefaultObject())->DamageMultiple * this->Power;
+
+			if (Cast<AMonster>(DamageCauser)->GetPosture() - PostureDamage <= 0)
+			{
+				SetAniState(SekiroState::ReadyToDeathblowMikiri);
+			}
+			else
+			{
+				SetAniState(SekiroState::MikiriCounter);
+			}
+			*/
 
 			TSubclassOf<UDamageType> HitDamageType = UMikiriType::StaticClass();
 			UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
@@ -261,7 +281,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	}
 	// Rotation 체크(상대방의 위치와 90도 이상 차이날 경우 무적 상태가 아닌 이상 무조건 피격)
 	// 즉, 가드 및 패링 불가능
-	else if (CheckAngle(DamageCauser->GetActorLocation(), 90.0f))
+	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.0f)
 	{
 		GetHitExecute(DamageAmount, DamageType, DamageCauser);
 
@@ -1192,7 +1212,7 @@ void APlayerSekiro::AttackMove()
 	}
 	else if (AniStateValue == SekiroState::StabAttack2)
 	{
-		AttackMoveImpulse = 5000.0f;
+		AttackMoveImpulse = 6000.0f;
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
@@ -1341,6 +1361,10 @@ void APlayerSekiro::SearchDeathblowTarget()
 
 	if (ClosestTarget != nullptr)
 	{
+		FRotator AdjustRotation = GetActorRotation();
+		AdjustRotation.Yaw = ClosestTarget->GetActorRotation().Yaw + 180.0f;
+		SetActorRotation(AdjustRotation);
+		
 		ClearBuffer();
 		UGameplayStatics::ApplyDamage(ClosestTarget, this->Power, GetController(), this, UDeathblowType::StaticClass());
 

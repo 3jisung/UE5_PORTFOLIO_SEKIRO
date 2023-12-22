@@ -10,8 +10,6 @@ EBTNodeResult::Type UBT_Death_Genichiro::ExecuteTask(UBehaviorTreeComponent& Own
 
 	ResetStateTime(OwnerComp);
 
-	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
-
 	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::INVINCIBLE);
 
 	return EBTNodeResult::Type::InProgress;

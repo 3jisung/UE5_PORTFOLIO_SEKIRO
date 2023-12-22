@@ -10,7 +10,10 @@ EBTNodeResult::Type UBT_Exhaust_Genichiro::ExecuteTask(UBehaviorTreeComponent& O
 
 	ResetStateTime(OwnerComp);
 
-	GetGlobalCharacter(OwnerComp)->SetAniState(UBTTask_Genichiro::GetGenichiroState(OwnerComp));
+	if (AnimChangeCheck(OwnerComp))
+	{
+		return EBTNodeResult::Type::Failed;
+	}
 
 	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::INVINCIBLE);
 
@@ -40,7 +43,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 	}
 
 	// 타겟이 나를 바라보고 있는 경우에만 인살 구슬 표시
-	if (BehaviorState == GenichiroState::ExhaustLoop)
+	if (BehaviorState == GenichiroState::ExhaustStart || BehaviorState == GenichiroState::ExhaustLoop)
 	{
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 		TArray<AActor*> HitActor = Cast<AGlobalCharacter>(TargetActor)->TraceObjects(ObjectType, TargetActor->GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
@@ -77,6 +80,12 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		{
 			SetStateChange(OwnerComp, GenichiroState::ExhaustLoop);
 		}
+		else if (BehaviorState == GenichiroState::ExhaustLoop)
+		{
+			// 인살 실패 시 몬스터는 체간 절반만큼 회복
+			Genichiro->SetPosture(Genichiro->GetMaxPosture() * 0.5);
+			SetStateChange(OwnerComp, GenichiroState::ExhaustEnd);
+		}
 		else if (BehaviorState == GenichiroState::Deathblow1)
 		{
 			SetStateChange(OwnerComp, GenichiroState::Deathblow2);
@@ -97,9 +106,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 		else
 		{
-			// 인살 실패 시 몬스터는 체간 절반만큼 회복
 			Genichiro->DeathblowIconOnOff(false);
-			Genichiro->SetPosture(Genichiro->GetMaxPosture() * 0.5);
 			SetStateChange(OwnerComp, GenichiroState::Idle);
 			return;
 		}

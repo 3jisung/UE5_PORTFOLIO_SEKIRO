@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "../Global/GlobalCharacter.h"
 #include "../Global/Data/MonsterData.h"
+#include "../UI/DeathblowWidget.h"
 #include "Monster.generated.h"
 
 /**
