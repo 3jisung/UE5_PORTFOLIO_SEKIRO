@@ -8,7 +8,6 @@
 #include "../Global/GlobalGameInstance.h"
 #include "../Global/Data/PlayerAnimData.h"
 #include "Components/StaticMeshComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -175,6 +174,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
+	// 버퍼 초기화
 	ClearBuffer();
 
 	UCustomDamageTypeBase* DamageType;
@@ -293,7 +293,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	{
 		Posture -= DamageAmount * (DamageType->DamageMultiple);
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * DamageType->PushPower, true);
+		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
 		// 피격 방어, 패링 시 0.5초 간 체간 회복 불가능
 		// 가드만 누르면서 체간을 쉽게 회복하지 못하도록 하기 위함
@@ -311,7 +311,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		// 패링 성공 시 체간 데미지 25% 감소
 		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * DamageType->PushPower, true);
+		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
 		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
 		bEnablePostureRecovery = false;
@@ -367,7 +367,7 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 			return;
 		}
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * DamageType->PushPower, true);
+		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
 		if (DamageType->GetClass() == UStabType::StaticClass() || DamageType->GetClass() == UTakeDownType::StaticClass())
 		{

@@ -4,7 +4,6 @@
 #include "BossGenichiro.h"
 #include "../../Global/GlobalAnimInstance.h"
 #include "../../Global/GlobalGameInstance.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
@@ -171,7 +170,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UDeathblowType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 2000.0f, true);
+		GetHitImpulseManager(DamageCauser, 2000.0f);
 
 		AdjustAngle(DamageCauser->GetActorLocation());
 
@@ -199,7 +198,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		Posture -= DamageAmount * (DamageType->DamageMultiple);
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+		GetHitImpulseManager(DamageCauser, 1500.0f);
 
 		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
 		bEnablePostureRecovery = false;
@@ -219,7 +218,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		// 패링 성공 시 체간 데미지 25% 감소
 		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+		GetHitImpulseManager(DamageCauser, 1500.0f);
 
 		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
 		bEnablePostureRecovery = false;
@@ -274,7 +273,7 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 			return;
 		}
 
-		GetCharacterMovement()->AddImpulse(DamageCauser->GetActorForwardVector() * 1500.0f, true);
+		GetHitImpulseManager(DamageCauser, 1500.0f);
 
 		SetAniState(GenichiroState::Hit);
 	}

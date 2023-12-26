@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "../DamageType/BasicAttackType.h"
 #include "../DamageType/StabType.h"
 #include "../DamageType/TakeDownType.h"
@@ -168,6 +169,8 @@ public:
 		float _TraceRange,
 		float _SphereRadius
 	);
+
+	void GetHitImpulseManager(AActor* DamageCauser, float PushPower);
 
 
 protected:

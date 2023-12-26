@@ -138,13 +138,13 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(
 	{
 		for (size_t j = 0; j < _TraceAngle; j += 5)
 		{
-			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, FVector::LeftVector);
+			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, GetActorRightVector());
 			FVector DirectionY = DirectionX.RotateAngleAxis(-_TraceAngle + i, FVector::UpVector);
 			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
 
 			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
 				GetWorld(), StartPoint, EndPoint, _SphereRadius,
-				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::None,
+				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::ForDuration,
 				HitResult, true);
 
 			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
@@ -201,7 +201,7 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(
 	{
 		for (size_t j = 0; j < _TraceAngle; j += 5)
 		{
-			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, FVector::LeftVector);
+			FVector DirectionX = TraceDirVector.RotateAngleAxis(-_TraceAngle * 0.5 + j, GetActorRightVector());
 			FVector DirectionY = DirectionX.RotateAngleAxis(-_TraceAngle + i, FVector::UpVector);
 			FVector EndPoint = StartPoint + DirectionY * _TraceRange;
 
@@ -237,4 +237,19 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(
 	}
 
 	return HitActor;
+}
+
+void AGlobalCharacter::GetHitImpulseManager(AActor* DamageCauser, float PushPower)
+{
+	FVector ImpulseVector = DamageCauser->GetActorForwardVector();
+
+	if (GetMovementComponent()->IsFalling())
+	{
+		ImpulseVector = ImpulseVector.RotateAngleAxis(60.0f, DamageCauser->GetActorRightVector());
+		GetCharacterMovement()->AddImpulse(ImpulseVector * PushPower, true);
+	}
+	else
+	{
+		GetCharacterMovement()->AddImpulse(ImpulseVector * PushPower, true);
+	}
 }
