@@ -466,8 +466,10 @@ void APlayerSekiro::MoveForward(float Val)
 		{
 			// 컨트롤러는 기본적으로 character 당 하나씩 붙어 있다.
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();	
-
-			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Val);
+			FVector Direction = FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X);
+			Direction.Z = 0.0f;
+			Direction.Normalize();
+			AddMovementInput(Direction, Val);
 
 			if (bLockOn)
 			{
@@ -525,7 +527,10 @@ void APlayerSekiro::MoveRight(float Val)
 		{
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();
 			// 현재 내 회전을 가져와서 y축에 해당하는 축벡터를 얻어 온다.
-			AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Val);
+			FVector Direction = FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y);
+			Direction.Z = 0.0f;
+			Direction.Normalize();
+			AddMovementInput(Direction, Val);
 
 			if (bLockOn)
 			{

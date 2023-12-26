@@ -144,7 +144,7 @@ TArray<AActor*> AGlobalCharacter::TraceObjects(
 
 			bool bIsHit = UKismetSystemLibrary::SphereTraceSingleForObjects(
 				GetWorld(), StartPoint, EndPoint, _SphereRadius,
-				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::ForDuration,
+				ObjectTypeToLock, false, ActorsToNotTargeting, EDrawDebugTrace::None,
 				HitResult, true);
 
 			// 탐색한 액터들은 중복값을 제외하고 HitActor에 추가
