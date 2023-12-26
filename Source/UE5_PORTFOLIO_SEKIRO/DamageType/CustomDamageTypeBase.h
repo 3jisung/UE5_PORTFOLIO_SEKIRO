@@ -15,7 +15,8 @@ class UE5_PORTFOLIO_SEKIRO_API UCustomDamageTypeBase : public UDamageType
 	GENERATED_BODY()
 	
 public:
-	float DamageMultiple;
+	float HPDamageMultiple;
+	float PostureDamageMultiple;
 	float PushPower;
 	bool bEnableGuard;
 	bool bEnableParrying;

@@ -170,6 +170,14 @@ public:
 		float _SphereRadius
 	);
 
+	TArray<AActor*> TraceObjectsDebug(
+		EObjectTypeQuery _ObjectType,
+		FVector _TraceDir,
+		float _TraceAngle,
+		float _TraceRange,
+		float _SphereRadius
+	);
+
 	void GetHitImpulseManager(AActor* DamageCauser, float PushPower);
 
 

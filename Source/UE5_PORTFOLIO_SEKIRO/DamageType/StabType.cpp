@@ -6,7 +6,8 @@
 
 UStabType::UStabType()
 {
-	DamageMultiple = 2.0f;
+	HPDamageMultiple = 2.0f;
+	PostureDamageMultiple = 2.0f;
 	PushPower = 5000.0f;
 	bEnableGuard = false;
 	bEnableParrying = true;

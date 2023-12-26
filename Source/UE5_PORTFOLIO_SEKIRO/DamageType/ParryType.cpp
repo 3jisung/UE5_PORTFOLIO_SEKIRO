@@ -6,7 +6,8 @@
 
 UParryType::UParryType()
 {
-	DamageMultiple = 1.0f;
+	HPDamageMultiple = 0.0f;
+	PostureDamageMultiple = 1.0f;
 	PushPower = 0.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;

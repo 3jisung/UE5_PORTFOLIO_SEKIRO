@@ -101,6 +101,9 @@ public:
 	void DashAttackMoveEnd();
 
 	UFUNCTION(BlueprintCallable)
+	void DeathblowRecover();
+
+	UFUNCTION(BlueprintCallable)
 	void CheckBufferedInput();
 
 	void ClearBuffer();

@@ -6,7 +6,8 @@
 
 UBottomType::UBottomType()
 {
-	DamageMultiple = 2.0f;
+	HPDamageMultiple = 2.0f;
+	PostureDamageMultiple = 2.0f;
 	PushPower = 3000.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;

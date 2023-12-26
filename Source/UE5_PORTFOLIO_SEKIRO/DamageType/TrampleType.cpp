@@ -6,7 +6,8 @@
 
 UTrampleType::UTrampleType()
 {
-	DamageMultiple = 3.0f;
+	HPDamageMultiple = 0.0f;
+	PostureDamageMultiple = 3.0f;
 	PushPower = 1000.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;

@@ -6,7 +6,8 @@
 
 UDeathblowType::UDeathblowType()
 {
-	DamageMultiple = 0.0f;
+	HPDamageMultiple = 0.0f;
+	PostureDamageMultiple = 0.0f;
 	PushPower = 0.0f;
 	bEnableGuard = false;
 	bEnableParrying = false;

@@ -6,7 +6,8 @@
 
 UBasicAttackType::UBasicAttackType()
 {
-	DamageMultiple = 1.0f;
+	HPDamageMultiple = 1.0f;
+	PostureDamageMultiple = 1.0f;
 	PushPower = 1500.0f;
 	bEnableGuard = true;
 	bEnableParrying = true;

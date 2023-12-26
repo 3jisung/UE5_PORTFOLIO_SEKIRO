@@ -91,6 +91,7 @@ void APlayerSekiro::Tick(float _Delta)
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 	UCharacterMovementComponent* Move = Cast<UCharacterMovementComponent>(GetMovementComponent());
 
+	// 이동 방향이 앞방향이 아닐 경우 이동 속도 감소
 	if (AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::ForwardRun)
 	{
 		Move->MaxWalkSpeed = Speed;
@@ -145,7 +146,7 @@ void APlayerSekiro::Tick(float _Delta)
 		{
 			Posture += PostureRecoveryAmount;
 		}
-		// 가드 중엔 체간 회복 속도 2배
+		// 가드 키다운 중엔 체간 회복 속도 2배
 		else if (AniStateValue == SekiroState::Guard)
 		{
 			Posture += PostureRecoveryAmount * 2;
@@ -213,11 +214,6 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 
-	if (DamageType->bEnableGuard == false)
-	{
-		// 위태할 위(危) 문자 표시
-	}
-
 	// 특수 피격 이벤트 처리
 	if (HitState == PlayerHitState::INVINCIBLE)
 	{
@@ -235,6 +231,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
+
 			/*
 			float PostureDamage = Cast<UMikiriType>(UMikiriType::StaticClass()->GetDefaultObject())->DamageMultiple * this->Power;
 
@@ -275,6 +272,11 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		}
 
 		SavedDamage = DamageAmount;
+
+		FVector ImpulseVector = DamageCauser->GetActorForwardVector();
+		ImpulseVector = ImpulseVector.RotateAngleAxis(-30.0f, DamageCauser->GetActorRightVector());
+		GetCharacterMovement()->AddImpulse(ImpulseVector * 100.0f, true);
+
 		SetAniState(SekiroState::LightningReversal1);
 
 		return Damage;
@@ -291,7 +293,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	// 그 외 일반적인 피격 처리
 	if (HitState == PlayerHitState::GUARD && DamageType->bEnableGuard)
 	{
-		Posture -= DamageAmount * (DamageType->DamageMultiple);
+		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
@@ -309,7 +311,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	else if (HitState == PlayerHitState::PARRYING && DamageType->bEnableParrying)
 	{
 		// 패링 성공 시 체간 데미지 25% 감소
-		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
+		Posture -= (DamageAmount * 0.75) * (DamageType->PostureDamageMultiple);
 
 		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
@@ -345,8 +347,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 
 void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser)
 {
-	HP -= DamageAmount * (DamageType->DamageMultiple);
-	Posture -= DamageAmount * (DamageType->DamageMultiple);
+	HP -= DamageAmount * (DamageType->HPDamageMultiple);
+	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 	if (HP <= 0)
 	{
@@ -404,11 +406,6 @@ void APlayerSekiro::Damage()
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
 	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
 
-	if (HitActor.Num() == 0)
-	{
-		return;
-	}
-
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 	TSubclassOf<UDamageType> DamageType;
 
@@ -429,6 +426,8 @@ void APlayerSekiro::Damage()
 	else if (AniStateValue == SekiroState::LightningReversal2)
 	{
 		DamageType = UElectricSlashType::StaticClass();
+
+		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 500.0f, 100.0f);
 	}
 	else if (AniStateValue == SekiroState::Trample)
 	{
@@ -437,6 +436,11 @@ void APlayerSekiro::Damage()
 	else
 	{
 		DamageType = UDamageType::StaticClass();
+	}
+
+	if (HitActor.Num() == 0)
+	{
+		return;
 	}
 
 	for (AActor* Target : HitActor)
@@ -767,6 +771,8 @@ void APlayerSekiro::StartedPlayerDashMove()
 	
 	if (bStartedDash)
 	{
+		bDash = true;
+
 		// 첫 대쉬 가속도 보정
 		if (AniStateValue == SekiroState::ForwardRun)
 		{
@@ -783,6 +789,8 @@ void APlayerSekiro::StartedPlayerDashMove()
 	}
 	else
 	{
+		bDash = false;
+		
 		GetWorld()->GetTimerManager().ClearTimer(StartedDashTimerHandle);
 	}
 }
@@ -1062,7 +1070,7 @@ void APlayerSekiro::StartedPlayerAttack()
 		
 		&& AniStateValue != SekiroState::BasicAttack1 && AniStateValue != SekiroState::BasicAttack2
 		&& AniStateValue != SekiroState::BasicAttack3 && AniStateValue != SekiroState::DashAttack 
-		&& AniStateValue != SekiroState::StabAttack2
+		&& AniStateValue != SekiroState::StabAttack2 && AniStateValue != SekiroState::LightningReversal1
 		)
 	{
 		return;
@@ -1100,7 +1108,6 @@ void APlayerSekiro::StartedPlayerAttack()
 			if (bEnteredTransition == false)
 			{
 				CorrectedTime = GetWorld()->GetTimeSeconds();
-
 				BufferedAction = (SekiroState)((int)SekiroState::BasicAttack1 + BasicAttackCount);
 				bAttackEnable = true;
 
@@ -1116,13 +1123,10 @@ void APlayerSekiro::StartedPlayerAttack()
 	{
 		BasicAttackCount = 0;
 	}
-
-	bAttackEnable = true;
-
-	if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop || GetCharacterMovement()->IsFalling())
+	
+	if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop)
 	{
 		SetAniState(SekiroState::JumpAttack);
-		bAttackEnable = false;
 
 		return;
 	}
@@ -1131,13 +1135,27 @@ void APlayerSekiro::StartedPlayerAttack()
 	{
 		SetAniState(SekiroState::DashAttack);
 		bDashAttackMove = true;
-		bAttackEnable = false;
 
 		GetWorld()->GetTimerManager().SetTimer(DashAttackMoveTimerHandle, this, &APlayerSekiro::DashAttackMove, 0.001f, true);
 
 		return;
 	}
+	else if (AniStateValue == SekiroState::LightningReversal1)
+	{
+		if (bEnteredTransition == false)
+		{
+			CorrectedTime = GetWorld()->GetTimeSeconds();
+			BufferedAction = SekiroState::LightningReversal2;
+		}
+		else
+		{
+			SetAniState(SekiroState::LightningReversal2);
+		}
 
+		return;
+	}
+
+	bAttackEnable = true;
 	SetAniState(SekiroState::StabAttack1);
 }
 
@@ -1366,11 +1384,11 @@ void APlayerSekiro::SearchDeathblowTarget()
 
 	if (ClosestTarget != nullptr)
 	{
-		FRotator AdjustRotation = GetActorRotation();
-		AdjustRotation.Yaw = ClosestTarget->GetActorRotation().Yaw + 180.0f;
-		SetActorRotation(AdjustRotation);
-		
 		ClearBuffer();
+		
+		AdjustAngle(ClosestTarget->GetActorLocation());
+		HitState = PlayerHitState::INVINCIBLE;
+
 		UGameplayStatics::ApplyDamage(ClosestTarget, this->Power, GetController(), this, UDeathblowType::StaticClass());
 
 		if (ClosestTarget->ActorHasTag(TEXT("보스")))
@@ -1401,22 +1419,17 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 			SetAniState(SekiroState::Idle);
 		}
 	}
-	else if(Anim == GetAnimMontage(SekiroState::Hit)
-		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2)
-		|| Anim == GetAnimMontage(SekiroState::DeathblowNormal) || Anim == GetAnimMontage(SekiroState::DeathblowBoss))
+	else if(Anim == GetAnimMontage(SekiroState::Hit) || Anim == GetAnimMontage(SekiroState::LightningReversal2)
+		|| Anim == GetAnimMontage(SekiroState::Parrying1) || Anim == GetAnimMontage(SekiroState::Parrying2))
 	{
 		SetAniState(SekiroState::Idle);
-	}
-	else if (Anim == GetAnimMontage(SekiroState::LightningReversal1))
-	{
-		GetHitExecute(SavedDamage, Cast<UElectricSlashType>(UElectricSlashType::StaticClass()->GetDefaultObject()), nullptr);
-		SavedDamage = 0.f;
 	}
 	else if (Anim == GetAnimMontage(SekiroState::Knockdown))
 	{
 		SetAniState(SekiroState::Getup);
 	}
-	else if (Anim == GetAnimMontage(SekiroState::Getup) || Anim == GetAnimMontage(SekiroState::MikiriCounter))
+	else if (Anim == GetAnimMontage(SekiroState::Getup) || Anim == GetAnimMontage(SekiroState::MikiriCounter)
+		|| Anim == GetAnimMontage(SekiroState::DeathblowNormal) || Anim == GetAnimMontage(SekiroState::DeathblowBoss))
 	{
 		HitState = PlayerHitState::OFFGUARD;
 		SetAniState(SekiroState::Idle);
@@ -1448,6 +1461,13 @@ void APlayerSekiro::MontageEnd()
 		SetAniState(SekiroState::JumpLoop);
 	}
 
+	else if (AniStateValue == SekiroState::LightningReversal1)
+	{
+		SetAniState(SekiroState::Idle);
+		GetHitExecute(SavedDamage, Cast<UElectricSlashType>(UElectricSlashType::StaticClass()->GetDefaultObject()), nullptr);
+		SavedDamage = 0.f;
+	}
+
 	else
 	{
 		SetAniState(SekiroState::Idle);
@@ -1477,6 +1497,22 @@ void APlayerSekiro::AttackComboEnd()
 void APlayerSekiro::DashAttackMoveEnd()
 {
 	bDashAttackMove = false;
+}
+
+void APlayerSekiro::DeathblowRecover()
+{
+	HP += 20.0f;
+	Posture += 30.0f;
+
+	if (HP >= 100.0f)
+	{
+		HP = 100.0f;
+	}
+
+	if (Posture >= 100.0f)
+	{
+		Posture = 100.0f;
+	}
 }
 
 // 선입력 체크
@@ -1552,6 +1588,12 @@ void APlayerSekiro::CheckBufferedInput()
 				CorrectedTime = GetWorld()->GetTimeSeconds() - CorrectedTime;
 			}
 		}
+		
+		// 뇌반 선입력
+		else if (BufferedAction == SekiroState::LightningReversal2)
+		{
+			SetAniState(SekiroState::LightningReversal2);
+		}
 
 		BufferedAction = SekiroState::None;
 	}
@@ -1565,6 +1607,7 @@ void APlayerSekiro::ClearBuffer()
 
 	bAttackEnable = false;
 	bDashAttackMove = false;
+	bDash = false;
 
 	bBufferedCompletedAttack = false;
 	bBufferedCompletedDash = false;

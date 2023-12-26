@@ -57,6 +57,19 @@ void ABossGenichiro::Tick(float _Delta)
 
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
+	if (HP > 70.0f)
+	{
+		PostureRecoveryAmount = MaxPostureRecoveryAmount;
+	}
+	else if (HP > 40.0f)
+	{
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5;
+	}
+	else
+	{
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25;
+	}
+
 	if (bEnablePostureRecovery)
 	{
 		// 기본 자세 or 걷는 도중엔 체간 회복
@@ -100,26 +113,16 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UMikiriType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 
-		Posture -= DamageAmount * (DamageType->DamageMultiple);
+		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 		if (Posture <= 0)
 		{
-			ExhaustAction();
+			Posture = 0.1;
 		}
-		// 간파하기 피격 시 위치, 회전값 조정
-		else
-		{
-			/*
-			FVector AdjustLocation = GetActorLocation() - DamageCauser->GetActorLocation();
-			AdjustLocation.Normalize();
-			AdjustLocation = AdjustLocation * 150.0f;
-			SetActorLocation(DamageCauser->GetActorLocation() + AdjustLocation);
-			*/
-
-			AdjustAngle(DamageCauser->GetActorLocation());
-			
-			SetAniState(GenichiroState::MikiriCounter1);
-		}
+		
+		// 간파하기 피격 시 회전값 조정
+		AdjustAngle(DamageCauser->GetActorLocation());
+		SetAniState(GenichiroState::MikiriCounter1);
 
 		return Damage;
 	}
@@ -131,7 +134,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UParryType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 
-		Posture -= DamageAmount * (DamageType->DamageMultiple);
+		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 		GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
@@ -150,8 +153,8 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UElectricSlashType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 
-		HP -= DamageAmount * (DamageType->DamageMultiple);
-		Posture -= DamageAmount * (DamageType->DamageMultiple);
+		HP -= DamageAmount * (DamageType->HPDamageMultiple);
+		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 		if (HP <= 0)
 		{
@@ -196,7 +199,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	}
 	else if (HitState == MonsterHitState::GUARD && DamageType->bEnableGuard)
 	{
-		Posture -= DamageAmount * (DamageType->DamageMultiple);
+		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 		GetHitImpulseManager(DamageCauser, 1500.0f);
 
@@ -216,7 +219,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	else if (HitState == MonsterHitState::PARRYING && DamageType->bEnableParrying)
 	{
 		// 패링 성공 시 체간 데미지 25% 감소
-		Posture -= (DamageAmount * 0.75) * (DamageType->DamageMultiple);
+		Posture -= (DamageAmount * 0.75) * (DamageType->PostureDamageMultiple);
 
 		GetHitImpulseManager(DamageCauser, 1500.0f);
 
@@ -250,8 +253,8 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* DamageType, AActor* DamageCauser)
 {
-	HP -= DamageAmount * (DamageType->DamageMultiple);
-	Posture -= DamageAmount * (DamageType->DamageMultiple);
+	HP -= DamageAmount * (DamageType->HPDamageMultiple);
+	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
 	if (HP <= 0)
 	{
@@ -368,11 +371,6 @@ void ABossGenichiro::Damage()
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1);
 	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
 
-	if (HitActor.Num() == 0)
-	{
-		return;
-	}
-
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 	TSubclassOf<UDamageType> DamageType;
 
@@ -396,10 +394,17 @@ void ABossGenichiro::Damage()
 	else if (AniStateValue == GenichiroState::ElectricSlash2)
 	{
 		DamageType = UElectricSlashType::StaticClass();
+
+		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 500.0f, 100.0f);
 	}
 	else
 	{
 		DamageType = UDamageType::StaticClass();
+	}
+
+	if (HitActor.Num() == 0)
+	{
+		return;
 	}
 
 	for (AActor* Target : HitActor)
