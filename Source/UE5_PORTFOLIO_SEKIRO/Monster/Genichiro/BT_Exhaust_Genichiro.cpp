@@ -88,13 +88,13 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 		else if (BehaviorState == GenichiroState::Deathblow1)
 		{
+			Genichiro->SetHP(0.0f);
+			Genichiro->SetDeathblowCount(Genichiro->GetDeathblowCount() - 1);
+
 			SetStateChange(OwnerComp, GenichiroState::Deathblow2);
 		}
 		else if (BehaviorState == GenichiroState::Deathblow2)
 		{
-			Genichiro->SetPosture(Genichiro->GetMaxPosture());
-			Genichiro->SetDeathblowCount(Genichiro->GetDeathblowCount() - 1);
-
 			if (Genichiro->GetDeathblowCount() >= 1)
 			{
 				SetStateChange(OwnerComp, GenichiroState::Deathblow3);
@@ -103,6 +103,12 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 			{
 				SetStateChange(OwnerComp, GenichiroState::Death);
 			}
+		}
+		else if (BehaviorState == GenichiroState::Deathblow3)
+		{
+			Genichiro->SetHP(Genichiro->GetMaxHP());
+			Genichiro->SetPosture(Genichiro->GetMaxPosture());
+			SetStateChange(OwnerComp, GenichiroState::Idle);
 		}
 		else
 		{

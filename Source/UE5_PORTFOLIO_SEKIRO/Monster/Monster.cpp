@@ -28,7 +28,7 @@ AMonster::AMonster()
 	DeathblowIconWidgetClass = DeathblowIconClassPath.TryLoadClass<UDeathblowWidget>();
 
 	DeathblowWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DeathblowWidgetComponent"));
-	DeathblowWidgetComponent->SetWidgetClass(nullptr);
+	DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
 	DeathblowWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	DeathblowWidgetComponent->SetDrawSize(FVector2D(150.f, 150.f));
 	DeathblowWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, -30.0f));
@@ -81,14 +81,22 @@ void AMonster::LockOnIconOnOff(bool bLockOn)
 
 void AMonster::DeathblowIconOnOff(bool bExhaust)
 {
+	UDeathblowWidget* DeathblowWidget = Cast<UDeathblowWidget>(DeathblowWidgetComponent->GetWidget());
+
 	if (bExhaust)
 	{
-		DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
-		bEnableDeathblow = true;
+		if (bEnableDeathblow == false)
+		{
+			DeathblowWidget->IconOn();
+			bEnableDeathblow = true;
+		}
 	}
 	else
 	{
-		DeathblowWidgetComponent->SetWidgetClass(nullptr);
-		bEnableDeathblow = false;
+		if (bEnableDeathblow)
+		{
+			DeathblowWidget->IconOff();
+			bEnableDeathblow = false;
+		}
 	}
 }

@@ -18,6 +18,14 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
 
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+
+	if (nullptr != TargetObject)
+	{
+		APlayerSekiro* TargetActor = Cast<APlayerSekiro>(TargetObject);
+		TargetActor->TargetBoss = nullptr;
+	}
+	
 	GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), nullptr);
 
 	UCharacterMovementComponent* MoveCom = Cast<UCharacterMovementComponent>(GetGlobalCharacter(OwnerComp)->GetMovementComponent());
@@ -47,13 +55,19 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 		// 방향 조정
 		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, ResultActor->GetActorLocation(), 10.0f);
+
+		if (GetGlobalCharacter(OwnerComp)->ActorHasTag(TEXT("보스")))
+		{
+			APlayerSekiro* TargetActor = Cast<APlayerSekiro>(ResultActor);
+			TargetActor->TargetBoss = Cast<AMonster>(GetGlobalCharacter(OwnerComp));
+		}
 	}
 	else
 	{
 		return;
 	}
 
-	if (0.5f <= GetStateTime(OwnerComp))
+	if (0.3f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 

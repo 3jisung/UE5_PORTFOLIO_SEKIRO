@@ -120,6 +120,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<UStaticMesh*> StaticMeshArrays;
 
+	// 보스 몬스터가 플레이어를 타겟팅 했을 때 해당 변수에 등록
+	UPROPERTY(Category = "TargetBoss", EditAnywhere, BlueprintReadWrite)
+	AMonster* TargetBoss = nullptr;
+
 
 protected:
 	void BeginPlay() override;
@@ -142,6 +146,7 @@ private:
 
 	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bInputWASD = false;
+
 
 	float Speed = 0.f;
 	const float DefaultSpeed = 300.0f;

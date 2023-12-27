@@ -9,6 +9,7 @@
 #include "../../Global/GlobalEnums.h"
 #include "../../Global/GlobalCharacter.h"
 #include "../../Global/GlobalFunctionLibrary.h"
+#include "../../Player/PlayerSekiro.h"
 #include "BossGenichiro.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"

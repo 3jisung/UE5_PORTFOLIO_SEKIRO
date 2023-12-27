@@ -146,17 +146,19 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 
 		for (size_t i = 0; i < TargetActors.Num(); i++)
 		{
-			float Dis = (Pawn->GetActorLocation() - TargetActors[i]->GetActorLocation()).Size();
+			AGlobalCharacter* Target = Cast<AGlobalCharacter>(TargetActors[i]);
+			
+			float Dis = (Pawn->GetActorLocation() - Target->GetActorLocation()).Size();
 
 			if (SearchRange <= Dis)
 			{
 				continue;
 			}
 
-			if (Range > Dis)
+			if (Range > Dis && Target->GetHP() > 0)
 			{
 				Range = Dis;
-				ResultActor = TargetActors[i];
+				ResultActor = Target;
 			}
 		}
 	}

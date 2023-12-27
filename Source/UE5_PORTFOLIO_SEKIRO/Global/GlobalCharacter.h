@@ -39,6 +39,11 @@ public:
 		HP = _HP;
 	}
 
+	float GetMaxHP()
+	{
+		return MaxHP;
+	}
+
 	float GetPosture()
 	{
 		return Posture;

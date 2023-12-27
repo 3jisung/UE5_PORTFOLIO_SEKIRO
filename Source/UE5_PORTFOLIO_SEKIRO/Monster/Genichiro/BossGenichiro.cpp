@@ -78,6 +78,12 @@ void ABossGenichiro::Tick(float _Delta)
 		{
 			Posture += PostureRecoveryAmount;
 		}
+		else if ((AniStateValue == GenichiroState::BottomAttack || AniStateValue == GenichiroState::StabAttack
+			|| AniStateValue == GenichiroState::TakeDownAttack || AniStateValue == GenichiroState::ElectricSlash2)
+			&& HitState == MonsterHitState::OFFGUARD)
+		{
+			Posture += PostureRecoveryAmount;
+		}
 
 		if (Posture > 100)
 		{

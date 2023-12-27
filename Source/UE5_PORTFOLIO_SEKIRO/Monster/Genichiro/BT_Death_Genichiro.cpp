@@ -12,6 +12,16 @@ EBTNodeResult::Type UBT_Death_Genichiro::ExecuteTask(UBehaviorTreeComponent& Own
 
 	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::INVINCIBLE);
 
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+
+	if (nullptr != TargetObject)
+	{
+		APlayerSekiro* TargetActor = Cast<APlayerSekiro>(TargetObject);
+		TargetActor->TargetBoss = nullptr;
+	}
+
+	GetBlackboardComponent(OwnerComp)->SetValueAsObject(TEXT("TargetActor"), nullptr);
+
 	return EBTNodeResult::Type::InProgress;
 }
 
