@@ -47,9 +47,9 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	}
 
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
-	AActor* TargetActor = Cast<AActor>(TargetObject);
+	AGlobalCharacter* TargetActor = Cast<AGlobalCharacter>(TargetObject);
 
-	if (nullptr == TargetActor)
+	if (nullptr == TargetActor || TargetActor->GetHP() <= 0)
 	{
 		SetStateChange(OwnerComp, GenichiroState::Idle);
 		return;
