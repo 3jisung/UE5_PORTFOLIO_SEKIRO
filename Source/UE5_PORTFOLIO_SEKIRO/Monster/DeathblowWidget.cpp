@@ -31,6 +31,7 @@ void UDeathblowWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 			if (IconOpacity >= 1)
 			{
+				IconOpacity = 1.0f;
 				bOnIcon = false;
 			}
 		}
@@ -48,6 +49,7 @@ void UDeathblowWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 			if (IconOpacity <= 0)
 			{
+				IconOpacity = 0.0f;
 				bOffIcon = false;
 			}
 		}

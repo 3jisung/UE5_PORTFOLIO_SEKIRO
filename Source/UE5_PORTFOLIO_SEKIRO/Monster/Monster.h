@@ -37,6 +37,11 @@ public:
 		DeathblowCount = _DeathblowCount;
 	}
 
+	int GetMaxDeathblowCount()
+	{
+		return MaxDeathblowCount;
+	}
+
 	MonsterHitState GetHitState()
 	{
 		return HitState;
@@ -88,6 +93,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBlackboardComponent* BlackboardComponent;
+
+	UPROPERTY(Category = "Monster", EditAnywhere, BlueprintReadWrite)
+	int MaxDeathblowCount;
 
 	UPROPERTY(Category = "Monster", EditAnywhere, BlueprintReadWrite)
 	int DeathblowCount;

@@ -24,12 +24,19 @@ public:
 	void IconOn()
 	{
 		bOnIcon = true;
+		bOffIcon = false;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	void IconOff()
 	{
 		bOffIcon = true;
+		bOnIcon = false;
+	}
+
+	float GetIconOpacity()
+	{
+		return IconOpacity;
 	}
 
 	UPROPERTY(Category = "Icon", EditAnywhere, BlueprintReadWrite)

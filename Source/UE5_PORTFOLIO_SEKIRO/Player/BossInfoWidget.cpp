@@ -12,6 +12,21 @@ void UBossInfoWidget::NativeConstruct()
 	BossGetHitHP = Cast<UImage>(GetWidgetFromName(TEXT("GetHitHP")));
 	BossName = Cast<UTextBlock>(GetWidgetFromName(TEXT("Name")));
 
+	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1_Background"))));
+	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2_Background"))));
+	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3_Background"))));
+
+	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1"))));
+	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2"))));
+	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3"))));
+
+	for (size_t i = 0; i < DeathblowImage.Num(); i++)
+	{
+		DeathblowBackgroundImage[i]->SetVisibility(ESlateVisibility::Hidden);
+		DeathblowImage[i]->SetOpacity(0.f);
+		
+	}
+
 	Player = Cast<APlayerSekiro>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	MaxHPSize = Cast<UCanvasPanelSlot>(BossHP->Slot)->GetSize().X;		// 390.0
@@ -25,11 +40,34 @@ void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		BossName->SetText(FText::FromName(Player->TargetBoss->Tags[2]));
 
+		int TargetMaxDeathblowCount = Player->TargetBoss->GetMaxDeathblowCount();
+		int TargetDeathblowCount = Player->TargetBoss->GetDeathblowCount();
+
+		if (TargetMaxDeathblowCount <= DeathblowImage.Num())
+		{
+			for (size_t i = 0; i < DeathblowImage.Num(); i++)
+			{
+				if (i < TargetMaxDeathblowCount)
+				{
+					DeathblowBackgroundImage[i]->SetVisibility(ESlateVisibility::Visible);
+				}
+				else
+				{
+					DeathblowBackgroundImage[i]->SetVisibility(ESlateVisibility::Hidden);
+				}
+			}
+
+			if (TargetDeathblowCount != DeathblowCount)
+			{
+				UpdateDeathblowUI(TargetDeathblowCount, InDeltaTime);
+			}
+		}
+
 		if (Player->TargetBoss->GetHP() != CurHPValue)
 		{
 			GetHitEvent(Player->TargetBoss->GetHP() - CurHPValue);
 			CurHPValue = Player->TargetBoss->GetHP();
-		}
+		}	
 	}
 
 	if (Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->GetSize().X > 0)
@@ -80,5 +118,42 @@ void UBossInfoWidget::GetHitEvent(float HPDifference)
 
 				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 			}), delayTime, false);
+	}
+}
+
+void UBossInfoWidget::UpdateDeathblowUI(int NewDeathblowCount, float Delta)
+{
+	static float SumTime = 0.f;
+
+	SumTime += Delta;
+
+	if (SumTime > 0.05f)
+	{
+		if (DeathblowCount < NewDeathblowCount)
+		{
+			for (size_t i = DeathblowCount; i < NewDeathblowCount; i++)
+			{
+				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A + 0.1);
+
+				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A >= 1.0f)
+				{
+					DeathblowCount = NewDeathblowCount;
+				}
+			}
+		}
+		else
+		{
+			for (size_t i = NewDeathblowCount; i < DeathblowCount; i++)
+			{
+				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A - 0.1);
+
+				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A <= 0.0f)
+				{
+					DeathblowCount = NewDeathblowCount;
+				}
+			}
+		}
+
+		SumTime = 0.0f;
 	}
 }

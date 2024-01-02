@@ -27,7 +27,7 @@ struct UE5_PORTFOLIO_SEKIRO_API FMonsterData : public FTableRowBase
 	float Power;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	int DeathblowCount;
+	int MaxDeathblowCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBehaviorTree* AI;

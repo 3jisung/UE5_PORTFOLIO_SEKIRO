@@ -24,6 +24,7 @@ public:
 	void FadeIn()
 	{
 		FadeInState = true;
+		FadeOutState = false;
 		ScreenOpacity = 1;
 	}
 
@@ -31,6 +32,7 @@ public:
 	void FadeOut()
 	{
 		FadeOutState = true;
+		FadeInState = false;
 		ScreenOpacity = 0;
 	}
 

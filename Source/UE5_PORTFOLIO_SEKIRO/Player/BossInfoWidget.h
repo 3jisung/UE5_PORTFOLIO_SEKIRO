@@ -22,6 +22,8 @@ class UE5_PORTFOLIO_SEKIRO_API UBossInfoWidget : public UUserWidget
 public:
 	void GetHitEvent(float HPDifference);
 
+	void UpdateDeathblowUI(int NewDeathblowCount, float _Delta);
+
 	// 보스 몬스터의 HP
 	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
 	UImage* BossHP = nullptr;
@@ -41,6 +43,10 @@ private:
 	double MaxHPSize = 0.0;
 	float CurHPValue = 0.0f;
 	bool bAdjustGetHitHP = false;
+
+	TArray<UImage*> DeathblowBackgroundImage;
+	TArray<UImage*> DeathblowImage;
+	int DeathblowCount = 0;
 
 	APlayerSekiro* Player = nullptr;
 };

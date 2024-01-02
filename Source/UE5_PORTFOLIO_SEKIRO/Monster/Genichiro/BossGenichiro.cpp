@@ -32,7 +32,8 @@ void ABossGenichiro::BeginPlay()
 	MaxPosture = MonsterData->MaxPosture;
 	Posture = MaxPosture;
 	Power = MonsterData->Power;
-	DeathblowCount = MonsterData->DeathblowCount;
+	MaxDeathblowCount = MonsterData->MaxDeathblowCount;
+	DeathblowCount = MaxDeathblowCount;
 
 	// 비헤이비어 트리 설정(현재는 블루프린트 클래스에 미리 넣는 구조)
 	BehaviorTree = MonsterData->AI;
@@ -57,11 +58,11 @@ void ABossGenichiro::Tick(float _Delta)
 
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
-	if (HP > 70.0f)
+	if (HP > MaxHP * 0.7f)
 	{
 		PostureRecoveryAmount = MaxPostureRecoveryAmount;
 	}
-	else if (HP > 40.0f)
+	else if (HP > MaxHP * 0.4f)
 	{
 		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5;
 	}
@@ -85,9 +86,9 @@ void ABossGenichiro::Tick(float _Delta)
 			Posture += PostureRecoveryAmount;
 		}
 
-		if (Posture > 100)
+		if (Posture > MaxPosture)
 		{
-			Posture = 100.0f;
+			Posture = MaxPosture;
 		}
 	}
 }
@@ -123,7 +124,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 		if (Posture <= 0)
 		{
-			Posture = 0.1;
+			Posture = 0.1f;
 		}
 		
 		// 간파하기 피격 시 회전값 조정
@@ -264,6 +265,7 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 
 	if (HP <= 0)
 	{
+		HP = 0.0f;
 		ExhaustAction();
 	}
 	else if (Posture <= 0)

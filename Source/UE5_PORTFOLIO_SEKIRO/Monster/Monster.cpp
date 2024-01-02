@@ -85,18 +85,12 @@ void AMonster::DeathblowIconOnOff(bool bExhaust)
 
 	if (bExhaust)
 	{
-		if (bEnableDeathblow == false)
-		{
-			DeathblowWidget->IconOn();
-			bEnableDeathblow = true;
-		}
+		DeathblowWidget->IconOn();
+		bEnableDeathblow = true;
 	}
 	else
 	{
-		if (bEnableDeathblow)
-		{
-			DeathblowWidget->IconOff();
-			bEnableDeathblow = false;
-		}
+		DeathblowWidget->IconOff();
+		bEnableDeathblow = false;
 	}
 }

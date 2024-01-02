@@ -124,11 +124,11 @@ void APlayerSekiro::Tick(float _Delta)
 	}
 	
 	// 현재 체력에 따라 체간 회복 속도 가변
-	if (HP > 70.0f)
+	if (HP > MaxHP * 0.7f)
 	{
 		PostureRecoveryAmount = MaxPostureRecoveryAmount;
 	}
-	else if (HP > 40.0f)
+	else if (HP > MaxHP * 0.4f)
 	{
 		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5;
 	}
@@ -152,9 +152,9 @@ void APlayerSekiro::Tick(float _Delta)
 			Posture += PostureRecoveryAmount * 2;
 		}
 
-		if (Posture > 100)
+		if (Posture > MaxPosture)
 		{
-			Posture = 100.0f;
+			Posture = MaxPosture;
 		}
 	}
 
@@ -385,7 +385,7 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 
 void APlayerSekiro::ExhaustAction()
 {
-	Posture = 100;
+	Posture = MaxPosture;
 
 	HitState = PlayerHitState::OFFGUARD;
 	SetAniState(SekiroState::Exhaust);
@@ -394,7 +394,7 @@ void APlayerSekiro::ExhaustAction()
 void APlayerSekiro::DeathAction()
 {
 	HP = 0;
-	Posture = 100;
+	Posture = MaxPosture;
 
 	HitState = PlayerHitState::INVINCIBLE;
 	SetAniState(SekiroState::Death);
@@ -1501,17 +1501,17 @@ void APlayerSekiro::DashAttackMoveEnd()
 
 void APlayerSekiro::DeathblowRecover()
 {
-	HP += 20.0f;
-	Posture += 30.0f;
+	HP += MaxHP * 0.2f;
+	Posture += MaxPosture * 0.3f;
 
-	if (HP >= 100.0f)
+	if (HP >= MaxHP)
 	{
-		HP = 100.0f;
+		HP = MaxHP;
 	}
 
-	if (Posture >= 100.0f)
+	if (Posture >= MaxPosture)
 	{
-		Posture = 100.0f;
+		Posture = MaxPosture;
 	}
 }
 
