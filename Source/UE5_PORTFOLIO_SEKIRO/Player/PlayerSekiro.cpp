@@ -111,6 +111,11 @@ void APlayerSekiro::Tick(float _Delta)
 			ToggleLockOn();
 			return;
 		}
+		else if ((LockedOnTarget != nullptr && LockedOnTarget->IsDeath()) || this->IsDeath())
+		{
+			ToggleLockOn();
+			return;
+		}
 
 		LockedOnLocation.Z -= 35.0f;
 
@@ -232,7 +237,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 			HitState = PlayerHitState::INVINCIBLE;
 			SetAniState(SekiroState::MikiriCounter);
 
-			/*
+			/* 간파 인살
 			float PostureDamage = Cast<UMikiriType>(UMikiriType::StaticClass()->GetDefaultObject())->DamageMultiple * this->Power;
 
 			if (Cast<AMonster>(DamageCauser)->GetPosture() - PostureDamage <= 0)
@@ -1244,6 +1249,11 @@ void APlayerSekiro::AttackMove()
 // 락온 가능한 대상을 찾아 카메라 시점을 고정하도록 하는 함수
 void APlayerSekiro::LockOnTarget()
 {
+	if (IsDeath())
+	{
+		return;
+	}
+	
 	if (bLockOn == false)
 	{
 		// Monster 콜리전 탐색
@@ -1402,6 +1412,43 @@ void APlayerSekiro::SearchDeathblowTarget()
 	}
 }
 
+void APlayerSekiro::DrinkGourd()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue != SekiroState::Idle
+
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+	{
+		return;
+	}
+
+	if (HealCount <= 0)
+	{
+		return;
+	}
+
+	GourdMesh->SetStaticMesh(StaticMeshArrays[1]);
+	SetAniState(SekiroState::Heal);
+}
+
+void APlayerSekiro::PlayerHeal()
+{
+	HP += MaxHP * 0.5;
+
+	if (HP >= MaxHP)
+	{
+		HP = MaxHP;
+	}
+
+	HealCount -= 1;
+
+	// 이펙트, 사운드 추가
+}
+
 void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
 	bEnteredTransition = false;
@@ -1444,6 +1491,11 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 
 				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 			}), delayTime, false);
+	}
+	else if (Anim == GetAnimMontage(SekiroState::Heal))
+	{
+		GourdMesh->SetStaticMesh(nullptr);
+		SetAniState(SekiroState::Idle);
 	}
 }
 

@@ -69,6 +69,18 @@ public:
 		Power = _Power;
 	}
 
+	virtual bool IsDeath()
+	{
+		if (GetHP() <= 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	void PostureRecoveryManagerTimer()
 	{
 		bEnablePostureRecovery = true;

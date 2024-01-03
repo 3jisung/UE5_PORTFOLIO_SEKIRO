@@ -119,6 +119,24 @@ void UBossInfoWidget::GetHitEvent(float HPDifference)
 				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 			}), delayTime, false);
 	}
+	// 피가 찼을 경우 피격바 조정
+	else
+	{
+		// 피격바 시작점 계산
+		double AdjustXPosition = Cast<UCanvasPanelSlot>(BossHP->Slot)->GetPosition().X + (HPScale.X * MaxHPSize);
+		FVector2D GetHitHPPosition = FVector2D(AdjustXPosition, Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->GetPosition().Y);
+		Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->SetPosition(GetHitHPPosition);
+
+		// 피격바 사이즈 수정
+		double AdjustXSize = Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->GetSize().X - (MaxHPSize * (HPDifference / Player->TargetBoss->GetMaxHP()));
+		if (AdjustXSize <= 0)
+		{
+			AdjustXSize = 0;
+		}
+
+		FVector2D AdjustSize = FVector2D(AdjustXSize, Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->GetSize().Y);
+		Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->SetSize(AdjustSize);
+	}
 }
 
 void UBossInfoWidget::UpdateDeathblowUI(int NewDeathblowCount, float Delta)

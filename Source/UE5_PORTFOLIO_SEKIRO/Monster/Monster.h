@@ -86,7 +86,7 @@ protected:
 	virtual bool GetHitCheck() { UE_LOG(LogTemp, Error, TEXT("Monster GetHitCheck")); return false; }
 	virtual bool BlockCheck() { UE_LOG(LogTemp, Error, TEXT("Monster BlockCheck")); return false; }
 	virtual bool IsExhaust() { UE_LOG(LogTemp, Error, TEXT("Monster ExhaustCheck")); return false; }
-	virtual bool IsDeath() { UE_LOG(LogTemp, Error, TEXT("Monster DeathCheck")); return false; }
+	// bool IsDeath() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	class UBehaviorTree* BehaviorTree;

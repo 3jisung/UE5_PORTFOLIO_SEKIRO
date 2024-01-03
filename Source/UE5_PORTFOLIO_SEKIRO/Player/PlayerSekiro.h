@@ -30,6 +30,8 @@ public:
 	void ExhaustAction();
 	void DeathAction();
 
+	// bool IsDeath() override;
+
 	void Damage() override;
 
 	UFUNCTION(BlueprintCallable)
@@ -83,6 +85,15 @@ public:
 	void SearchDeathblowTarget();
 
 	UFUNCTION(BlueprintCallable)
+	void DrinkGourd();
+
+	UFUNCTION(BlueprintCallable)
+	void PlayerHeal();
+
+	UFUNCTION(BlueprintCallable)
+	void SitDown() {};
+
+	UFUNCTION(BlueprintCallable)
 	void MontageEnd();
 
 	UFUNCTION(BlueprintCallable)
@@ -107,6 +118,11 @@ public:
 	void CheckBufferedInput();
 
 	void ClearBuffer();
+
+	int GetHealCount()
+	{
+		return HealCount;
+	}
 
 
 	const struct FPlayerStatData* StatData;
@@ -146,6 +162,9 @@ private:
 
 	UPROPERTY(Category = "InputWASD", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bInputWASD = false;
+
+	UPROPERTY(Category = "Heal", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int HealCount = 5;
 
 
 	float Speed = 0.f;

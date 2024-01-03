@@ -155,7 +155,7 @@ class AActor* UBTTask_Genichiro::GetTargetSearch(UBehaviorTreeComponent& OwnerCo
 				continue;
 			}
 
-			if (Range > Dis && Target->GetHP() > 0)
+			if (Range > Dis && Target->IsDeath() == false)
 			{
 				Range = Dis;
 				ResultActor = Target;

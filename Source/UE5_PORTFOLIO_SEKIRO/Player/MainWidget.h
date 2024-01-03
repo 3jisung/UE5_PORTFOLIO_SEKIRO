@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "PlayerSekiro.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainWidget.generated.h"
@@ -46,6 +47,12 @@ public:
 	// 플레이어가 받은 피해량을 나타내는 피격바(1초 유지)
 	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
 	UImage* PlayerGetHitHP = nullptr;
+
+	UPROPERTY(Category = "Gourd", EditAnywhere, BlueprintReadWrite)
+	UImage* GourdImage = nullptr;
+
+	UPROPERTY(Category = "Gourd", EditAnywhere, BlueprintReadWrite)
+	UTextBlock* HealCount = nullptr;
 
 
 protected:
