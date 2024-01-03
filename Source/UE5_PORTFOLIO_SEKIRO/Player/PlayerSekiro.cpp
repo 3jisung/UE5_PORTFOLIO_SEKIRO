@@ -4,6 +4,7 @@
 #include "PlayerSekiro.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "../Global/GlobalAnimInstance.h"
 #include "../Global/GlobalGameInstance.h"
 #include "../Global/Data/PlayerAnimData.h"
@@ -25,6 +26,16 @@ APlayerSekiro::APlayerSekiro()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->FieldOfView = 90.0f;
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	// 위(危) 문자 아이콘 설정
+	FSoftClassPath WarningClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Player/UI/WBP_WarningIcon.WBP_WarningIcon_C'"));
+
+	WarningWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WarningWidgetComponent"));
+	WarningWidgetComponent->SetWidgetClass(WarningClassPath.TryLoadClass<UWarningWidget>());
+	WarningWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	WarningWidgetComponent->SetDrawSize(FVector2D(200.f, 200.f));
+	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.0f));
+	WarningWidgetComponent->SetupAttachment(RootComponent);
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh(), TEXT("hand_r_weapon"));
@@ -403,6 +414,22 @@ void APlayerSekiro::DeathAction()
 
 	HitState = PlayerHitState::INVINCIBLE;
 	SetAniState(SekiroState::Death);
+}
+
+void APlayerSekiro::ShowWarningIcon()
+{
+	UWarningWidget* WarningWidget = Cast<UWarningWidget>(WarningWidgetComponent->GetWidget());
+
+	WarningWidget->IconOn();
+
+	float delayTime = 0.5f;
+	FTimerHandle myTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, WarningWidget]()
+		{
+			WarningWidget->IconOff();
+
+			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+		}), delayTime, false);
 }
 
 void APlayerSekiro::Damage()
@@ -1437,6 +1464,11 @@ void APlayerSekiro::DrinkGourd()
 
 void APlayerSekiro::PlayerHeal()
 {
+	if (HealCount <= 0)
+	{
+		return;
+	}
+	
 	HP += MaxHP * 0.5;
 
 	if (HP >= MaxHP)

@@ -38,11 +38,17 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	}
 	
 	// 공격 시 방향 조정
-	{
-		UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
-		AActor* TargetActor = Cast<AActor>(TargetObject);
+	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
+	AActor* TargetActor = Cast<AActor>(TargetObject);
 
+	if (nullptr != TargetActor)
+	{
 		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.0f);
+	}
+	else
+	{
+		SetStateChange(OwnerComp, GenichiroState::Idle);
+		return;
 	}
 
 	UAnimMontage* Montage = GetGlobalCharacter(OwnerComp)->GetAnimMontage(UBTTask_Genichiro::GetGenichiroState(OwnerComp));

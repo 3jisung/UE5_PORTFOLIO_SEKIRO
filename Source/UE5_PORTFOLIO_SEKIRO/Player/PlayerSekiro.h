@@ -7,6 +7,7 @@
 #include "../Global/GlobalEnums.h"
 #include "../Global/Data/PlayerStatData.h"
 #include "../Monster/Monster.h"
+#include "WarningWidget.h"
 #include "PlayerSekiro.generated.h"
 
 /**
@@ -31,6 +32,8 @@ public:
 	void DeathAction();
 
 	// bool IsDeath() override;
+	UFUNCTION(BlueprintCallable)
+	void ShowWarningIcon();
 
 	void Damage() override;
 
@@ -156,6 +159,9 @@ private:
 
 	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CameraComponent;
+
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* WarningWidgetComponent;
 
 	UPROPERTY(Category = "LockOn", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bLockOn = false;
