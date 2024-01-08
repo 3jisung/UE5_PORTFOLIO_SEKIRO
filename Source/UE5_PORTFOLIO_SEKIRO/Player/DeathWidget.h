@@ -85,5 +85,6 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bOffDeathUI = false;
 
-	float SumTime = 0.0f;
+	float BackgroundSumTime = 0.0f;
+	float DeathUISumTime = 0.0f;
 };
