@@ -25,6 +25,7 @@ public:
 	UStaticMesh* GetPlayerMesh(FName _Name);
 	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
 	struct FMonsterData* GetMonster(FName _Name);
+	TArray<class USoundBase*> GetSoundData(FName _Name);
 
 
 private:
@@ -39,4 +40,7 @@ private:
 
 	UPROPERTY()
 	UDataTable* MonsterData;
+
+	UPROPERTY()
+	UDataTable* SoundData;
 };

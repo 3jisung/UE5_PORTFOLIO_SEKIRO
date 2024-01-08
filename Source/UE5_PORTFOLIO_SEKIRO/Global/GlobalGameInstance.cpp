@@ -6,6 +6,7 @@
 #include "Data/PlayerMeshData.h"
 #include "Data/PlayerAnimData.h"
 #include "Data/MonsterData.h"
+#include "Data/SoundData.h"
 
 
 UGlobalGameInstance::UGlobalGameInstance()
@@ -47,6 +48,16 @@ UGlobalGameInstance::UGlobalGameInstance()
 		if (DataTable.Succeeded())
 		{
 			MonsterData = DataTable.Object;
+		}
+	}
+
+	{
+		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_SoundData.DT_SoundData'");
+		ConstructorHelpers::FObjectFinder<UDataTable> DataTable(*DataPath);
+
+		if (DataTable.Succeeded())
+		{
+			SoundData = DataTable.Object;
 		}
 	}
 
@@ -119,4 +130,23 @@ FMonsterData* UGlobalGameInstance::GetMonster(FName _Name)
 	}
 
 	return FindTable;
+}
+
+TArray<class USoundBase*> UGlobalGameInstance::GetSoundData(FName _Name)
+{
+	TArray<class USoundBase*> EmptyTArray;
+	
+	if (nullptr == SoundData)
+	{
+		return EmptyTArray;
+	}
+
+	FSoundData* FindTable = SoundData->FindRow<FSoundData>(_Name, _Name.ToString());
+
+	if (nullptr == FindTable)
+	{
+		return EmptyTArray;
+	}
+
+	return FindTable->GameSound;
 }

@@ -2,6 +2,8 @@
 
 
 #include "BT_Exhaust_Genichiro.h"
+#include "Kismet/GameplayStatics.h"
+#include "../../GameMode/Stage2_GameMode.h"
 
 
 EBTNodeResult::Type UBT_Exhaust_Genichiro::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -95,12 +97,16 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 		else if (BehaviorState == GenichiroState::Deathblow2)
 		{
+			AStage2_GameMode* GameMode = Cast<AStage2_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
 			if (Genichiro->GetDeathblowCount() >= 1)
 			{
+				GameMode->ModifySound(1);
 				SetStateChange(OwnerComp, GenichiroState::Deathblow3);
 			}
 			else
 			{
+				GameMode->ModifySound(2, 3.f + 5.f);	// Execution UI 문구 뜨기까지 걸리는 시간 + 연출 시간 이후 변경된 배경음 재생
 				SetStateChange(OwnerComp, GenichiroState::Death);
 			}
 		}
@@ -108,7 +114,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		{
 			Genichiro->SetHP(Genichiro->GetMaxHP());
 			Genichiro->SetPosture(Genichiro->GetMaxPosture());
-			SetStateChange(OwnerComp, GenichiroState::Idle);
+			SetStateChange(OwnerComp, GenichiroState::ElectricSlash1);
 		}
 		else
 		{
