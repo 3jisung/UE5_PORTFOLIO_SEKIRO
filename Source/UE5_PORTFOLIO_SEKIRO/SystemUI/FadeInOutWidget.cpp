@@ -19,11 +19,11 @@ void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 		if (SumTime > 0.05f)
 		{
-			FadeScreen->SetOpacity(ScreenOpacity - 0.1);
+			FadeScreen->SetOpacity(ScreenOpacity - 0.1f);
 			ScreenOpacity = FadeScreen->ColorAndOpacity.A;
-			SumTime = 0;
+			SumTime = 0.0f;
 
-			if (ScreenOpacity <= 0)
+			if (ScreenOpacity <= 0.0f)
 			{
 				ScreenOpacity = 0.0f;
 				FadeInState = false;
@@ -38,11 +38,11 @@ void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 		if (SumTime > 0.05f)
 		{
-			FadeScreen->SetOpacity(ScreenOpacity + 0.2);
+			FadeScreen->SetOpacity(ScreenOpacity + 0.2f);
 			ScreenOpacity = FadeScreen->ColorAndOpacity.A;
-			SumTime = 0;
+			SumTime = 0.0f;
 
-			if (ScreenOpacity >= 1)
+			if (ScreenOpacity >= 1.0f)
 			{
 				ScreenOpacity = 1.0f;
 				FadeOutState = false;

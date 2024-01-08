@@ -25,7 +25,7 @@ public:
 	{
 		FadeInState = true;
 		FadeOutState = false;
-		ScreenOpacity = 1;
+		ScreenOpacity = 1.0f;
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -33,7 +33,7 @@ public:
 	{
 		FadeOutState = true;
 		FadeInState = false;
-		ScreenOpacity = 0;
+		ScreenOpacity = 0.0f;
 	}
 
 	UPROPERTY(Category = "Screen", EditAnywhere, BlueprintReadWrite)
@@ -42,7 +42,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float ScreenOpacity = 0;
+	float ScreenOpacity = 0.0f;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool FadeInState = false;
@@ -50,5 +50,5 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool FadeOutState = false;
 
-	float SumTime = 0;
+	float SumTime = 0.0f;
 };

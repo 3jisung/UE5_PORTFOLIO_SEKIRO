@@ -69,6 +69,7 @@ public:
 		Power = _Power;
 	}
 
+	UFUNCTION(BlueprintCallable)
 	virtual bool IsDeath()
 	{
 		if (GetHP() <= 0)

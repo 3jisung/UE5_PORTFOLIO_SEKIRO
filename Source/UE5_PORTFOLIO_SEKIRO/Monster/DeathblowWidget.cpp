@@ -23,13 +23,13 @@ void UDeathblowWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	{
 		SumTime += InDeltaTime;
 
-		if (SumTime > 0.01)
+		if (SumTime > 0.01f)
 		{
-			DeathblowIcon->SetOpacity(IconOpacity + 0.1);
+			DeathblowIcon->SetOpacity(IconOpacity + 0.1f);
 			IconOpacity = DeathblowIcon->ColorAndOpacity.A;
-			SumTime = 0;
+			SumTime = 0.0f;
 
-			if (IconOpacity >= 1)
+			if (IconOpacity >= 1.0f)
 			{
 				IconOpacity = 1.0f;
 				bOnIcon = false;
@@ -41,13 +41,13 @@ void UDeathblowWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 	{
 		SumTime += InDeltaTime;
 
-		if (SumTime > 0.01)
+		if (SumTime > 0.01f)
 		{
-			DeathblowIcon->SetOpacity(IconOpacity - 0.1);
+			DeathblowIcon->SetOpacity(IconOpacity - 0.1f);
 			IconOpacity = DeathblowIcon->ColorAndOpacity.A;
-			SumTime = 0;
+			SumTime = 0.0f;
 
-			if (IconOpacity <= 0)
+			if (IconOpacity <= 0.0f)
 			{
 				IconOpacity = 0.0f;
 				bOffIcon = false;

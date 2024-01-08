@@ -847,8 +847,13 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 
 		if (bStartedDash)
 		{
-			float delayTime = MinDashTime + CorrectedTime;
+			float delayTime = MinDashTime - TriggeredSec + CorrectedTime;
 			CorrectedTime = 0.f;
+
+			if (delayTime <= 0.f)
+			{
+				delayTime = 0.01f;
+			}
 
 			FTimerHandle myTimerHandle;
 			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()

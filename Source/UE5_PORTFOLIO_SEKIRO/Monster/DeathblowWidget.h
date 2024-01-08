@@ -45,7 +45,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float IconOpacity = 0;
+	float IconOpacity = 0.0f;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bOnIcon = false;
@@ -53,5 +53,5 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bOffIcon = false;
 
-	float SumTime = 0;
+	float SumTime = 0.0f;
 };
