@@ -114,6 +114,14 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		{
 			Genichiro->SetHP(Genichiro->GetMaxHP());
 			Genichiro->SetPosture(Genichiro->GetMaxPosture());
+			SetStateChange(OwnerComp, GenichiroState::Phase2Intro1);
+		}
+		else if (BehaviorState == GenichiroState::Phase2Intro1)
+		{
+			SetStateChange(OwnerComp, GenichiroState::Phase2Intro2);
+		}
+		else if (BehaviorState == GenichiroState::Phase2Intro2)
+		{
 			SetStateChange(OwnerComp, GenichiroState::ElectricSlash1);
 		}
 		else

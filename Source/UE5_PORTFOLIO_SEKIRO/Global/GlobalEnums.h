@@ -107,6 +107,9 @@ enum class GenichiroState : uint8
 	Shock UMETA(DisplayName = "타뢰"),
 	Death UMETA(DisplayName = "죽음"),
 
+	Phase2Intro1 UMETA(DisplayName = "2페이즈_인트로1"),
+	Phase2Intro2 UMETA(DisplayName = "2페이즈_인트로2"),
+
 	MikiriCounter1 UMETA(DisplayName = "간파1"),
 	MikiriCounter2 UMETA(DisplayName = "간파2"),
 

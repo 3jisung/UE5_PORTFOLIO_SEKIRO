@@ -1340,7 +1340,7 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 		ActorsToNotTargeting.Add(LockedOnTarget);
 
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 2500.0f, 30.0f, 200.0f);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 30.0f, 2500.0f, 200.0f);
 
 		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
 		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
