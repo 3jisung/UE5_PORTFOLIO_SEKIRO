@@ -3,6 +3,9 @@
 
 #include "DeathWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "../GameMode/GlobalGameMode.h"
+
 
 void UDeathWidget::NativeConstruct()
 {
@@ -15,12 +18,6 @@ void UDeathWidget::NativeConstruct()
 	DeathUIOn();
 }
 
-void UDeathWidget::NativeDestruct()
-{
-	Super::NativeDestruct();
-
-}
-
 void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	if (bOnBackground)
@@ -31,18 +28,24 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			BackgroundImage->SetOpacity(BackgroundOpacity + 0.015f);
 			BackgroundOpacity = BackgroundImage->ColorAndOpacity.A;
-			BackgroundSumTime = 0.0f;
+			BackgroundSumTime = 0.f;
 
-			if (BackgroundOpacity >= 1.0f)
+			if (BackgroundOpacity >= 1.f)
 			{
-				BackgroundOpacity = 1.0f;
+				BackgroundOpacity = 1.f;
 				bOnBackground = false;
 
 				FTimerHandle myTimerHandle;
-				float delayTime = 2.0f;
+				float delayTime = 2.f;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
 						DeathUIOff();
+
+						AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+						if (GameMode != nullptr)
+						{
+							GameMode->StopSound();
+						}
 
 						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 					}), delayTime, false);
@@ -58,11 +61,11 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			BackgroundImage->SetOpacity(BackgroundOpacity - 0.015f);
 			BackgroundOpacity = BackgroundImage->ColorAndOpacity.A;
-			BackgroundSumTime = 0.0f;
+			BackgroundSumTime = 0.f;
 
-			if (BackgroundOpacity <= 0.0f)
+			if (BackgroundOpacity <= 0.f)
 			{
-				BackgroundOpacity = 0.0f;
+				BackgroundOpacity = 0.f;
 				bOffBackground = false;
 			}
 		}
@@ -76,11 +79,11 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			DeathUIImage->SetOpacity(DeathUIOpacity + 0.015f);
 			DeathUIOpacity = DeathUIImage->ColorAndOpacity.A;
-			DeathUISumTime = 0.0f;
+			DeathUISumTime = 0.f;
 
-			if (DeathUIOpacity >= 1.0f)
+			if (DeathUIOpacity >= 1.f)
 			{
-				DeathUIOpacity = 1.0f;
+				DeathUIOpacity = 1.f;
 				bOnDeathUI = false;
 			}
 		}
@@ -94,15 +97,15 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			DeathUIImage->SetOpacity(DeathUIOpacity - 0.015f);
 			DeathUIOpacity = DeathUIImage->ColorAndOpacity.A;
-			DeathUISumTime = 0.0f;
+			DeathUISumTime = 0.f;
 
-			if (DeathUIOpacity <= 0.0f)
+			if (DeathUIOpacity <= 0.f)
 			{
-				DeathUIOpacity = 0.0f;
+				DeathUIOpacity = 0.f;
 				bOffDeathUI = false;
 
 				FTimerHandle myTimerHandle;
-				float delayTime = 1.0f;
+				float delayTime = 1.f;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
 						UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);

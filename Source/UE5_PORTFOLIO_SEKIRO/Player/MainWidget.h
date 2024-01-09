@@ -71,7 +71,7 @@ private:
 	ESlateVisibility BossInfoUIOnOff = ESlateVisibility::Hidden;
 
 	double MaxHPSize = 0.0;
-	float CurHPValue = 0.0f;
+	float CurHPValue = 0.f;
 	bool bAdjustGetHitHP = false;
 
 	APlayerSekiro* Player = nullptr;

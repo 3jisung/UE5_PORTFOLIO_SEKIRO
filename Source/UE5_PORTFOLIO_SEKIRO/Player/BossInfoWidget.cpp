@@ -97,7 +97,7 @@ void UBossInfoWidget::GetHitEvent(float HPDifference)
 	BossHP->SetRenderScale(HPScale);
 
 	// 피가 줄어든 경우에만 피격바 출력
-	if (HPDifference < 0)
+	if (HPDifference < 0.f)
 	{
 		// 피격바 시작점 계산
 		double AdjustXPosition = Cast<UCanvasPanelSlot>(BossHP->Slot)->GetPosition().X + (HPScale.X * MaxHPSize);
@@ -110,7 +110,7 @@ void UBossInfoWidget::GetHitEvent(float HPDifference)
 		Cast<UCanvasPanelSlot>(BossGetHitHP->Slot)->SetSize(GetHitHPSize);
 
 		// 1초 동안 피격바 크기 유지 후 Size 감소 시작
-		float delayTime = 1.0f;
+		float delayTime = 1.f;
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
@@ -151,9 +151,9 @@ void UBossInfoWidget::UpdateDeathblowUI(int NewDeathblowCount, float Delta)
 		{
 			for (size_t i = DeathblowCount; i < NewDeathblowCount; i++)
 			{
-				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A + 0.1);
+				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A + 0.1f);
 
-				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A >= 1.0f)
+				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A >= 1.f)
 				{
 					DeathblowCount = NewDeathblowCount;
 				}
@@ -163,15 +163,15 @@ void UBossInfoWidget::UpdateDeathblowUI(int NewDeathblowCount, float Delta)
 		{
 			for (size_t i = NewDeathblowCount; i < DeathblowCount; i++)
 			{
-				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A - 0.1);
+				DeathblowImage[i]->SetOpacity(DeathblowImage[i]->ColorAndOpacity.A - 0.1f);
 
-				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A <= 0.0f)
+				if (i == NewDeathblowCount - 1 && DeathblowImage[i]->ColorAndOpacity.A <= 0.f)
 				{
 					DeathblowCount = NewDeathblowCount;
 				}
 			}
 		}
 
-		SumTime = 0.0f;
+		SumTime = 0.f;
 	}
 }

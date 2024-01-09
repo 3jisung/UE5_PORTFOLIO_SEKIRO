@@ -19,12 +19,12 @@ APlayerSekiro::APlayerSekiro()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->TargetArmLength = 500.0f;
+	SpringArmComponent->TargetArmLength = 500.f;
 	SpringArmComponent->bDoCollisionTest = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->FieldOfView = 90.0f;
+	CameraComponent->FieldOfView = 90.f;
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	// 위(危) 문자 아이콘 설정
@@ -34,7 +34,7 @@ APlayerSekiro::APlayerSekiro()
 	WarningWidgetComponent->SetWidgetClass(WarningClassPath.TryLoadClass<UWarningWidget>());
 	WarningWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	WarningWidgetComponent->SetDrawSize(FVector2D(200.f, 200.f));
-	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.0f));
+	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.f));
 	WarningWidgetComponent->SetupAttachment(RootComponent);
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
@@ -92,7 +92,7 @@ void APlayerSekiro::BeginPlay()
 
 	// 중력, 점프 높이 설정
 	GetCharacterMovement()->GravityScale = 1.8f;
-	GetCharacterMovement()->JumpZVelocity = 800.0f;
+	GetCharacterMovement()->JumpZVelocity = 800.f;
 }
 
 void APlayerSekiro::Tick(float _Delta)
@@ -128,7 +128,7 @@ void APlayerSekiro::Tick(float _Delta)
 			return;
 		}
 
-		LockedOnLocation.Z -= 35.0f;
+		LockedOnLocation.Z -= 35.f;
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedOnLocation);
 		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
@@ -146,11 +146,11 @@ void APlayerSekiro::Tick(float _Delta)
 	}
 	else if (HP > MaxHP * 0.4f)
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5f;
 	}
 	else
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25f;
 	}
 
 	if (bEnablePostureRecovery)
@@ -165,7 +165,7 @@ void APlayerSekiro::Tick(float _Delta)
 		// 가드 키다운 중엔 체간 회복 속도 2배
 		else if (AniStateValue == SekiroState::Guard)
 		{
-			Posture += PostureRecoveryAmount * 2;
+			Posture += PostureRecoveryAmount * 2.f;
 		}
 
 		if (Posture > MaxPosture)
@@ -241,7 +241,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 			|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun))
 	{
 		if (AniStateValue == SekiroState::ForwardRun && DamageType->bEnableMikiri
-			&& CalculateAngle(DamageCauser->GetActorLocation()) <= 45.0f)
+			&& CalculateAngle(DamageCauser->GetActorLocation()) <= 45.f)
 		{
 			AdjustAngle(DamageCauser->GetActorLocation());
 
@@ -281,7 +281,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	{
 		HP -= (DamageAmount * 0.5f);
 
-		if (HP <= 0)
+		if (HP <= 0.f)
 		{
 			DeathAction();
 			return Damage;
@@ -290,8 +290,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		SavedDamage = DamageAmount;
 
 		FVector ImpulseVector = DamageCauser->GetActorForwardVector();
-		ImpulseVector = ImpulseVector.RotateAngleAxis(-30.0f, DamageCauser->GetActorRightVector());
-		GetCharacterMovement()->AddImpulse(ImpulseVector * 100.0f, true);
+		ImpulseVector = ImpulseVector.RotateAngleAxis(-30.f, DamageCauser->GetActorRightVector());
+		GetCharacterMovement()->AddImpulse(ImpulseVector * 100.f, true);
 
 		SetAniState(SekiroState::LightningReversal1);
 
@@ -299,7 +299,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	}
 	// Rotation 체크(상대방의 위치와 90도 이상 차이날 경우 무적 상태가 아닌 이상 무조건 피격)
 	// 즉, 가드 및 패링 불가능
-	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.0f)
+	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.f)
 	{
 		GetHitExecute(DamageAmount, DamageType, DamageCauser);
 
@@ -319,7 +319,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			ExhaustAction();
 		}
@@ -327,7 +327,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 	else if (HitState == PlayerHitState::PARRYING && DamageType->bEnableParrying)
 	{
 		// 패링 성공 시 체간 데미지 25% 감소
-		Posture -= (DamageAmount * 0.75) * (DamageType->PostureDamageMultiple);
+		Posture -= (DamageAmount * 0.75f) * (DamageType->PostureDamageMultiple);
 
 		GetHitImpulseManager(DamageCauser, DamageType->PushPower);
 
@@ -335,7 +335,7 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			Posture = 0.1f;
 		}
@@ -366,7 +366,7 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 	HP -= DamageAmount * (DamageType->HPDamageMultiple);
 	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-	if (HP <= 0)
+	if (HP <= 0.f)
 	{
 		DeathAction();
 	}
@@ -374,7 +374,7 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 	{
 		SetAniState(SekiroState::Shock);
 	}
-	else if (Posture <= 0)
+	else if (Posture <= 0.f)
 	{
 		ExhaustAction();
 	}
@@ -409,7 +409,7 @@ void APlayerSekiro::ExhaustAction()
 
 void APlayerSekiro::DeathAction()
 {
-	HP = 0;
+	HP = 0.f;
 	Posture = MaxPosture;
 
 	HitState = PlayerHitState::INVINCIBLE;
@@ -420,13 +420,13 @@ void APlayerSekiro::ShowWarningIcon()
 {
 	UWarningWidget* WarningWidget = Cast<UWarningWidget>(WarningWidgetComponent->GetWidget());
 
-	WarningWidget->IconOn();
+	WarningWidget->FadeIn();
 
 	float delayTime = 0.5f;
 	FTimerHandle myTimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, WarningWidget]()
 		{
-			WarningWidget->IconOff();
+			WarningWidget->FadeOut();
 
 			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 		}), delayTime, false);
@@ -436,7 +436,7 @@ void APlayerSekiro::Damage()
 {
 	// 범위에 있는 Monster 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 50.f, 70.f);
 
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 	TSubclassOf<UDamageType> DamageType;
@@ -459,7 +459,7 @@ void APlayerSekiro::Damage()
 	{
 		DamageType = UElectricSlashType::StaticClass();
 
-		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 500.0f, 100.0f);
+		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 500.f, 100.f);
 	}
 	else if (AniStateValue == SekiroState::Trample)
 	{
@@ -503,7 +503,7 @@ void APlayerSekiro::MoveForward(float Val)
 			// 컨트롤러는 기본적으로 character 당 하나씩 붙어 있다.
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();	
 			FVector Direction = FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X);
-			Direction.Z = 0.0f;
+			Direction.Z = 0.f;
 			Direction.Normalize();
 			AddMovementInput(Direction, Val);
 
@@ -564,7 +564,7 @@ void APlayerSekiro::MoveRight(float Val)
 			FRotator const ControlSpaceRot = Controller->GetControlRotation();
 			// 현재 내 회전을 가져와서 y축에 해당하는 축벡터를 얻어 온다.
 			FVector Direction = FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y);
-			Direction.Z = 0.0f;
+			Direction.Z = 0.f;
 			Direction.Normalize();
 			AddMovementInput(Direction, Val);
 
@@ -808,14 +808,14 @@ void APlayerSekiro::StartedPlayerDashMove()
 		// 첫 대쉬 가속도 보정
 		if (AniStateValue == SekiroState::ForwardRun)
 		{
-			GetCharacterMovement()->AddImpulse(GetActorForwardVector() * 10.0f, true);
+			GetCharacterMovement()->AddImpulse(GetActorForwardVector() * 10.f, true);
 		}
 
 		// 처음 대쉬 시 방향키 입력이 없는 경우 0.5초간 전방 대쉬
 		// 도중에 키 입력이 들어오면 적용하지 않음
 		if (bInputWASD == false && (AniStateValue == SekiroState::Idle || AniStateValue == SekiroState::ForwardRun))
 		{
-			AddMovementInput(GetActorForwardVector(), 1.0f);
+			AddMovementInput(GetActorForwardVector(), 1.f);
 			SetAniState(SekiroState::ForwardRun);
 		}
 	}
@@ -874,6 +874,32 @@ void APlayerSekiro::TriggeredPlayerDash(bool ActionValue, float TriggeredSec)
 
 void APlayerSekiro::StartedPlayerGuard()
 {
+	// 가드 키를 0.3초 내에 연속으로 눌렀을 경우 점차 패링 판정 시간 감소(0.05초씩 감소)
+	// 가드 키를 연타하여 패링 판정을 쉽게 취하지 못하도록 하기 위함
+	float CurGuardTime = GetWorld()->GetTimeSeconds();
+	float IntervalTime = CurGuardTime - PreGuardTime;
+
+	if (PreGuardTime != 0.f && IntervalTime <= 0.3f)
+	{
+		ParryingValidTime -= 0.05f;
+
+		if (ParryingValidTime <= 0.f)
+		{
+			ParryingValidTime = 0.f;
+		}
+	}
+	else
+	{
+		ParryingValidTime = 0.2f;
+	}
+
+	PreGuardTime = CurGuardTime;
+
+	// 이전에 돌아가는 타이머가 있을 경우 초기화
+	GetWorld()->GetTimerManager().ClearTimer(ParryingTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(GuardTimerHandle);
+	
+
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	if (AniStateValue != SekiroState::Idle && AniStateValue != SekiroState::Guard
@@ -921,32 +947,6 @@ void APlayerSekiro::StartedPlayerGuard()
 		SetAniState(SekiroState::Idle);
 		bAttackEnable = false;
 	}
-
-
-	// 가드 키를 0.3초 내에 연속으로 눌렀을 경우 점차 패링 판정 시간 감소(0.05초씩 감소)
-	// 가드 키를 연타하여 패링 판정을 쉽게 취하지 못하도록 하기 위함
-	float CurGuardTime = GetWorld()->GetTimeSeconds();
-	float IntervalTime = CurGuardTime - PreGuardTime;
-
-	if (PreGuardTime != 0.f && IntervalTime <= 0.3f)
-	{
-		ParryingValidTime -= 0.05f;
-
-		if (ParryingValidTime <= 0.f)
-		{
-			ParryingValidTime = 0.f;
-		}
-	}
-	else
-	{
-		ParryingValidTime = 0.2f;
-	}
-
-	PreGuardTime = CurGuardTime;
-
-	// 이전에 돌아가는 타이머가 있을 경우 초기화
-	GetWorld()->GetTimerManager().ClearTimer(ParryingTimerHandle);
-	GetWorld()->GetTimerManager().ClearTimer(GuardTimerHandle);
 
 	bGuardTimer = true;
 
@@ -1250,7 +1250,7 @@ void APlayerSekiro::DashAttackMove()
 {
 	if (bDashAttackMove)
 	{
-		AddMovementInput(GetActorForwardVector(), 1.0f);
+		AddMovementInput(GetActorForwardVector(), 1.f);
 	}
 	else
 	{
@@ -1268,11 +1268,11 @@ void APlayerSekiro::AttackMove()
 	if (AniStateValue == SekiroState::BasicAttack1 || AniStateValue == SekiroState::BasicAttack2
 		|| AniStateValue == SekiroState::BasicAttack3)
 	{
-		AttackMoveImpulse = 3000.0f;
+		AttackMoveImpulse = 3000.f;
 	}
 	else if (AniStateValue == SekiroState::StabAttack2)
 	{
-		AttackMoveImpulse = 6000.0f;
+		AttackMoveImpulse = 6000.f;
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
@@ -1290,7 +1290,7 @@ void APlayerSekiro::LockOnTarget()
 	{
 		// Monster 콜리전 탐색
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.0f, LockOnRange, 200.0f);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, CameraComponent->GetForwardVector(), 30.f, LockOnRange, 200.f);
 
 		float ClosestDist = LockOnRange;
 		AActor* ClosestHitActor = nullptr;
@@ -1326,7 +1326,7 @@ void APlayerSekiro::LockOnTarget()
 void APlayerSekiro::ResearchLockOnTarget(float Rate)
 {
 	// 마우스의 움직임이 일정 값 이상일 경우에만 함수 실행(적절한 감도 설정)
-	if (FMath::Abs(Rate) < 3.0f)
+	if (FMath::Abs(Rate) < 3.f)
 	{
 		return;
 	}
@@ -1340,11 +1340,11 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 		ActorsToNotTargeting.Add(LockedOnTarget);
 
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 30.0f, 2500.0f, 200.0f);
+		TArray<AActor*> HitActor = TraceObjects(ObjectType, ActorsToNotTargeting, CameraComponent->GetForwardVector(), 30.f, 2500.f, 200.f);
 
 		// 플레이어와 현재 타겟 사이의 단위 벡터(각도의 크기를 판단할 기준 단위 벡터)
 		FVector MiddleUnitVector = (LockedOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-		float FinalAngle = 180.0f;
+		float FinalAngle = 180.f;
 
 		AActor* ClosestHitActor = nullptr;
 
@@ -1375,7 +1375,7 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 
 		// delayTime 뒤 bResearchEnable 값을 다시 true로 변환
 		// 함수가 한 번에 여러 번 호출되지 않도록 타이머로 제한
-		float delayTime = 0.2;
+		float delayTime = 0.2f;
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
@@ -1400,7 +1400,7 @@ void APlayerSekiro::SearchDeathblowTarget()
 {
 	// 범위에 있는 Monster 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 50.f, 70.f);
 
 	if (HitActor.Num() == 0)
 	{

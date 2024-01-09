@@ -10,7 +10,7 @@ public class UE5_PORTFOLIO_SEKIRO : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] {
             "Core", "CoreUObject", "Engine",
-            "InputCore", "UMG", "NavigationSystem"
+            "InputCore", "UMG", "NavigationSystem", "SlateCore"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -6,9 +6,9 @@
 
 UTakeDownType::UTakeDownType()
 {
-	HPDamageMultiple = 2.0f;
-	PostureDamageMultiple = 2.0f;
-	PushPower = 3500.0f;
+	HPDamageMultiple = 2.f;
+	PostureDamageMultiple = 2.f;
+	PushPower = 3500.f;
 	bEnableGuard = true;
 	bEnableParrying = true;
 	bEnableMikiri = false;

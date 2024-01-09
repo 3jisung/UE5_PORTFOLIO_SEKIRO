@@ -48,8 +48,8 @@ void ABossGenichiro::BeginPlay()
 
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.0f);
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 150.0f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 150.f);
 }
 
 void ABossGenichiro::Tick(float _Delta)
@@ -64,11 +64,11 @@ void ABossGenichiro::Tick(float _Delta)
 	}
 	else if (HP > MaxHP * 0.4f)
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5f;
 	}
 	else
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25f;
 	}
 
 	if (bEnablePostureRecovery)
@@ -122,7 +122,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			Posture = 0.1f;
 		}
@@ -145,7 +145,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 
 		GenichiroState AniStateValue = GetAniState<GenichiroState>();
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			ExhaustAction();
 		}
@@ -163,11 +163,11 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		HP -= DamageAmount * (DamageType->HPDamageMultiple);
 		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-		if (HP <= 0)
+		if (HP <= 0.f)
 		{
 			HP = 0.1f;
 		}
-		else if (Posture <= 0)
+		else if (Posture <= 0.f)
 		{
 			Posture = 0.1f;
 		}
@@ -180,7 +180,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		DamageType = Cast<UDeathblowType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 
-		GetHitImpulseManager(DamageCauser, 2000.0f);
+		GetHitImpulseManager(DamageCauser, 2000.f);
 
 		AdjustAngle(DamageCauser->GetActorLocation());
 
@@ -198,7 +198,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		return Damage;
 	}
 	// 공격 방향 체크
-	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.0f)
+	else if (CalculateAngle(DamageCauser->GetActorLocation()) > 90.f)
 	{
 		GetHitExecute(DamageAmount, DamageType, DamageCauser);
 
@@ -208,13 +208,13 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 	{
 		Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-		GetHitImpulseManager(DamageCauser, 1500.0f);
+		GetHitImpulseManager(DamageCauser, 1500.f);
 
 		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			ExhaustAction();
 		}
@@ -228,13 +228,13 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		// 패링 성공 시 체간 데미지 25% 감소
 		Posture -= (DamageAmount * 0.75) * (DamageType->PostureDamageMultiple);
 
-		GetHitImpulseManager(DamageCauser, 1500.0f);
+		GetHitImpulseManager(DamageCauser, 1500.f);
 
 		GetWorld()->GetTimerManager().ClearTimer(PostureRecoveryManagerTimerHandle);
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
-		if (Posture <= 0)
+		if (Posture <= 0.f)
 		{
 			Posture = 0.1f;
 		}
@@ -263,12 +263,12 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 	HP -= DamageAmount * (DamageType->HPDamageMultiple);
 	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-	if (HP <= 0)
+	if (HP <= 0.f)
 	{
-		HP = 0.0f;
+		HP = 0.f;
 		ExhaustAction();
 	}
-	else if (Posture <= 0)
+	else if (Posture <= 0.f)
 	{
 		ExhaustAction();
 	}
@@ -284,7 +284,7 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 			return;
 		}
 
-		GetHitImpulseManager(DamageCauser, 1500.0f);
+		GetHitImpulseManager(DamageCauser, 1500.f);
 
 		SetAniState(GenichiroState::Hit);
 	}
@@ -292,7 +292,7 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 
 void ABossGenichiro::ExhaustAction()
 {
-	Posture = 0;
+	Posture = 0.f;
 
 	SetAniState(GenichiroState::ExhaustStart);
 }
@@ -363,11 +363,11 @@ void ABossGenichiro::AttackMove()
 
 	if (AniStateValue == GenichiroState::StabAttack)
 	{
-		AttackMoveImpulse = 6000.0f;
+		AttackMoveImpulse = 6000.f;
 	}
 	else
 	{
-		AttackMoveImpulse = 3000.0f;
+		AttackMoveImpulse = 3000.f;
 	}
 
 	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * AttackMoveImpulse, true);
@@ -377,7 +377,7 @@ void ABossGenichiro::Damage()
 {
 	// 범위에 있는 Player 콜리전 탐색
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 50.f, 70.f);
 
 	GenichiroState AniStateValue = GetAniState<GenichiroState>();
 	TSubclassOf<UDamageType> DamageType;
@@ -403,7 +403,7 @@ void ABossGenichiro::Damage()
 	{
 		DamageType = UElectricSlashType::StaticClass();
 
-		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.0f, 500.0f, 100.0f);
+		HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 500.f, 100.f);
 	}
 	else
 	{

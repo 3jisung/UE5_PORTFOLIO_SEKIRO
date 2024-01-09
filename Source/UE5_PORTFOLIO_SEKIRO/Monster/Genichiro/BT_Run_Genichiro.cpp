@@ -22,7 +22,7 @@ EBTNodeResult::Type UBT_Run_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owner
 
 	if (nullptr != MoveCom)
 	{
-		MoveCom->MaxWalkSpeed = 800.0f;
+		MoveCom->MaxWalkSpeed = 800.f;
 	}
 
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
@@ -49,7 +49,7 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
 	AGlobalCharacter* TargetActor = Cast<AGlobalCharacter>(TargetObject);
 
-	if (nullptr == TargetActor || TargetActor->GetHP() <= 0)
+	if (nullptr == TargetActor || TargetActor->GetHP() <= 0.f)
 	{
 		SetStateChange(OwnerComp, GenichiroState::Idle);
 		return;
@@ -89,11 +89,11 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	}
 
 	// 방향 조정
-	GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, PointPos, 10.0f);
+	GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, PointPos, 10.f);
 
-	ThisPos.Z = 0.0f;
-	PointPos.Z = 0.0f;
-	TargetPos.Z = 0.0f;
+	ThisPos.Z = 0.f;
+	PointPos.Z = 0.f;
+	TargetPos.Z = 0.f;
 
 	FVector PointDir = PointPos - ThisPos;
 	PointDir.Normalize();
@@ -105,7 +105,7 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		FVector Dir = PointPos - ThisPos;
 
 		// PathPoint[index]까지 접근 완료
-		if (50.0f >= Dir.Size())
+		if (50.f >= Dir.Size())
 		{
 			if (NavPath->PathPoints.Num() - 1 > PathPointIndex)
 			{

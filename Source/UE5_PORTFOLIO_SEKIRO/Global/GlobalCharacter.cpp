@@ -38,8 +38,8 @@ void AGlobalCharacter::AdjustAngle(FVector TargetPos)
 {
 	FVector ThisPos = this->GetActorLocation();
 
-	ThisPos.Z = 0.0f;
-	TargetPos.Z = 0.0f;
+	ThisPos.Z = 0.f;
+	TargetPos.Z = 0.f;
 
 	FVector TargetDir = TargetPos - ThisPos;
 	TargetDir.Normalize();
@@ -61,8 +61,8 @@ void AGlobalCharacter::AdjustAngle(float DeltaSeconds, FVector TargetPos, float 
 {
 	FVector ThisPos = this->GetActorLocation();
 
-	ThisPos.Z = 0.0f;
-	TargetPos.Z = 0.0f;
+	ThisPos.Z = 0.f;
+	TargetPos.Z = 0.f;
 
 	FVector TargetDir = TargetPos - ThisPos;
 	TargetDir.Normalize();
@@ -79,7 +79,7 @@ void AGlobalCharacter::AdjustAngle(float DeltaSeconds, FVector TargetPos, float 
 	// 정면 벡터를 기준으로 타겟과 방향이 Angle 이상 어긋날 경우 회전 보간을 통한 방향 조정
 	if (FMath::Abs(Angle0 - Angle1) >= Angle)
 	{
-		FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.0f * DeltaSeconds });
+		FRotator Rot = FRotator::MakeFromEuler({ 0, 0, Cross.Z * 500.f * DeltaSeconds });
 		this->AddActorWorldRotation(Rot);
 	}
 	// Angle 이하의 각도로 차이가 날 경우 TargetDir의 Rotation으로 바로 전환(회전 보간 없이)
@@ -94,8 +94,8 @@ float AGlobalCharacter::CalculateAngle(FVector TargetPos)
 {
 	FVector ThisPos = this->GetActorLocation();
 
-	ThisPos.Z = 0.0f;
-	TargetPos.Z = 0.0f;
+	ThisPos.Z = 0.f;
+	TargetPos.Z = 0.f;
 
 	FVector TargetDir = TargetPos - ThisPos;
 	TargetDir.Normalize();
@@ -310,8 +310,8 @@ void AGlobalCharacter::GetHitImpulseManager(AActor* DamageCauser, float PushPowe
 
 	if (GetMovementComponent()->IsFalling())
 	{
-		ImpulseVector = ImpulseVector.RotateAngleAxis(60.0f, DamageCauser->GetActorRightVector());
-		GetCharacterMovement()->AddImpulse(ImpulseVector * PushPower * 0.5, true);
+		ImpulseVector = ImpulseVector.RotateAngleAxis(60.f, DamageCauser->GetActorRightVector());
+		GetCharacterMovement()->AddImpulse(ImpulseVector * PushPower * 0.5f, true);
 	}
 	else
 	{

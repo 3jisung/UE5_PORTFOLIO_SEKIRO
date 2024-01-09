@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Image.h"
+#include "Components/CanvasPanel.h"
 #include "FadeInOutWidget.generated.h"
 
 /**
@@ -17,38 +17,52 @@ class UE5_PORTFOLIO_SEKIRO_API UFadeInOutWidget : public UUserWidget
 	
 
 public:
-	void NativeConstruct() override;
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void FadeIn()
+	virtual void FadeIn()
 	{
-		FadeInState = true;
-		FadeOutState = false;
-		ScreenOpacity = 1.0f;
+		bFadeIn = true;
+		bFadeOut = false;
+		CanvasOpacity = 0.f;
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void FadeOut()
+	virtual void FadeOut()
 	{
-		FadeOutState = true;
-		FadeInState = false;
-		ScreenOpacity = 0.0f;
+		bFadeOut = true;
+		bFadeIn = false;
+		CanvasOpacity = 1.f;
 	}
 
-	UPROPERTY(Category = "Screen", EditAnywhere, BlueprintReadWrite)
-	UImage* FadeScreen = nullptr;
+	UFUNCTION(BlueprintCallable)
+	float GetCanvasOpacity()
+	{
+		return CanvasOpacity;
+	}
+
+	UPROPERTY(Category = "Canvas", EditAnywhere, BlueprintReadWrite)
+	UCanvasPanel* Canvas = nullptr;
 
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float ScreenOpacity = 0.0f;
+	float CanvasOpacity = 0.f;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	bool FadeInState = false;
+	bool bFadeIn = false;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	bool FadeOutState = false;
+	bool bFadeOut = false;
 
-	float SumTime = 0.0f;
+	float SumTime = 0.f;
+
+	float FadeInDeltaTime = 0.f;
+	float FadeOutDeltaTime = 0.f;
+	float FadeInDeltaOpacity = 0.f;
+	float FadeOutDeltaOpacity = 0.f;
+	float TimerDelayTime = 0.f;
+
+	bool bDestructWidget = false;
 };

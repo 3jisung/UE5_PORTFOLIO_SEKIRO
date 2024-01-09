@@ -3,7 +3,7 @@
 
 #include "BT_Exhaust_Genichiro.h"
 #include "Kismet/GameplayStatics.h"
-#include "../../GameMode/Stage2_GameMode.h"
+#include "../../GameMode/GlobalGameMode.h"
 
 
 EBTNodeResult::Type UBT_Exhaust_Genichiro::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -48,7 +48,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 	if (BehaviorState == GenichiroState::ExhaustStart || BehaviorState == GenichiroState::ExhaustLoop)
 	{
 		EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel2);
-		TArray<AActor*> HitActor = Cast<AGlobalCharacter>(TargetActor)->TraceObjects(ObjectType, TargetActor->GetActorForwardVector(), 45.0f, 50.0f, 70.0f);
+		TArray<AActor*> HitActor = Cast<AGlobalCharacter>(TargetActor)->TraceObjects(ObjectType, TargetActor->GetActorForwardVector(), 45.f, 50.f, 70.f);
 
 		if (HitActor.Num() == 0)
 		{
@@ -85,19 +85,23 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		else if (BehaviorState == GenichiroState::ExhaustLoop)
 		{
 			// 인살 실패 시 몬스터는 체간 절반만큼 회복
-			Genichiro->SetPosture(Genichiro->GetMaxPosture() * 0.5);
+			Genichiro->SetPosture(Genichiro->GetMaxPosture() * 0.5f);
 			SetStateChange(OwnerComp, GenichiroState::ExhaustEnd);
 		}
 		else if (BehaviorState == GenichiroState::Deathblow1)
 		{
-			Genichiro->SetHP(0.0f);
+			Genichiro->SetHP(0.f);
 			Genichiro->SetDeathblowCount(Genichiro->GetDeathblowCount() - 1);
 
 			SetStateChange(OwnerComp, GenichiroState::Deathblow2);
 		}
 		else if (BehaviorState == GenichiroState::Deathblow2)
 		{
-			AStage2_GameMode* GameMode = Cast<AStage2_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+			AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+			if (GameMode == nullptr)
+			{
+				return;
+			}
 
 			if (Genichiro->GetDeathblowCount() >= 1)
 			{

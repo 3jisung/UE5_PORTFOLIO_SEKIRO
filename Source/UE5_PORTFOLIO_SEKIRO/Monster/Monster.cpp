@@ -20,7 +20,7 @@ AMonster::AMonster()
 	LockOnWidgetComponent->SetWidgetClass(nullptr);
 	LockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	LockOnWidgetComponent->SetDrawSize(FVector2D(10.f, 10.f));
-	LockOnWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 10.0f));
+	LockOnWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 10.f));
 	LockOnWidgetComponent->SetupAttachment(RootComponent);
 
 	// 인살 아이콘 설정
@@ -31,7 +31,7 @@ AMonster::AMonster()
 	DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
 	DeathblowWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	DeathblowWidgetComponent->SetDrawSize(FVector2D(150.f, 150.f));
-	DeathblowWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, -30.0f));
+	DeathblowWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, -30.f));
 	DeathblowWidgetComponent->SetupAttachment(RootComponent);
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
@@ -85,12 +85,12 @@ void AMonster::DeathblowIconOnOff(bool bExhaust)
 
 	if (bExhaust)
 	{
-		DeathblowWidget->IconOn();
+		DeathblowWidget->FadeIn();
 		bEnableDeathblow = true;
 	}
 	else
 	{
-		DeathblowWidget->IconOff();
+		DeathblowWidget->FadeOut();
 		bEnableDeathblow = false;
 	}
 }

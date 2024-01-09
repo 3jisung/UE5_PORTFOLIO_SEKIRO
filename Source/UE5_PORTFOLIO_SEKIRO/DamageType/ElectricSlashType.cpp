@@ -6,9 +6,9 @@
 
 UElectricSlashType::UElectricSlashType()
 {
-	HPDamageMultiple = 3.0f;
-	PostureDamageMultiple = 3.0f;
-	PushPower = 0.0f;
+	HPDamageMultiple = 3.f;
+	PostureDamageMultiple = 3.f;
+	PushPower = 0.f;
 	bEnableGuard = false;
 	bEnableParrying = false;
 	bEnableMikiri = false;

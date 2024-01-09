@@ -7,45 +7,58 @@ void UFadeInOutWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FadeScreen = Cast<UImage>(GetWidgetFromName(TEXT("FadeInOutScreen")));
+	Canvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasPanel")));
 }
 
 void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	// FadeIn
-	if (FadeInState)
+	if (bFadeIn)
 	{
 		SumTime += InDeltaTime;
 
-		if (SumTime > 0.05f)
+		if (SumTime > FadeInDeltaTime)
 		{
-			FadeScreen->SetOpacity(ScreenOpacity - 0.1f);
-			ScreenOpacity = FadeScreen->ColorAndOpacity.A;
-			SumTime = 0.0f;
+			Canvas->SetRenderOpacity(CanvasOpacity + FadeInDeltaOpacity);
+			CanvasOpacity = Canvas->GetRenderOpacity();
+			SumTime = 0.f;
 
-			if (ScreenOpacity <= 0.0f)
+			if (CanvasOpacity >= 1.f)
 			{
-				ScreenOpacity = 0.0f;
-				FadeInState = false;
+				CanvasOpacity = 1.f;
+				bFadeIn = false;
+
+				FTimerHandle myTimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+					{
+						FadeOut();
+
+						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+					}), TimerDelayTime, false);
 			}
 		}
 	}
 
 	// FadeOut
-	if (FadeOutState)
+	if (bFadeOut)
 	{
 		SumTime += InDeltaTime;
 
-		if (SumTime > 0.05f)
+		if (SumTime > FadeOutDeltaTime)
 		{
-			FadeScreen->SetOpacity(ScreenOpacity + 0.2f);
-			ScreenOpacity = FadeScreen->ColorAndOpacity.A;
-			SumTime = 0.0f;
+			Canvas->SetRenderOpacity(CanvasOpacity - FadeOutDeltaOpacity);
+			CanvasOpacity = Canvas->GetRenderOpacity();
+			SumTime = 0.f;
 
-			if (ScreenOpacity >= 1.0f)
+			if (CanvasOpacity <= 0.f)
 			{
-				ScreenOpacity = 1.0f;
-				FadeOutState = false;
+				CanvasOpacity = 0.f;
+				bFadeOut = false;
+
+				if (bDestructWidget)
+				{
+					Super::NativeDestruct();
+				}
 			}
 		}
 	}

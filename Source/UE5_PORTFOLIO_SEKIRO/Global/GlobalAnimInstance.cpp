@@ -47,6 +47,6 @@ void UGlobalAnimInstance::NativeUpdateAnimation(float _DeltaTime)
 	if (false == Montage_IsPlaying(Montage) && CurMontage != Montage)
 	{
 		CurMontage = Montage;
-		Montage_Play(Montage, 1.0f);
+		Montage_Play(Montage, 1.f);
 	}
 }

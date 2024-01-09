@@ -73,7 +73,7 @@ float UBTTask_Genichiro::GetStateTime(UBehaviorTreeComponent& OwnerComp)
 	if (nullptr == BlockBoard)
 	{
 		UE_LOG(LogTemp, Error, TEXT("if (nullptr == BlockBoard)"), __FUNCTION__, __LINE__);
-		return 0.0f;
+		return 0.f;
 	}
 
 	float StateTime = BlockBoard->GetValueAsFloat(TEXT("StateTime"));
@@ -91,7 +91,7 @@ void UBTTask_Genichiro::ResetStateTime(UBehaviorTreeComponent& OwnerComp)
 		return;
 	}
 
-	BlockBoard->SetValueAsFloat(TEXT("StateTime"), 0.0f);
+	BlockBoard->SetValueAsFloat(TEXT("StateTime"), 0.f);
 }
 
 GenichiroState UBTTask_Genichiro::GetGenichiroState(UBehaviorTreeComponent& OwnerComp)

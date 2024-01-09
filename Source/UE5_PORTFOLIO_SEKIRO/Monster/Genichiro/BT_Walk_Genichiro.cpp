@@ -22,7 +22,7 @@ EBTNodeResult::Type UBT_Walk_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	if (nullptr != MoveCom)
 	{
-		MoveCom->MaxWalkSpeed = 100.0f;
+		MoveCom->MaxWalkSpeed = 100.f;
 	}
 
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
@@ -55,7 +55,7 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	}
 
 	// 3초간 Walk 후 상태 전환 
-	if (3.0f <= GetStateTime(OwnerComp))
+	if (3.f <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 
@@ -85,10 +85,10 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
 		}
 
-		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetPos, 10.0f);
+		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetPos, 10.f);
 
-		ThisPos.Z = 0.0f;
-		TargetPos.Z = 0.0f;
+		ThisPos.Z = 0.f;
+		TargetPos.Z = 0.f;
 
 		FVector MoveDir = TargetPos - ThisPos;
 		MoveDir.Normalize();
@@ -98,11 +98,11 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		// 들어온 행동값에 따라 이동 방향 다르게 설정
 		if (BehaviorState == GenichiroState::LeftWalk)
 		{
-			MoveDir = MoveDir.RotateAngleAxis(-90.0f, FVector::UpVector);
+			MoveDir = MoveDir.RotateAngleAxis(-90.f, FVector::UpVector);
 		}
 		else if (BehaviorState == GenichiroState::RightWalk)
 		{
-			MoveDir = MoveDir.RotateAngleAxis(90.0f, FVector::UpVector);
+			MoveDir = MoveDir.RotateAngleAxis(90.f, FVector::UpVector);
 		}
 		else
 		{
@@ -110,7 +110,7 @@ void UBT_Walk_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 			return;
 		}
 
-		GetGlobalCharacter(OwnerComp)->AddMovementInput(MoveDir, 1.0f);
+		GetGlobalCharacter(OwnerComp)->AddMovementInput(MoveDir, 1.f);
 	}
 
 	return;

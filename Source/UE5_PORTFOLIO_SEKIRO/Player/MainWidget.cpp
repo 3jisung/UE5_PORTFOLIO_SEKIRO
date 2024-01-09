@@ -56,11 +56,11 @@ void UMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	if (Player->GetHealCount() <= 0)
 	{
-		GourdImage->SetColorAndOpacity(FLinearColor(1.0f, 0.2f, 0.2f, 1.0f));
+		GourdImage->SetColorAndOpacity(FLinearColor(1.f, 0.2f, 0.2f, 1.f));
 	}
 	else
 	{
-		GourdImage->SetColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f));
+		GourdImage->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
 	}
 }
 
@@ -70,7 +70,7 @@ void UMainWidget::GetHitEvent(float HPDifference)
 	PlayerHP->SetRenderScale(HPScale);
 	
 	// 피가 줄어든 경우에만 피격바 출력
-	if (HPDifference < 0)
+	if (HPDifference < 0.f)
 	{
 		// 피격바 시작점 계산
 		double AdjustXPosition = Cast<UCanvasPanelSlot>(PlayerHP->Slot)->GetPosition().X + (HPScale.X * MaxHPSize);
@@ -83,7 +83,7 @@ void UMainWidget::GetHitEvent(float HPDifference)
 		Cast<UCanvasPanelSlot>(PlayerGetHitHP->Slot)->SetSize(GetHitHPSize);
 
 		// 1초 동안 피격바 크기 유지 후 Size 감소 시작
-		float delayTime = 1.0f;
+		float delayTime = 1.f;
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "../SystemUI/FadeInOutWidget.h"
 #include "Components/Image.h"
 #include "DeathWidget.generated.h"
 
@@ -11,14 +12,13 @@
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UDeathWidget : public UUserWidget
+class UE5_PORTFOLIO_SEKIRO_API UDeathWidget : public UFadeInOutWidget
 {
 	GENERATED_BODY()
 	
 
 public:
 	void NativeConstruct() override;
-	void NativeDestruct() override;
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -68,10 +68,10 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float BackgroundOpacity = 0.0f;
+	float BackgroundOpacity = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float DeathUIOpacity = 0.0f;
+	float DeathUIOpacity = 0.f;
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bOnBackground = false;
@@ -85,6 +85,6 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bOffDeathUI = false;
 
-	float BackgroundSumTime = 0.0f;
-	float DeathUISumTime = 0.0f;
+	float BackgroundSumTime = 0.f;
+	float DeathUISumTime = 0.f;
 };

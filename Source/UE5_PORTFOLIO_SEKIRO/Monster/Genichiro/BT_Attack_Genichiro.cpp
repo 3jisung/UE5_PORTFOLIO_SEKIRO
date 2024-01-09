@@ -43,7 +43,7 @@ void UBT_Attack_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 
 	if (nullptr != TargetActor)
 	{
-		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.0f);
+		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, TargetActor->GetActorLocation(), 10.f);
 	}
 	else
 	{

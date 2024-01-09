@@ -174,10 +174,10 @@ private:
 
 
 	float Speed = 0.f;
-	const float DefaultSpeed = 300.0f;
-	const float DashSpeed = 900.0f;
+	const float DefaultSpeed = 300.f;
+	const float DashSpeed = 900.f;
 
-	float LockOnRange = 2500.0f;
+	float LockOnRange = 2500.f;
 	AMonster* LockedOnTarget;
 	bool bResearchEnable = true;
 
