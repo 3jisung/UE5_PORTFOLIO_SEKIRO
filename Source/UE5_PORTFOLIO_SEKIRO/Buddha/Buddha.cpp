@@ -36,7 +36,7 @@ void ABuddha::Tick(float DeltaTime)
 
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel5);
 	AGlobalCharacter* PlayerCharacter = Cast<AGlobalCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	TArray<AActor*> HitActor = PlayerCharacter->TraceObjects(ObjectType, PlayerCharacter->GetActorForwardVector(), 45.f, 150.f, 70.f);
+	TArray<AActor*> HitActor = PlayerCharacter->TraceObjects(ObjectType, PlayerCharacter->GetActorForwardVector(), 45.f, 100.f, 70.f);
 
 	if (HitActor.Num() == 0)
 	{

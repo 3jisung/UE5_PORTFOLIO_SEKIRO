@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "HPWidget.h"
 #include "PlayerSekiro.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainWidget.generated.h"
@@ -38,15 +38,6 @@ public:
 		BossInfoUIOnOff = BossInfoUIOnOff == ESlateVisibility::Hidden ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
 	}
 
-	void GetHitEvent(float HPDifference);
-
-	// 현재 플레이어의 HP
-	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
-	UImage* PlayerHP = nullptr;
-
-	// 플레이어가 받은 피해량을 나타내는 피격바(1초 유지)
-	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
-	UImage* PlayerGetHitHP = nullptr;
 
 	UPROPERTY(Category = "Gourd", EditAnywhere, BlueprintReadWrite)
 	UImage* GourdImage = nullptr;
@@ -54,6 +45,8 @@ public:
 	UPROPERTY(Category = "Gourd", EditAnywhere, BlueprintReadWrite)
 	UTextBlock* HealCount = nullptr;
 
+	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
+	UHPWidget* HPWidget = nullptr;
 
 protected:
 	void NativeConstruct() override;
@@ -69,10 +62,6 @@ private:
 
 	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ESlateVisibility BossInfoUIOnOff = ESlateVisibility::Hidden;
-
-	double MaxHPSize = 0.0;
-	float CurHPValue = 0.f;
-	bool bAdjustGetHitHP = false;
 
 	APlayerSekiro* Player = nullptr;
 };
