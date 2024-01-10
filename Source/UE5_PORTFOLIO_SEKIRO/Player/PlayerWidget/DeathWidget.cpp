@@ -14,29 +14,33 @@ void UDeathWidget::NativeConstruct()
 	BackgroundImage = Cast<UImage>(GetWidgetFromName(TEXT("Background")));
 	DeathUIImage = Cast<UImage>(GetWidgetFromName(TEXT("DeathUI")));
 
-	BackgroundOn();
-	DeathUIOn();
+	FadeInDeltaTime = 0.03f;
+	FadeOutDeltaTime = 0.03f;
+	FadeInDeltaOpacity = 0.015f;
+	FadeOutDeltaOpacity = 0.015f;
+	TimerDelayTime = 2.f;
+
+	FadeIn();
 }
 
 void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	if (bOnBackground)
+	if (bFadeIn)
 	{
-		BackgroundSumTime += InDeltaTime;
+		SumTime += InDeltaTime;
 
-		if (BackgroundSumTime > 0.03f)
+		if (SumTime > FadeInDeltaTime)
 		{
-			BackgroundImage->SetOpacity(BackgroundOpacity + 0.015f);
-			BackgroundOpacity = BackgroundImage->ColorAndOpacity.A;
-			BackgroundSumTime = 0.f;
+			Canvas->SetRenderOpacity(CanvasOpacity + FadeInDeltaOpacity);
+			CanvasOpacity = Canvas->GetRenderOpacity();
+			SumTime = 0.f;
 
-			if (BackgroundOpacity >= 1.f)
+			if (CanvasOpacity >= 1.f)
 			{
-				BackgroundOpacity = 1.f;
-				bOnBackground = false;
+				CanvasOpacity = 1.f;
+				bFadeIn = false;
 
 				FTimerHandle myTimerHandle;
-				float delayTime = 2.f;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
 						DeathUIOff();
@@ -48,7 +52,25 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 						}
 
 						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
-					}), delayTime, false);
+					}), TimerDelayTime, false);
+			}
+		}
+	}
+	
+	if (bOnBackground)
+	{
+		BackgroundSumTime += InDeltaTime;
+
+		if (BackgroundSumTime > FadeInDeltaTime)
+		{
+			BackgroundImage->SetOpacity(BackgroundOpacity + FadeInDeltaOpacity);
+			BackgroundOpacity = BackgroundImage->ColorAndOpacity.A;
+			BackgroundSumTime = 0.f;
+
+			if (BackgroundOpacity >= 1.f)
+			{
+				BackgroundOpacity = 1.f;
+				bOnBackground = false;
 			}
 		}
 	}
@@ -57,9 +79,9 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		BackgroundSumTime += InDeltaTime;
 
-		if (BackgroundSumTime > 0.03f)
+		if (BackgroundSumTime > FadeOutDeltaTime)
 		{
-			BackgroundImage->SetOpacity(BackgroundOpacity - 0.015f);
+			BackgroundImage->SetOpacity(BackgroundOpacity - FadeOutDeltaOpacity);
 			BackgroundOpacity = BackgroundImage->ColorAndOpacity.A;
 			BackgroundSumTime = 0.f;
 
@@ -75,9 +97,9 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		DeathUISumTime += InDeltaTime;
 
-		if (DeathUISumTime > 0.03f)
+		if (DeathUISumTime > FadeInDeltaTime)
 		{
-			DeathUIImage->SetOpacity(DeathUIOpacity + 0.015f);
+			DeathUIImage->SetOpacity(DeathUIOpacity + FadeInDeltaOpacity);
 			DeathUIOpacity = DeathUIImage->ColorAndOpacity.A;
 			DeathUISumTime = 0.f;
 
@@ -93,9 +115,9 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		DeathUISumTime += InDeltaTime;
 
-		if (DeathUISumTime > 0.03f)
+		if (DeathUISumTime > FadeOutDeltaTime)
 		{
-			DeathUIImage->SetOpacity(DeathUIOpacity - 0.015f);
+			DeathUIImage->SetOpacity(DeathUIOpacity - FadeOutDeltaOpacity);
 			DeathUIOpacity = DeathUIImage->ColorAndOpacity.A;
 			DeathUISumTime = 0.f;
 

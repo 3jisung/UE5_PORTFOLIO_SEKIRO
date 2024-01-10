@@ -23,17 +23,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void FadeIn()
 	{
+		CanvasOpacity = 0.f;
 		bFadeIn = true;
 		bFadeOut = false;
-		CanvasOpacity = 0.f;
 	}
 
 	UFUNCTION(BlueprintCallable)
 	virtual void FadeOut()
 	{
+		CanvasOpacity = 1.f;
 		bFadeOut = true;
 		bFadeIn = false;
-		CanvasOpacity = 1.f;
 	}
 
 	UFUNCTION(BlueprintCallable)

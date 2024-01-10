@@ -3,11 +3,14 @@
 
 #include "FadeInOutWidget.h"
 
+
 void UFadeInOutWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	Canvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasPanel")));
+
+	Canvas->SetRenderOpacity(0.f);
 }
 
 void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

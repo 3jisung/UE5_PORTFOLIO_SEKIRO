@@ -91,6 +91,8 @@ void ABossGenichiro::Tick(float _Delta)
 			Posture = MaxPosture;
 		}
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("hp : %f, posture : %f"), HP, Posture);
 }
 
 float ABossGenichiro::TakeDamage(float DamageAmount,

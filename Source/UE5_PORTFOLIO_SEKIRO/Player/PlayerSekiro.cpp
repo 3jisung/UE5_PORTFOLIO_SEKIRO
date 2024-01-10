@@ -5,12 +5,16 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Global/GlobalAnimInstance.h"
 #include "Global/GlobalGameInstance.h"
 #include "Global/Data/PlayerAnimData.h"
-#include "Components/StaticMeshComponent.h"
+#include "Buddha/Buddha.h"
+#include "GameMode/GlobalGameMode.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
 
 
 APlayerSekiro::APlayerSekiro()
@@ -36,6 +40,13 @@ APlayerSekiro::APlayerSekiro()
 	WarningWidgetComponent->SetDrawSize(FVector2D(200.f, 200.f));
 	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.f));
 	WarningWidgetComponent->SetupAttachment(RootComponent);
+
+	// 불상 UI 설정
+	static ConstructorHelpers::FClassFinder<UBuddhaMenuWidget> BuddhaMenuWidgetAsset(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Player/UI/WBP_BuddhaMenu.WBP_BuddhaMenu_C'"));
+	if (BuddhaMenuWidgetAsset.Succeeded())
+	{
+		BuddhaMenuWidgetClass = BuddhaMenuWidgetAsset.Class;
+	}
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh(), TEXT("hand_r_weapon"));
@@ -261,8 +272,8 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 			}
 			*/
 
-			TSubclassOf<UDamageType> HitDamageType = UMikiriType::StaticClass();
-			UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
+			// TSubclassOf<UDamageType> HitDamageType = UMikiriType::StaticClass();
+			// UGameplayStatics::ApplyDamage(DamageCauser, this->Power, GetController(), this, HitDamageType);
 		}
 		// 하단 베기는 대쉬 무적으로 회피 불가능
 		else if (DamageType->GetClass() == UBottomType::StaticClass())
@@ -1484,6 +1495,79 @@ void APlayerSekiro::PlayerHeal()
 	HealCount -= 1;
 
 	// 이펙트, 사운드 추가
+}
+
+void APlayerSekiro::SitDown()
+{
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue != SekiroState::Idle
+
+		&& AniStateValue != SekiroState::ForwardWalk && AniStateValue != SekiroState::BackwardWalk
+		&& AniStateValue != SekiroState::LeftWalk && AniStateValue != SekiroState::RightWalk
+		&& AniStateValue != SekiroState::ForwardRun && AniStateValue != SekiroState::BackwardRun
+		&& AniStateValue != SekiroState::LeftRun && AniStateValue != SekiroState::RightRun)
+	{
+		return;
+	}
+
+	// 범위에 있는 Buddha 콜리전 탐색
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel5);
+	TArray<AActor*> HitActor = TraceObjects(ObjectType, GetActorForwardVector(), 45.f, 100.f, 70.f);
+
+	if (HitActor.Num() == 0)
+	{
+		return;
+	}
+
+	float ClosestDist = FLT_MAX;
+	ABuddha* ClosestTarget = nullptr;
+
+	for (size_t i = 0; i < HitActor.Num(); i++)
+	{
+		ABuddha* Target = Cast<ABuddha>(HitActor[i]);
+		FVector LockedOnLocation = Target->GetActorLocation();
+		float Dis = (GetActorLocation() - LockedOnLocation).Size();
+
+		if (Target->bTriggerEvent && Dis < ClosestDist)
+		{
+			ClosestDist = Dis;
+			ClosestTarget = Target;
+		}
+	}
+
+	if (ClosestTarget != nullptr)
+	{
+		ClearBuffer();
+
+		AdjustAngle(ClosestTarget->GetActorLocation());
+
+		SetAniState(SekiroState::SitStart);
+
+		float delayTime = 3.5f;
+		FTimerHandle myTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				if (IsValid(BuddhaMenuWidgetClass))
+				{
+					BuddhaMenuWidget = Cast<UBuddhaMenuWidget>(CreateWidget(GetWorld(), BuddhaMenuWidgetClass));
+
+					if (IsValid(BuddhaMenuWidget))
+					{
+						BuddhaMenuWidget->AddToViewport();
+						
+						APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+						Controller->SetInputMode(FInputModeUIOnly());
+						Controller->SetShowMouseCursor(true);
+
+						AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+						BuddhaMenuWidget->SetMapName(FText::FromName(GameMode->GetMapName()));
+					}
+				}
+
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+			}), delayTime, false);
+	}
 }
 
 void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)

@@ -8,6 +8,7 @@
 #include "Global/Data/PlayerStatData.h"
 #include "Monster/Monster.h"
 #include "PlayerWidget/WarningWidget.h"
+#include "PlayerWidget/BuddhaMenuWidget.h"
 #include "PlayerSekiro.generated.h"
 
 /**
@@ -94,7 +95,7 @@ public:
 	void PlayerHeal();
 
 	UFUNCTION(BlueprintCallable)
-	void SitDown() {};
+	void SitDown();
 
 	UFUNCTION(BlueprintCallable)
 	void MontageEnd();
@@ -148,6 +149,9 @@ protected:
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	TSubclassOf<UUserWidget> BuddhaMenuWidgetClass;
+	class UBuddhaMenuWidget* BuddhaMenuWidget = nullptr;
 
 
 private:

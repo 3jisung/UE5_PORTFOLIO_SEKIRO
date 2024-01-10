@@ -45,17 +45,32 @@ public:
 			}), delayTime, false);
 	}
 
+	UFUNCTION(BlueprintCallable)
+	FName GetMapName()
+	{
+		return MapName;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetMapName(FName _MapName)
+	{
+		MapName = _MapName;
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 
 
-	UPROPERTY(Category = "Sound", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Sound", EditAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
 	TArray<class USoundBase*> AllSound;
 
-	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
 	class UAudioComponent* AudioComponent;
+
+	UPROPERTY(Category = "MapName", EditAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
+	FName MapName;
 
 	int NewSoundIndex = -1;
 	float FadeInOutDuration = 1.f;

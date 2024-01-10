@@ -24,6 +24,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BackgroundOn()
 	{
+		BackgroundOpacity = 0.f;
 		bOnBackground = true;
 		bOffBackground = false;
 	}
@@ -31,6 +32,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BackgroundOff()
 	{
+		BackgroundOpacity = 1.f;
 		bOffBackground = true;
 		bOnBackground = false;
 	}
@@ -38,6 +40,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DeathUIOn()
 	{
+		DeathUIOpacity = 0.f;
 		bOnDeathUI = true;
 		bOffDeathUI = false;
 	}
@@ -45,6 +48,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DeathUIOff()
 	{
+		DeathUIOpacity = 1.f;
 		bOffDeathUI = true;
 		bOnDeathUI = false;
 	}
