@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "Components/AudioComponent.h"
-#include "../Global/GlobalGameInstance.h"
+#include "Global/GlobalGameInstance.h"
 #include "GlobalGameMode.generated.h"
 
 /**

@@ -7,8 +7,11 @@ public class UE5_PORTFOLIO_SEKIRO : ModuleRules
 	public UE5_PORTFOLIO_SEKIRO(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] {
+
+        PublicIncludePaths.Add("UE5_PORTFOLIO_SEKIRO");
+        PrivateIncludePaths.Add("UE5_PORTFOLIO_SEKIRO");
+
+        PublicDependencyModuleNames.AddRange(new string[] {
             "Core", "CoreUObject", "Engine",
             "InputCore", "UMG", "NavigationSystem", "SlateCore"
         });

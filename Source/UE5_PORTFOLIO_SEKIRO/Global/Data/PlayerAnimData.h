@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "UObject/NoExportTypes.h"
-#include "../GlobalEnums.h"
+#include "Global/GlobalEnums.h"
 #include "PlayerAnimData.generated.h"
 
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "../Global/GlobalCharacter.h"
+#include "Global/GlobalCharacter.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "HPWidget.generated.h"

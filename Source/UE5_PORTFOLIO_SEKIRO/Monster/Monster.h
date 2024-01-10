@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Global/GlobalCharacter.h"
-#include "../Global/Data/MonsterData.h"
+#include "Global/GlobalCharacter.h"
+#include "Global/Data/MonsterData.h"
 #include "DeathblowWidget.h"
 #include "Monster.generated.h"
 

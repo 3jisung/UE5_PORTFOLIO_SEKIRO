@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "../SystemUI/FadeInOutWidget.h"
+#include "GlobalUI/FadeInOutWidget.h"
 #include "DeathblowWidget.generated.h"
 
 /**

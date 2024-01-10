@@ -6,8 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "HPWidget.h"
-#include "PlayerSekiro.h"
+#include "GlobalUI/HPWidget.h"
+#include "Player/PlayerSekiro.h"
 #include "Kismet/GameplayStatics.h"
 #include "BossInfoWidget.generated.h"
 

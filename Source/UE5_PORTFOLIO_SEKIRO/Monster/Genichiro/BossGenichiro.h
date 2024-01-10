@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Monster.h"
-#include "../../Global/GlobalEnums.h"
+#include "Monster/Monster.h"
+#include "Global/GlobalEnums.h"
 #include "BossGenichiro.generated.h"
 
 /**

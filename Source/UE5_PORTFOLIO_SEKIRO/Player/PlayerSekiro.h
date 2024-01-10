@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Global/GlobalCharacter.h"
-#include "../Global/GlobalEnums.h"
-#include "../Global/Data/PlayerStatData.h"
-#include "../Monster/Monster.h"
-#include "WarningWidget.h"
+#include "Global/GlobalCharacter.h"
+#include "Global/GlobalEnums.h"
+#include "Global/Data/PlayerStatData.h"
+#include "Monster/Monster.h"
+#include "PlayerWidget/WarningWidget.h"
 #include "PlayerSekiro.generated.h"
 
 /**

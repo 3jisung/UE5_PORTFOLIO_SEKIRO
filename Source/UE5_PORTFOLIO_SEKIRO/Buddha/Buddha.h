@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/StaticMeshActor.h"
 #include "BuddhaTriggerWidget.h"
-#include "../Global/GlobalCharacter.h"
+#include "Global/GlobalCharacter.h"
 #include "Buddha.generated.h"
 
 UCLASS()

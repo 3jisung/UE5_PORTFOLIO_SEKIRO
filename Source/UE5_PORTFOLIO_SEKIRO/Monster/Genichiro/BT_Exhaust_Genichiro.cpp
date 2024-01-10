@@ -3,7 +3,7 @@
 
 #include "BT_Exhaust_Genichiro.h"
 #include "Kismet/GameplayStatics.h"
-#include "../../GameMode/GlobalGameMode.h"
+#include "GameMode/GlobalGameMode.h"
 
 
 EBTNodeResult::Type UBT_Exhaust_Genichiro::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

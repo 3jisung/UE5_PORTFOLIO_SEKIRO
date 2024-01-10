@@ -2,8 +2,8 @@
 
 
 #include "BossGenichiro.h"
-#include "../../Global/GlobalAnimInstance.h"
-#include "../../Global/GlobalGameInstance.h"
+#include "Global/GlobalAnimInstance.h"
+#include "Global/GlobalGameInstance.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 
