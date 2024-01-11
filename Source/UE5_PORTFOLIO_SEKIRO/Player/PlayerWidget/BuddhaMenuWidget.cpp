@@ -2,6 +2,7 @@
 
 
 #include "BuddhaMenuWidget.h"
+#include "Components/Button.h"
 
 
 void UBuddhaMenuWidget::NativeConstruct()

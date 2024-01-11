@@ -123,7 +123,7 @@ void APlayerSekiro::Tick(float _Delta)
 		Move->MaxWalkSpeed = Speed * 0.85f;
 	}
 
-	if (bLockOn)
+	if (bLockOn && LockedOnTarget != nullptr)
 	{
 		// 락온 범위를 벗어나면 락온 자동 해제
 		FVector LockedOnLocation = LockedOnTarget->GetActorLocation();
@@ -133,21 +133,37 @@ void APlayerSekiro::Tick(float _Delta)
 			ToggleLockOn();
 			return;
 		}
-		else if ((LockedOnTarget != nullptr && LockedOnTarget->IsDeath()) || this->IsDeath())
+		else if (IsValid(Cast<AGlobalCharacter>(LockedOnTarget)) && Cast<AGlobalCharacter>(LockedOnTarget)->IsDeath())
+		{
+			ToggleLockOn();
+			return;
+		}
+		else if (this->IsDeath())
 		{
 			ToggleLockOn();
 			return;
 		}
 
-		LockedOnLocation.Z -= 35.f;
+		if (IsValid(Cast<AGlobalCharacter>(LockedOnTarget)))
+		{
+			LockedOnLocation.Z -= 35.f;
+		}
+		else if (IsValid(Cast<ABuddha>(LockedOnTarget)))
+		{
+			LockedOnLocation.Z += 100.f;
+		}
 
 		const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedOnLocation);
-		const FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
-		
+		FRotator InterpRotation = UKismetMathLibrary::RInterpTo(GetController()->GetControlRotation(), LookAtRotation, _Delta, 10.f);
+
+		if (IsValid(Cast<AGlobalCharacter>(LockedOnTarget)))
+		{
+			InterpRotation.Pitch -= 1.5f;
+		}
+
 		// 프레임 마다 캐릭터와 카메라의 시점 최신화
 		SetActorRotation(FRotator(0.f, InterpRotation.Yaw, 0.f));
-		//GetController()->SetControlRotation(InterpRotation);
-		GetController()->SetControlRotation(FRotator(InterpRotation.Pitch - 1.5f, InterpRotation.Yaw, InterpRotation.Roll));
+		GetController()->SetControlRotation(FRotator(InterpRotation));
 	}
 	
 	// 현재 체력에 따라 체간 회복 속도 가변
@@ -1296,6 +1312,13 @@ void APlayerSekiro::LockOnTarget()
 	{
 		return;
 	}
+
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue == SekiroState::SitStart || AniStateValue == SekiroState::SitEnd)
+	{
+		return;
+	}
 	
 	if (bLockOn == false)
 	{
@@ -1321,7 +1344,7 @@ void APlayerSekiro::LockOnTarget()
 
 		if (ClosestHitActor != nullptr)
 		{
-			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
+			LockedOnTarget = ClosestHitActor;
 			ToggleLockOn();
 		}
 	}
@@ -1336,6 +1359,13 @@ void APlayerSekiro::LockOnTarget()
 // 마우스의 Action Value 중 X값(Rate)을 받아와 부호에 따라 탐색 방향 결정(-, + 방향)
 void APlayerSekiro::ResearchLockOnTarget(float Rate)
 {
+	SekiroState AniStateValue = GetAniState<SekiroState>();
+
+	if (AniStateValue == SekiroState::SitStart || AniStateValue == SekiroState::SitEnd)
+	{
+		return;
+	}
+
 	// 마우스의 움직임이 일정 값 이상일 경우에만 함수 실행(적절한 감도 설정)
 	if (FMath::Abs(Rate) < 3.f)
 	{
@@ -1380,7 +1410,7 @@ void APlayerSekiro::ResearchLockOnTarget(float Rate)
 		if (ClosestHitActor != nullptr)
 		{
 			ToggleLockOn();		// 기존 락온 해제
-			LockedOnTarget = Cast<AMonster>(ClosestHitActor);
+			LockedOnTarget = ClosestHitActor;
 			ToggleLockOn();		// 새로운 대상에게 락온
 		}
 
@@ -1403,7 +1433,11 @@ void APlayerSekiro::ToggleLockOn()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = bLockOn;
 
-	LockedOnTarget->LockOnIconOnOff(!bLockOn);
+	if (IsValid(Cast<AMonster>(LockedOnTarget)))
+	{
+		Cast<AMonster>(LockedOnTarget)->LockOnIconOnOff(!bLockOn);
+	}
+
 	bLockOn = !bLockOn;
 }
 
@@ -1541,6 +1575,13 @@ void APlayerSekiro::SitDown()
 		ClearBuffer();
 
 		AdjustAngle(ClosestTarget->GetActorLocation());
+
+		if (bLockOn)
+		{
+			ToggleLockOn();	// 기존 락온이 있을 경우 해제
+		}
+		LockedOnTarget = ClosestTarget;
+		ToggleLockOn();		// 새로운 대상에게 락온
 
 		SetAniState(SekiroState::SitStart);
 

@@ -10,6 +10,7 @@ void UBossInfoWidget::NativeConstruct()
 
 	HPWidget = Cast<UHPWidget>(GetWidgetFromName(TEXT("WBP_HPWidget")));
 	BossName = Cast<UTextBlock>(GetWidgetFromName(TEXT("Name")));
+	BossName->SetText(FText());
 
 	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1_Background"))));
 	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2_Background"))));

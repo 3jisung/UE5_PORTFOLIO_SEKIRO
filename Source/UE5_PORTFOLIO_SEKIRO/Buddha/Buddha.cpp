@@ -3,6 +3,7 @@
 
 #include "Buddha.h"
 #include "Components/WidgetComponent.h"
+#include "Global/GlobalEnums.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -47,8 +48,17 @@ void ABuddha::Tick(float DeltaTime)
 	{
 		if (HitActor[i] == this)
 		{
-			TriggerWidgetOnOff(true);
-			break;
+			SekiroState AniStateValue = PlayerCharacter->GetAniState<SekiroState>();
+
+			if (AniStateValue == SekiroState::Idle
+				|| AniStateValue == SekiroState::ForwardWalk || AniStateValue == SekiroState::BackwardWalk
+				|| AniStateValue == SekiroState::LeftWalk || AniStateValue == SekiroState::RightWalk
+				|| AniStateValue == SekiroState::ForwardRun || AniStateValue == SekiroState::BackwardRun
+				|| AniStateValue == SekiroState::LeftRun || AniStateValue == SekiroState::RightRun)
+			{
+				TriggerWidgetOnOff(true);
+				break;
+			}
 		}
 
 		if (i == HitActor.Num() - 1)

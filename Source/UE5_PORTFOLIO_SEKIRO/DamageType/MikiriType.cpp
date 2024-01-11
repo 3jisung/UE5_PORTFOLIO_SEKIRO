@@ -7,7 +7,7 @@
 UMikiriType::UMikiriType()
 {
 	HPDamageMultiple = 0.f;
-	PostureDamageMultiple = 3.0f;
+	PostureDamageMultiple = 3.f;
 	PushPower = 0.f;
 	bEnableGuard = false;
 	bEnableParrying = false;

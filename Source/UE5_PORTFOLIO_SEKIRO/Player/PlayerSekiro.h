@@ -182,7 +182,7 @@ private:
 	const float DashSpeed = 900.f;
 
 	float LockOnRange = 2500.f;
-	AMonster* LockedOnTarget;
+	AActor* LockedOnTarget;
 	bool bResearchEnable = true;
 
 	PlayerHitState HitState = PlayerHitState::OFFGUARD;
