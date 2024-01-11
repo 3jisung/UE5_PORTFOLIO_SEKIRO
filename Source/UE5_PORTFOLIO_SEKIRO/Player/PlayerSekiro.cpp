@@ -1512,7 +1512,7 @@ void APlayerSekiro::DrinkGourd()
 	SetAniState(SekiroState::Heal);
 }
 
-void APlayerSekiro::PlayerHeal()
+void APlayerSekiro::GourdHeal()
 {
 	if (HealCount <= 0)
 	{
@@ -1527,6 +1527,13 @@ void APlayerSekiro::PlayerHeal()
 	}
 
 	HealCount -= 1;
+
+	// 이펙트, 사운드 추가
+}
+
+void APlayerSekiro::BuddhaRest()
+{
+	HP = MaxHP;
 
 	// 이펙트, 사운드 추가
 }
@@ -1596,10 +1603,17 @@ void APlayerSekiro::SitDown()
 					if (IsValid(BuddhaMenuWidget))
 					{
 						BuddhaMenuWidget->AddToViewport();
-						
-						APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-						Controller->SetInputMode(FInputModeUIOnly());
-						Controller->SetShowMouseCursor(true);
+
+						if (Controller)
+						{
+							APlayerController* PlayerController = Cast<APlayerController>(Controller);
+
+							if (PlayerController)
+							{
+								PlayerController->SetInputMode(FInputModeUIOnly());
+								PlayerController->SetShowMouseCursor(true);
+							}
+						}
 
 						AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 						BuddhaMenuWidget->SetMapName(FText::FromName(GameMode->GetMapName()));
@@ -1657,6 +1671,17 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 	else if (Anim == GetAnimMontage(SekiroState::Heal))
 	{
 		GourdMesh->SetStaticMesh(nullptr);
+		SetAniState(SekiroState::Idle);
+	}
+	else if (Anim == GetAnimMontage(SekiroState::SitEnd))
+	{
+		if (bLockOn)
+		{
+			ToggleLockOn();	// 기존 락온이 있을 경우 해제
+		}
+
+		BuddhaMenuWidget = nullptr;
+
 		SetAniState(SekiroState::Idle);
 	}
 }

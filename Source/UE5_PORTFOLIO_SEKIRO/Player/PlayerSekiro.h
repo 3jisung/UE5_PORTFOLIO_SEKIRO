@@ -92,7 +92,10 @@ public:
 	void DrinkGourd();
 
 	UFUNCTION(BlueprintCallable)
-	void PlayerHeal();
+	void GourdHeal();
+
+	UFUNCTION(BlueprintCallable)
+	void BuddhaRest();
 
 	UFUNCTION(BlueprintCallable)
 	void SitDown();

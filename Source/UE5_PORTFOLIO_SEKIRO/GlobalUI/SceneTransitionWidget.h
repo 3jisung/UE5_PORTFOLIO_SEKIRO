@@ -26,7 +26,7 @@ public:
 		CanvasOpacity = 1.f;
 	}
 
-	void FadeOut() override
+	void FadeOut(bool Destruct = false) override
 	{
 		bFadeOut = true;
 		bFadeIn = false;

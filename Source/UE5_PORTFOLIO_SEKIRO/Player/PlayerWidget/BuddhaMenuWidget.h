@@ -3,15 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GlobalUI/FadeInOutWidget.h"
+#include "GlobalUI/BtnEventWidget.h"
 #include "Components/TextBlock.h"
+#include "Global/GlobalEnums.h"
+#include "GameFramework/PlayerController.h"
 #include "BuddhaMenuWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UBuddhaMenuWidget : public UFadeInOutWidget
+class UE5_PORTFOLIO_SEKIRO_API UBuddhaMenuWidget : public UBtnEventWidget
 {
 	GENERATED_BODY()
 	
@@ -28,6 +30,22 @@ public:
 		}
 	}
 
+	bool SetHoveredBtn(int _Index) override;
+
+	void MenuEvent() override;
+
+	UFUNCTION(BlueprintCallable)
+	void ExitWidget();
+
 	UPROPERTY(Category = "Text", EditAnywhere, BlueprintReadWrite)
 	UTextBlock* MapNameText = nullptr;
+
+	UPROPERTY(Category = "Text", EditAnywhere, BlueprintReadWrite)
+	UTextBlock* ExplainText = nullptr;
+
+	TArray<FText> ExplainArray;
+
+
+protected:
+	class APlayerSekiro* Player = nullptr;
 };

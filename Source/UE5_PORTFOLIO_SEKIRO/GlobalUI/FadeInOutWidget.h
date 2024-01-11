@@ -29,11 +29,16 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	virtual void FadeOut()
+	virtual void FadeOut(bool Destruct = false)
 	{
 		CanvasOpacity = 1.f;
 		bFadeOut = true;
 		bFadeIn = false;
+
+		if (Destruct)
+		{
+			bDestructWidget = Destruct;
+		}
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -47,13 +52,13 @@ public:
 
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
 	float CanvasOpacity = 0.f;
 
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
 	bool bFadeIn = false;
 
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
 	bool bFadeOut = false;
 
 	float SumTime = 0.f;

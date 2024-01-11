@@ -25,7 +25,7 @@ public:
 		bFadeOut = false;
 	}
 
-	void FadeOut() override
+	void FadeOut(bool Destruct = false) override
 	{
 		bFadeOut = true;
 		bFadeIn = false;

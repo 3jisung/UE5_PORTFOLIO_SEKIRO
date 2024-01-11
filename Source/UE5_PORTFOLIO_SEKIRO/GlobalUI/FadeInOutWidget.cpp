@@ -10,7 +10,10 @@ void UFadeInOutWidget::NativeConstruct()
 
 	Canvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasPanel")));
 
-	Canvas->SetRenderOpacity(0.f);
+	if (Canvas)
+	{
+		Canvas->SetRenderOpacity(0.f);
+	}
 }
 
 void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -60,7 +63,7 @@ void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 
 				if (bDestructWidget)
 				{
-					Super::NativeDestruct();
+					RemoveFromParent();
 				}
 			}
 		}
