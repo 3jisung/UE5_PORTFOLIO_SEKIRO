@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "GlobalUI/FadeInOutWidget.h"
 #include "DeathblowWidget.generated.h"
 

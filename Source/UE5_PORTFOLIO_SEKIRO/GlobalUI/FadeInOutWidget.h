@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "FadeInOutWidget.generated.h"
 
 /**
@@ -70,4 +73,6 @@ protected:
 	float TimerDelayTime = 0.f;
 
 	bool bDestructWidget = false;
+
+	APlayerController* PlayerController = nullptr;
 };

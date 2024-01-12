@@ -9,15 +9,22 @@ void UFadeInOutWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	Canvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasPanel")));
-
 	if (Canvas)
 	{
 		Canvas->SetRenderOpacity(0.f);
+	}
+
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player)
+	{
+		PlayerController = Cast<APlayerController>(Player->Controller);
 	}
 }
 
 void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	
 	// FadeIn
 	if (bFadeIn)
 	{

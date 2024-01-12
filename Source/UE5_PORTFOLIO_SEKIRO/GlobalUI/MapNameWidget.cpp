@@ -2,8 +2,6 @@
 
 
 #include "MapNameWidget.h"
-#include "Styling/SlateColor.h"
-#include "Math/Color.h"
 
 
 void UMapNameWidget::NativeConstruct()

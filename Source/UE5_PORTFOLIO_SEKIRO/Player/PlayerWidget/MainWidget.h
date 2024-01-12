@@ -3,19 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "GlobalUI/FadeInOutWidget.h"
+#include "GlobalUI/HPWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "GlobalUI/HPWidget.h"
-#include "Player/PlayerSekiro.h"
-#include "Kismet/GameplayStatics.h"
 #include "MainWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UMainWidget : public UUserWidget
+class UE5_PORTFOLIO_SEKIRO_API UMainWidget : public UFadeInOutWidget
 {
 	GENERATED_BODY()
 	
@@ -52,6 +50,7 @@ protected:
 	void NativeConstruct() override;
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	class APlayerSekiro* Player = nullptr;
 
 private:
 	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -62,6 +61,4 @@ private:
 
 	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ESlateVisibility BossInfoUIOnOff = ESlateVisibility::Hidden;
-
-	APlayerSekiro* Player = nullptr;
 };

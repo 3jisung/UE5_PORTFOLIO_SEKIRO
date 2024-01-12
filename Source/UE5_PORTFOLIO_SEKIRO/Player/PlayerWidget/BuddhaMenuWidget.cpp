@@ -21,7 +21,10 @@ void UBuddhaMenuWidget::NativeConstruct()
 	ExplainArray.Add(FText::FromString(TEXT("귀불에서 휴식합니다")));
 	ExplainArray.Add(FText::FromString(TEXT("희귀한 강자와 싸우러 이동합니다")));
 
-	Player = Cast<APlayerSekiro>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (PlayerController)
+	{
+		Player = Cast<APlayerSekiro>(PlayerController->GetCharacter());
+	}
 
 	FadeInDeltaTime = 0.01f;
 	FadeOutDeltaTime = 0.01f;
@@ -61,8 +64,6 @@ void UBuddhaMenuWidget::MenuEvent()
 	{
 		return;
 	}
-
-	APlayerController* PlayerController = Cast<APlayerController>(Player->Controller);
 	
 	switch (HoveredIndex)
 	{
@@ -77,7 +78,7 @@ void UBuddhaMenuWidget::MenuEvent()
 
 		FTimerHandle myTimerHandle;
 		float DelayTime = 3.f;
-		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, PlayerController]()
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
 				FadeIn();
 
@@ -124,7 +125,6 @@ void UBuddhaMenuWidget::ExitWidget()
 
 		if (Player->Controller)
 		{
-			APlayerController* PlayerController = Cast<APlayerController>(Player->Controller);
 			PlayerController->SetInputMode(FInputModeGameOnly());
 			PlayerController->SetShowMouseCursor(false);
 		}

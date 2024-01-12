@@ -6,7 +6,6 @@
 #include "GlobalUI/BtnEventWidget.h"
 #include "Components/TextBlock.h"
 #include "Global/GlobalEnums.h"
-#include "GameFramework/PlayerController.h"
 #include "BuddhaMenuWidget.generated.h"
 
 /**

@@ -3,19 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "GlobalUI/FadeInOutWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "GlobalUI/HPWidget.h"
-#include "Player/PlayerSekiro.h"
-#include "Kismet/GameplayStatics.h"
 #include "BossInfoWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UE5_PORTFOLIO_SEKIRO_API UBossInfoWidget : public UUserWidget
+class UE5_PORTFOLIO_SEKIRO_API UBossInfoWidget : public UFadeInOutWidget
 {
 	GENERATED_BODY()
 	
@@ -33,10 +31,10 @@ protected:
 	void NativeConstruct() override;
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	class APlayerSekiro* Player = nullptr;
+
 private:
 	TArray<UImage*> DeathblowBackgroundImage;
 	TArray<UImage*> DeathblowImage;
 	int DeathblowCount = 0;
-
-	APlayerSekiro* Player = nullptr;
 };

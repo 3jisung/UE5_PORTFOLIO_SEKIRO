@@ -3,7 +3,6 @@
 
 #include "DeathWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameMode/GlobalGameMode.h"
 
 

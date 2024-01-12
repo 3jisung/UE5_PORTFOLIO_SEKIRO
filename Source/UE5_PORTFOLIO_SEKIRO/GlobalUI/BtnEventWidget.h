@@ -7,7 +7,6 @@
 #include "Components/Image.h"
 #include "Sound/SoundBase.h"
 #include "Global/GlobalGameInstance.h"
-#include "Kismet/GameplayStatics.h"
 #include "BtnEventWidget.generated.h"
 
 /**
@@ -25,7 +24,7 @@ public:
 	virtual bool SetHoveredBtn(int _Index);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void MenuEvent() { UGameplayStatics::PlaySound2D(GetWorld(), SoundEffects.FindRef(TEXT("Select"))); };
+	virtual void MenuEvent();
 
 	UPROPERTY(Category = "Btn", EditAnywhere, BlueprintReadWrite)
 	int HoveredIndex = 0;

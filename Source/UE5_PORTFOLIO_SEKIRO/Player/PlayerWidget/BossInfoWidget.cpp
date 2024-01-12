@@ -2,11 +2,17 @@
 
 
 #include "BossInfoWidget.h"
+#include "Player/PlayerSekiro.h"
 
 
 void UBossInfoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	if (Canvas)
+	{
+		Canvas->SetRenderOpacity(1.f);
+	}
 
 	HPWidget = Cast<UHPWidget>(GetWidgetFromName(TEXT("WBP_HPWidget")));
 	BossName = Cast<UTextBlock>(GetWidgetFromName(TEXT("Name")));
@@ -26,14 +32,17 @@ void UBossInfoWidget::NativeConstruct()
 		DeathblowImage[i]->SetOpacity(0.f);
 	}
 
-	Player = Cast<APlayerSekiro>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (PlayerController)
+	{
+		Player = Cast<APlayerSekiro>(PlayerController->GetCharacter());
+	}
 }
 
 void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (Player->TargetBoss != nullptr)
+	if (Player && Player->TargetBoss != nullptr)
 	{
 		HPWidget->CharacterSetting(Player->TargetBoss);
 		BossName->SetText(FText::FromName(Player->TargetBoss->Tags[2]));
@@ -70,8 +79,6 @@ void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UBossInfoWidget::UpdateDeathblowUI(int NewDeathblowCount, float Delta)
 {
-	static float SumTime = 0.f;
-
 	SumTime += Delta;
 
 	if (SumTime > 0.05f)

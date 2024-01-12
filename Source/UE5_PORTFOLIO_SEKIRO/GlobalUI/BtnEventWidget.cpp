@@ -43,3 +43,8 @@ bool UBtnEventWidget::SetHoveredBtn(int _Index)
 		return false;
 	}
 }
+
+void UBtnEventWidget::MenuEvent()
+{
+	UGameplayStatics::PlaySound2D(GetWorld(), SoundEffects.FindRef(TEXT("Select")));
+}
