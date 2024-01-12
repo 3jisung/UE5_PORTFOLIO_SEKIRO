@@ -3,6 +3,7 @@
 
 #include "Buddha.h"
 #include "Components/WidgetComponent.h"
+#include "Global/GlobalGameInstance.h"
 #include "Global/GlobalEnums.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,10 +14,8 @@ ABuddha::ABuddha()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 불상 트리거 위젯 설정
-	FSoftClassPath BuddhaTriggerClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Buddha/WBP_TriggerWidget.WBP_TriggerWidget_C'"));
-
 	BuddhaTriggerWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("BuddhaTriggerWidgetComponent"));
-	BuddhaTriggerWidgetComponent->SetWidgetClass(BuddhaTriggerClassPath.TryLoadClass<UBuddhaTriggerWidget>());
+	// BuddhaTriggerWidgetComponent->SetWidgetClass(BuddhaTriggerClassPath.TryLoadClass<UBuddhaTriggerWidget>());
 	BuddhaTriggerWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	BuddhaTriggerWidgetComponent->SetDrawSize(FVector2D(500.f, 100.f));
 	BuddhaTriggerWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 150.f));
@@ -28,6 +27,12 @@ void ABuddha::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Buddha"), TEXT("Trigger"));
+	if (IsValid(WidgetClass))
+	{
+		BuddhaTriggerWidgetComponent->SetWidgetClass(WidgetClass);
+	}
 }
 
 // Called every frame
@@ -38,7 +43,7 @@ void ABuddha::Tick(float DeltaTime)
 	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel5);
 	AGlobalCharacter* PlayerCharacter = Cast<AGlobalCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if (PlayerCharacter == nullptr)
+	if (IsValid(PlayerCharacter) == false)
 	{
 		return;
 	}
@@ -78,14 +83,17 @@ void ABuddha::TriggerWidgetOnOff(bool _bTriggerEvent)
 {
 	UBuddhaTriggerWidget* BuddhaTriggerWidget = Cast<UBuddhaTriggerWidget>(BuddhaTriggerWidgetComponent->GetWidget());
 
-	if (_bTriggerEvent)
+	if (IsValid(BuddhaTriggerWidget))
 	{
-		BuddhaTriggerWidget->FadeIn();
-		bTriggerEvent = true;
-	}
-	else
-	{
-		BuddhaTriggerWidget->FadeOut();
-		bTriggerEvent = false;
+		if (_bTriggerEvent)
+		{
+			BuddhaTriggerWidget->FadeIn();
+			bTriggerEvent = true;
+		}
+		else
+		{
+			BuddhaTriggerWidget->FadeOut();
+			bTriggerEvent = false;
+		}
 	}
 }

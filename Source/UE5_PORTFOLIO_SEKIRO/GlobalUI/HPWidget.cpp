@@ -18,7 +18,7 @@ void UHPWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (Character == nullptr)
+	if (IsValid(Character) == false)
 	{
 		return;
 	}
@@ -49,18 +49,6 @@ void UHPWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	else
 	{
 		bAdjustGetHitHP = false;
-	}
-}
-
-void UHPWidget::CharacterSetting(AGlobalCharacter* _Character)
-{
-	if (_Character != nullptr)
-	{
-		Character = _Character;
-	}
-	else
-	{
-		Character = nullptr;
 	}
 }
 

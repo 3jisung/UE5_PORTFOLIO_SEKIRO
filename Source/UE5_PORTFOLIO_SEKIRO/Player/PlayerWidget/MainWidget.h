@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GlobalUI/FadeInOutWidget.h"
 #include "GlobalUI/HPWidget.h"
+#include "GlobalUI/PostureWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "MainWidget.generated.h"
@@ -25,12 +26,6 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void SetBossPostureUIOnOffSwitch()
-	{
-		BossPostureUIOnOff = BossPostureUIOnOff == ESlateVisibility::Hidden ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
-	}
-
-	UFUNCTION(BlueprintCallable)
 	void SetBossInfoUIOnOffSwitch()
 	{
 		BossInfoUIOnOff = BossInfoUIOnOff == ESlateVisibility::Hidden ? ESlateVisibility::Visible : ESlateVisibility::Hidden;
@@ -46,6 +41,9 @@ public:
 	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
 	UHPWidget* HPWidget = nullptr;
 
+	UPROPERTY(Category = "Posture", EditAnywhere, BlueprintReadWrite)
+	UPostureWidget* PlayerPostureWidget = nullptr;
+
 protected:
 	void NativeConstruct() override;
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
@@ -55,9 +53,6 @@ protected:
 private:
 	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ESlateVisibility PlayerPostureUIOnOff = ESlateVisibility::Hidden;
-
-	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	ESlateVisibility BossPostureUIOnOff = ESlateVisibility::Hidden;
 
 	UPROPERTY(Category = "UIOnOff", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ESlateVisibility BossInfoUIOnOff = ESlateVisibility::Hidden;

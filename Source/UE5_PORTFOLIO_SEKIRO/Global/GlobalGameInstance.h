@@ -26,6 +26,7 @@ public:
 	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
 	struct FMonsterData* GetMonster(FName _Name);
 	TArray<class USoundBase*> GetSoundData(FName _Name);
+	TSubclassOf<UUserWidget> GetWidgetClassData(FName _RowName, FName _ColumnName);
 
 
 private:
@@ -43,4 +44,7 @@ private:
 
 	UPROPERTY()
 	UDataTable* SoundData;
+
+	UPROPERTY()
+	UDataTable* WidgetClassData;
 };

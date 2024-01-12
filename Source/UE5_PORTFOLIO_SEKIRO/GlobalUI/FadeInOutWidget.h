@@ -50,6 +50,16 @@ public:
 		return CanvasOpacity;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void SetCanvasRenderOpacity(float _Opacity)
+	{
+		if (Canvas)
+		{
+			CanvasOpacity = _Opacity;
+			Canvas->SetRenderOpacity(CanvasOpacity);
+		}
+	}
+
 	UPROPERTY(Category = "Canvas", EditAnywhere, BlueprintReadWrite)
 	UCanvasPanel* Canvas = nullptr;
 

@@ -3,6 +3,7 @@
 
 #include "Monster.h"
 #include "Components/WidgetComponent.h"
+#include "Global/GlobalGameInstance.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AICon.h"
 
@@ -13,9 +14,6 @@ AMonster::AMonster()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	// 락온 아이콘 설정
-	FSoftClassPath LockOnIconClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Monster/WBP_LockOnIcon.WBP_LockOnIcon_C'"));
-	LockOnIconWidgetClass = LockOnIconClassPath.TryLoadClass<UUserWidget>();
-
 	LockOnWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockOnWidgetComponent"));
 	LockOnWidgetComponent->SetWidgetClass(nullptr);
 	LockOnWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
@@ -24,11 +22,8 @@ AMonster::AMonster()
 	LockOnWidgetComponent->SetupAttachment(RootComponent);
 
 	// 인살 아이콘 설정
-	FSoftClassPath DeathblowIconClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Monster/WBP_DeathblowIcon.WBP_DeathblowIcon_C'"));
-	DeathblowIconWidgetClass = DeathblowIconClassPath.TryLoadClass<UDeathblowWidget>();
-
 	DeathblowWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("DeathblowWidgetComponent"));
-	DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
+	// DeathblowWidgetComponent->SetWidgetClass(DeathblowIconWidgetClass);
 	DeathblowWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	DeathblowWidgetComponent->SetDrawSize(FVector2D(150.f, 150.f));
 	DeathblowWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, -30.f));
@@ -43,6 +38,25 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	Tags.Add(TEXT("Monster"));
+
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+
+	{
+		TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Monster"), TEXT("LockOn"));
+		if (IsValid(WidgetClass))
+		{
+			LockOnIconWidgetClass = WidgetClass;
+		}
+	}
+
+	{
+		TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Monster"), TEXT("Deathblow"));
+		if (IsValid(WidgetClass))
+		{
+			DeathblowWidgetComponent->SetWidgetClass(WidgetClass);
+		}
+	}
+	
 }
 
 void AMonster::Tick(float _Delta)
@@ -83,14 +97,17 @@ void AMonster::DeathblowIconOnOff(bool bExhaust)
 {
 	UDeathblowWidget* DeathblowWidget = Cast<UDeathblowWidget>(DeathblowWidgetComponent->GetWidget());
 
-	if (bExhaust)
+	if (IsValid(DeathblowWidget))
 	{
-		DeathblowWidget->FadeIn();
-		bEnableDeathblow = true;
-	}
-	else
-	{
-		DeathblowWidget->FadeOut();
-		bEnableDeathblow = false;
+		if (bExhaust)
+		{
+			DeathblowWidget->FadeIn();
+			bEnableDeathblow = true;
+		}
+		else
+		{
+			DeathblowWidget->FadeOut();
+			bEnableDeathblow = false;
+		}
 	}
 }

@@ -8,7 +8,7 @@
 #include "Global/Data/PlayerStatData.h"
 #include "Monster/Monster.h"
 #include "PlayerWidget/WarningWidget.h"
-#include "PlayerWidget/BuddhaMenuWidget.h"
+#include "Buddha/BuddhaMenuWidget.h"
 #include "PlayerSekiro.generated.h"
 
 /**
@@ -152,9 +152,6 @@ protected:
 	void BeginPlay() override;
 	void Tick(float _Delta) override;
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	TSubclassOf<UUserWidget> BuddhaMenuWidgetClass;
-	class UBuddhaMenuWidget* BuddhaMenuWidget = nullptr;
 
 
 private:

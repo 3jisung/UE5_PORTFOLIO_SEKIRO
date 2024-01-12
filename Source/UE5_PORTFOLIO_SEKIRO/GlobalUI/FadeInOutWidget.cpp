@@ -9,10 +9,7 @@ void UFadeInOutWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	Canvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("CanvasPanel")));
-	if (Canvas)
-	{
-		Canvas->SetRenderOpacity(0.f);
-	}
+	SetCanvasRenderOpacity(0.f);
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	if (Player)

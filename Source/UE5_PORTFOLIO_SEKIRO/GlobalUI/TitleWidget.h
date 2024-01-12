@@ -19,14 +19,4 @@ public:
 	void NativeConstruct() override;
 
 	void MenuEvent() override;
-
-	UFUNCTION(BlueprintCallable)
-	void SetSceneTransitionWidget(UUserWidget* UserWidget)
-	{
-		SceneTransitionWidget = Cast<USceneTransitionWidget>(UserWidget);
-	}
-
-
-protected:
-	USceneTransitionWidget* SceneTransitionWidget = nullptr;
 };

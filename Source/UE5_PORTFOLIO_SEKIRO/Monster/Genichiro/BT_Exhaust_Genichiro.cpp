@@ -98,7 +98,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		else if (BehaviorState == GenichiroState::Deathblow2)
 		{
 			AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-			if (GameMode == nullptr)
+			if (IsValid(GameMode) == false)
 			{
 				return;
 			}

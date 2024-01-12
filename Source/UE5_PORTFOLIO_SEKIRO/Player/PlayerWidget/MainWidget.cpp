@@ -17,11 +17,18 @@ void UMainWidget::NativeConstruct()
 	GourdImage = Cast<UImage>(GetWidgetFromName(TEXT("Gourd")));
 	HealCount = Cast<UTextBlock>(GetWidgetFromName(TEXT("GourdCount")));
 	HPWidget = Cast<UHPWidget>(GetWidgetFromName(TEXT("WBP_HPWidget")));
+	PlayerPostureWidget = Cast<UPostureWidget>(GetWidgetFromName(TEXT("WBP_PlayerPosture")));
 
 	if (PlayerController)
 	{
 		Player = Cast<APlayerSekiro>(PlayerController->GetCharacter());
-		HPWidget->CharacterSetting(Player);
+		
+		if (Player && IsValid(HPWidget) && IsValid(PlayerPostureWidget))
+		{
+			HPWidget->CharacterSetting(Player);
+			PlayerPostureWidget->CharacterSetting(Player);
+			PlayerPostureUIOnOff = ESlateVisibility::Hidden;
+		}
 	}
 }
 

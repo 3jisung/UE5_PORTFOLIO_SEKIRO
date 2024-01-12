@@ -15,8 +15,14 @@ void UBossInfoWidget::NativeConstruct()
 	}
 
 	HPWidget = Cast<UHPWidget>(GetWidgetFromName(TEXT("WBP_HPWidget")));
+	BossPostureWidget = Cast<UPostureWidget>(GetWidgetFromName(TEXT("WBP_BossPosture")));
 	BossName = Cast<UTextBlock>(GetWidgetFromName(TEXT("Name")));
-	BossName->SetText(FText());
+
+	if (IsValid(BossPostureWidget) && IsValid(BossName))
+	{
+		BossPostureWidget->SetVisibility(ESlateVisibility::Hidden);
+		BossName->SetText(FText());
+	}
 
 	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1_Background"))));
 	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2_Background"))));
@@ -42,14 +48,36 @@ void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (Player && Player->TargetBoss != nullptr)
+	if (IsValid(Player) && IsValid(Player->TargetBoss))
 	{
-		HPWidget->CharacterSetting(Player->TargetBoss);
-		BossName->SetText(FText::FromName(Player->TargetBoss->Tags[2]));
+		if (IsValid(HPWidget) && IsValid(BossPostureWidget) && IsValid(BossName))
+		{
+			HPWidget->CharacterSetting(Player->TargetBoss);
+			BossPostureWidget->CharacterSetting(Player->TargetBoss);
+			BossName->SetText(FText::FromName(Player->TargetBoss->Tags[2]));
+
+			// 체간 게이지는 Max가 아닐 경우에만 Visible
+			if (Player->TargetBoss->GetPosture() < Player->TargetBoss->GetMaxPosture())
+			{
+				BossPostureWidget->SetVisibility(ESlateVisibility::Visible);
+			}
+			else
+			{
+				FTimerHandle myTimerHandle;
+				float DelayTime = 0.5f;
+				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+					{
+						BossPostureWidget->SetVisibility(ESlateVisibility::Hidden);
+
+						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+					}), DelayTime, false);
+			}
+		}
 
 		int TargetMaxDeathblowCount = Player->TargetBoss->GetMaxDeathblowCount();
 		int TargetDeathblowCount = Player->TargetBoss->GetDeathblowCount();
 
+		// 인살 구슬 갱신
 		if (TargetMaxDeathblowCount <= DeathblowImage.Num())
 		{
 			for (size_t i = 0; i < DeathblowImage.Num(); i++)
@@ -73,6 +101,7 @@ void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	else
 	{
 		HPWidget->CharacterSetting(nullptr);
+		BossPostureWidget->CharacterSetting(nullptr);
 		BossName->SetText(FText());
 	}
 }

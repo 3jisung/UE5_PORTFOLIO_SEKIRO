@@ -3,6 +3,7 @@
 
 #include "TitleWidget.h"
 #include "GameMode/GlobalGameMode.h"
+#include "GlobalUI/FadeInOutWidget.h"
 
 
 void UTitleWidget::NativeConstruct()
@@ -27,35 +28,44 @@ void UTitleWidget::MenuEvent()
 	AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	GameMode->StopSound();
 
-	if (IsValid(SceneTransitionWidget))
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("SceneTransition"));
+	if (IsValid(WidgetClass))
 	{
-		SceneTransitionWidget->AddToViewport();
+		UFadeInOutWidget* SceneTransitionWidget = Cast<UFadeInOutWidget>(CreateWidget(GetWorld(), WidgetClass));
 
-		SceneTransitionWidget->FadeOut();
+		if (IsValid(SceneTransitionWidget))
+		{
+			SceneTransitionWidget->AddToViewport();
 
-		FTimerHandle myTimerHandle;
-		float DelayTime = 1.f;
-		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
-			{
-				switch (HoveredIndex)
+			SceneTransitionWidget->FadeOut();
+
+			FTimerHandle myTimerHandle;
+			float DelayTime = 1.f;
+			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 				{
-				case 0:
-				{
-					UGameplayStatics::OpenLevel(GetWorld(), TEXT("Stage1"));
-					break;
-				}
+					switch (HoveredIndex)
+					{
+					case 0:
+					{
+						UGameplayStatics::OpenLevel(GetWorld(), TEXT("Stage1"));
+						break;
+					}
 
-				case 1:
-				{
-					UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
-					break;
-				}
+					case 1:
+					{
+						UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+						break;
+					}
 
-				default:
-					break;
-				}
+					default:
+						break;
+					}
 
-				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
-			}), DelayTime, false);
+					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+				}), DelayTime, false);
+		}
 	}
+
+	
 }

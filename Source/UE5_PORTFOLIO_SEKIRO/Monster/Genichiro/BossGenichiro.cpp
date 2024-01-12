@@ -41,12 +41,14 @@ void ABossGenichiro::BeginPlay()
 	// 애니메이션 설정
 	SetAllAnimation(MonsterData->Animations);
 	GetGlobalAnimInstance()->AllAnimations = AllAnimations;
+
+	// 초기 자세
 	SetAniState(GenichiroState::Idle);
 
 	// 항상 플레이어 락온 상태
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-
-	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), static_cast<uint8>(GenichiroState::Idle));
+	
+	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), GetAniState());
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.f);
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackRange"), 150.f);
@@ -92,7 +94,7 @@ void ABossGenichiro::Tick(float _Delta)
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("hp : %f, posture : %f"), HP, Posture);
+	// UE_LOG(LogTemp, Error, TEXT("hp : %f, posture : %f"), HP, Posture);
 }
 
 float ABossGenichiro::TakeDamage(float DamageAmount,
@@ -276,7 +278,7 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 	}
 	else
 	{
-		if (DamageCauser == nullptr)
+		if (IsValid(DamageCauser) == false)
 		{
 			return;
 		}

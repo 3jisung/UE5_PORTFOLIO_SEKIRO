@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GlobalUI/FadeInOutWidget.h"
+#include "GlobalUI/HPWidget.h"
+#include "GlobalUI/PostureWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "GlobalUI/HPWidget.h"
 #include "BossInfoWidget.generated.h"
 
 /**
@@ -23,6 +24,10 @@ public:
 	// 보스 몬스터의 HP
 	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
 	UHPWidget* HPWidget = nullptr;
+
+	// 보스 몬스터의 체간
+	UPROPERTY(Category = "Posture", EditAnywhere, BlueprintReadWrite)
+	UPostureWidget* BossPostureWidget = nullptr;
 
 	UPROPERTY(Category = "Name", EditAnywhere, BlueprintReadWrite)
 	UTextBlock* BossName = nullptr;

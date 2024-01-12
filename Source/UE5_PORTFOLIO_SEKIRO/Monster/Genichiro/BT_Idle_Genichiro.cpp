@@ -35,13 +35,24 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 		MoveCom->MaxWalkSpeed = 100.f;
 	}
 
+	// 가장 처음 Idle 진입 시 1초 대기(플레이어 FadeIn 대기)
+	if (bInitIdle)
+	{
+		InitIdleFunction();
+	}
+
 	return EBTNodeResult::Type::InProgress;
 }
 
 void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
+	
+	if (bInitIdle)
+	{
+		return;
+	}
+	
 	if (AnimChangeCheck(OwnerComp))
 	{
 		return;

@@ -36,7 +36,6 @@ AGlobalCharacter* UBTTask_Genichiro::GetGlobalCharacter(UBehaviorTreeComponent& 
 	if (nullptr == AiCon || false == AiCon->IsValidLowLevel())
 	{
 		UE_LOG(LogTemp, Error, TEXT("%S(%u)> if (nullptr == Character || false == Character->IsValidLowLevel())"), __FUNCTION__, __LINE__);
-		// 정상적이지 않은 뭔가가 
 		return nullptr;
 	}
 
@@ -46,7 +45,6 @@ AGlobalCharacter* UBTTask_Genichiro::GetGlobalCharacter(UBehaviorTreeComponent& 
 	if (nullptr == Character || false == Character->IsValidLowLevel())
 	{
 		UE_LOG(LogTemp, Error, TEXT("%S(%u)> if (nullptr == Character || false == Character->IsValidLowLevel())"), __FUNCTION__, __LINE__);
-		// 정상적이지 않은 뭔가가 
 		return nullptr;
 	}
 

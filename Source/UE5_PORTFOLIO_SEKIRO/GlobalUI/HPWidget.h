@@ -19,7 +19,13 @@ class UE5_PORTFOLIO_SEKIRO_API UHPWidget : public UUserWidget
 	
 
 public:
-	void CharacterSetting(AGlobalCharacter* _Character);
+	void CharacterSetting(AGlobalCharacter* _Character)
+	{
+		if (IsValid(_Character))
+		{
+			Character = _Character;
+		}
+	}
 
 	void GetHitEvent(float HPDifference);
 

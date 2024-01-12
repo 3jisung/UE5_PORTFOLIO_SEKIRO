@@ -27,8 +27,12 @@ EBTNodeResult::Type UBT_Walk_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
 	AActor* TargetActor = Cast<AActor>(TargetObject);
-	FVector TargetPos = TargetActor->GetActorLocation();
-	GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
+	
+	if (IsValid(TargetActor))
+	{
+		FVector TargetPos = TargetActor->GetActorLocation();
+		GetBlackboardComponent(OwnerComp)->SetValueAsVector(TEXT("LastTargetPos"), TargetPos);
+	}
 
 	return EBTNodeResult::Type::InProgress;
 }

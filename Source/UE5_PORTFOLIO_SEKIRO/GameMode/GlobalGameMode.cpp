@@ -11,8 +11,12 @@ AGlobalGameMode::AGlobalGameMode()
 
 void AGlobalGameMode::BeginPlay()
 {
-	Super::BeginPlay();
+	if (AllSound.IsValidIndex(0))
+	{
+		AudioComponent->SetSound(AllSound[0]);
+	}
 
+	Super::BeginPlay();
 }
 
 void AGlobalGameMode::Tick(float _Delta)

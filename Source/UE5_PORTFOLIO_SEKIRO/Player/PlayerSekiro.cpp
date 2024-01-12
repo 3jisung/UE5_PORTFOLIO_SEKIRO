@@ -31,22 +31,13 @@ APlayerSekiro::APlayerSekiro()
 	CameraComponent->FieldOfView = 90.f;
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
-	// 위(危) 문자 아이콘 설정
-	FSoftClassPath WarningClassPath(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Player/UI/WBP_WarningIcon.WBP_WarningIcon_C'"));
-
+	// 위(危) UI 컴포넌트 설정
 	WarningWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WarningWidgetComponent"));
-	WarningWidgetComponent->SetWidgetClass(WarningClassPath.TryLoadClass<UWarningWidget>());
+	// WarningWidgetComponent->SetWidgetClass(WarningClassPath.TryLoadClass<UWarningWidget>());
 	WarningWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	WarningWidgetComponent->SetDrawSize(FVector2D(200.f, 200.f));
 	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.f));
 	WarningWidgetComponent->SetupAttachment(RootComponent);
-
-	// 불상 UI 설정
-	static ConstructorHelpers::FClassFinder<UBuddhaMenuWidget> BuddhaMenuWidgetAsset(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprint/Player/UI/WBP_BuddhaMenu.WBP_BuddhaMenu_C'"));
-	if (BuddhaMenuWidgetAsset.Succeeded())
-	{
-		BuddhaMenuWidgetClass = BuddhaMenuWidgetAsset.Class;
-	}
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(GetMesh(), TEXT("hand_r_weapon"));
@@ -96,6 +87,13 @@ void APlayerSekiro::BeginPlay()
 	FPlayerAnimData* AnimData = Inst->GetPlayerAnim(TEXT("Animations"));
 	SetAllAnimation(AnimData->Animations);
 	GetGlobalAnimInstance()->AllAnimations = AllAnimations;
+
+	// 위(危) 문자 아이콘 설정
+	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Player"), TEXT("Warning"));
+	if (IsValid(WidgetClass))
+	{
+		WarningWidgetComponent->SetWidgetClass(WidgetClass);
+	}
 
 	// 락온 상태가 아닐 때 움직임을 Forward로 고정하기 위한 설정값.
 	// 락온 상태일 땐 false로 변경해야 한다.
@@ -407,7 +405,7 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 	}
 	else
 	{
-		if (DamageCauser == nullptr)
+		if (IsValid(DamageCauser) == false)
 		{
 			return;
 		}
@@ -1596,9 +1594,12 @@ void APlayerSekiro::SitDown()
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
-				if (IsValid(BuddhaMenuWidgetClass))
+				UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+				TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Buddha"), TEXT("Menu"));
+
+				if (IsValid(WidgetClass))
 				{
-					BuddhaMenuWidget = Cast<UBuddhaMenuWidget>(CreateWidget(GetWorld(), BuddhaMenuWidgetClass));
+					UUserWidget* BuddhaMenuWidget = Cast<UUserWidget>(CreateWidget(GetWorld(), WidgetClass));
 
 					if (IsValid(BuddhaMenuWidget))
 					{
@@ -1614,9 +1615,6 @@ void APlayerSekiro::SitDown()
 								PlayerController->SetShowMouseCursor(true);
 							}
 						}
-
-						AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-						BuddhaMenuWidget->SetMapName(FText::FromName(GameMode->GetMapName()));
 					}
 				}
 
@@ -1680,7 +1678,7 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 			ToggleLockOn();	// 기존 락온이 있을 경우 해제
 		}
 
-		BuddhaMenuWidget = nullptr;
+		// BuddhaMenuWidget = nullptr;
 
 		SetAniState(SekiroState::Idle);
 	}
