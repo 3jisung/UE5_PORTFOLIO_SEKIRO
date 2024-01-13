@@ -1604,17 +1604,6 @@ void APlayerSekiro::SitDown()
 					if (IsValid(BuddhaMenuWidget))
 					{
 						BuddhaMenuWidget->AddToViewport();
-
-						if (Controller)
-						{
-							APlayerController* PlayerController = Cast<APlayerController>(Controller);
-
-							if (PlayerController)
-							{
-								PlayerController->SetInputMode(FInputModeUIOnly());
-								PlayerController->SetShowMouseCursor(true);
-							}
-						}
 					}
 				}
 
@@ -1677,8 +1666,6 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 		{
 			ToggleLockOn();	// 기존 락온이 있을 경우 해제
 		}
-
-		// BuddhaMenuWidget = nullptr;
 
 		SetAniState(SekiroState::Idle);
 	}

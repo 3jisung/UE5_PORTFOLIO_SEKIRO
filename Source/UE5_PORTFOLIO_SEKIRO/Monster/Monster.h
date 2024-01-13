@@ -107,7 +107,6 @@ protected:
 	class UWidgetComponent* DeathblowWidgetComponent;
 
 	TSubclassOf<UUserWidget> LockOnIconWidgetClass;
-	TSubclassOf<UUserWidget> DeathblowIconWidgetClass;
 
 	MonsterHitState HitState = MonsterHitState::OFFGUARD;
 

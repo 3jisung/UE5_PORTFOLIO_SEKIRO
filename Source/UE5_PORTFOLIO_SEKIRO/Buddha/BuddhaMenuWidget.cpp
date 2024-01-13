@@ -28,6 +28,9 @@ void UBuddhaMenuWidget::NativeConstruct()
 	if (PlayerController)
 	{
 		Player = Cast<APlayerSekiro>(PlayerController->GetCharacter());
+
+		PlayerController->SetInputMode(FInputModeUIOnly());
+		PlayerController->SetShowMouseCursor(true);
 	}
 
 	FadeInDeltaTime = 0.01f;
