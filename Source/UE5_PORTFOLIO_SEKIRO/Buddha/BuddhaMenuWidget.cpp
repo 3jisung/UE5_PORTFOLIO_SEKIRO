@@ -71,7 +71,7 @@ void UBuddhaMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 			PlayerController->SetInputMode(FInputModeGameOnly());
 			PlayerController->SetShowMouseCursor(false);
 
-			if (bFadeOut == false)
+			if (bDestructWidget == false)
 			{
 				FadeOut(true);
 			}

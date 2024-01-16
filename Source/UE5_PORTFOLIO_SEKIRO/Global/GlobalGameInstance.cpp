@@ -8,6 +8,7 @@
 #include "Data/MonsterData.h"
 #include "Data/SoundData.h"
 #include "Data/WidgetClassData.h"
+#include "Data/ImageData.h"
 
 
 UGlobalGameInstance::UGlobalGameInstance()
@@ -69,6 +70,16 @@ UGlobalGameInstance::UGlobalGameInstance()
 		if (DataTable.Succeeded())
 		{
 			WidgetClassData = DataTable.Object;
+		}
+	}
+
+	{
+		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_ImageData.DT_ImageData'");
+		ConstructorHelpers::FObjectFinder<UDataTable> DataTable(*DataPath);
+
+		if (DataTable.Succeeded())
+		{
+			ImageData = DataTable.Object;
 		}
 	}
 
@@ -184,4 +195,23 @@ TSubclassOf<UUserWidget> UGlobalGameInstance::GetWidgetClassData(FName _Name, FN
 	{
 		return nullptr;
 	}
+}
+
+TArray<class UTexture2D*> UGlobalGameInstance::GetImageData(FName _Name)
+{
+	TArray<class UTexture2D*> EmptyTArray;
+
+	if (nullptr == ImageData)
+	{
+		return EmptyTArray;
+	}
+
+	FImageData* FindTable = ImageData->FindRow<FImageData>(_Name, _Name.ToString());
+
+	if (nullptr == FindTable)
+	{
+		return EmptyTArray;
+	}
+
+	return FindTable->GameImage;
 }

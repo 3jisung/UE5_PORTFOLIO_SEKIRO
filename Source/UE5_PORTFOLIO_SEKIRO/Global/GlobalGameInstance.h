@@ -27,6 +27,7 @@ public:
 	struct FMonsterData* GetMonster(FName _Name);
 	TArray<class USoundBase*> GetSoundData(FName _Name);
 	TSubclassOf<UUserWidget> GetWidgetClassData(FName _RowName, FName _ColumnName);
+	TArray<class UTexture2D*> GetImageData(FName _Name);
 
 
 private:
@@ -47,4 +48,7 @@ private:
 
 	UPROPERTY()
 	UDataTable* WidgetClassData;
+
+	UPROPERTY()
+	UDataTable* ImageData;
 };
