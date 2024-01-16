@@ -16,8 +16,6 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Type::Failed;
 	}
 
-	Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
-
 	UObject* TargetObject = GetBlackboardComponent(OwnerComp)->GetValueAsObject(TEXT("TargetActor"));
 
 	if (nullptr != TargetObject)
@@ -35,10 +33,16 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 		MoveCom->MaxWalkSpeed = 100.f;
 	}
 
-	// 가장 처음 Idle 진입 시 1초 대기(플레이어 FadeIn 대기)
-	if (bInitIdle)
+	// bIdleWait 값이 true일 시 offguard
+	bool bIdleWait = GetBlackboardComponent(OwnerComp)->GetValueAsBool(TEXT("bIdleWait"));
+	if (bIdleWait)
 	{
-		InitIdleFunction();
+		GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("bIdleWait"), false);
+		Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::OFFGUARD);
+	}
+	else
+	{
+		Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
 	}
 
 	return EBTNodeResult::Type::InProgress;
@@ -47,12 +51,7 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	
-	if (bInitIdle)
-	{
-		return;
-	}
-	
+
 	if (AnimChangeCheck(OwnerComp))
 	{
 		return;

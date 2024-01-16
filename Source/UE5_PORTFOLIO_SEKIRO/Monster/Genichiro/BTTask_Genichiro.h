@@ -51,4 +51,5 @@ public:
 
 	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, AActor* _Actor);
 	UNavigationPath* PathFindNavPath(UBehaviorTreeComponent& OwnerComp, FVector _Pos);
+	
 };

@@ -2,6 +2,7 @@
 
 
 #include "BT_GetHit_Genichiro.h"
+#include "BT_Idle_Genichiro.h"
 
 
 EBTNodeResult::Type UBT_GetHit_Genichiro::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -59,6 +60,13 @@ void UBT_GetHit_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		if (BehaviorState == GenichiroState::MikiriCounter1)
 		{
 			SetStateChange(OwnerComp, GenichiroState::MikiriCounter2);
+		}
+		else if (BehaviorState == GenichiroState::MikiriCounter2)
+		{
+			GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("bIdleWait"), true);
+
+			SetStateChange(OwnerComp, GenichiroState::Idle);
+			return;
 		}
 		else
 		{

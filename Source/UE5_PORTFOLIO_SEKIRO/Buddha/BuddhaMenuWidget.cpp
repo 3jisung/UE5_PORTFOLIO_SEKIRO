@@ -25,12 +25,23 @@ void UBuddhaMenuWidget::NativeConstruct()
 	ExplainArray.Add(FText::FromString(TEXT("귀불에서 휴식합니다")));
 	ExplainArray.Add(FText::FromString(TEXT("희귀한 강자와 싸우러 이동합니다")));
 
+	HPWidget = Cast<UHPWidget>(GetWidgetFromName(TEXT("WBP_HPWidget")));
+	PlayerVitality = Cast<UTextBlock>(GetWidgetFromName(TEXT("VitalityValue")));
+	PlayerAttackPower = Cast<UTextBlock>(GetWidgetFromName(TEXT("AttackPowerValue")));
+
 	if (PlayerController)
 	{
 		Player = Cast<APlayerSekiro>(PlayerController->GetCharacter());
 
 		PlayerController->SetInputMode(FInputModeUIOnly());
 		PlayerController->SetShowMouseCursor(true);
+
+		if (Player && IsValid(HPWidget) && IsValid(PlayerVitality) && IsValid(PlayerAttackPower))
+		{
+			HPWidget->CharacterSetting(Player);
+			PlayerVitality->SetText(FText::FromString(FString::SanitizeFloat(Player->GetMaxHP())));
+			PlayerAttackPower->SetText(FText::FromString(FString::SanitizeFloat(Player->GetPower())));
+		}
 	}
 
 	FadeInDeltaTime = 0.01f;
@@ -44,6 +55,27 @@ void UBuddhaMenuWidget::NativeConstruct()
 	{
 		BtnHoveredImage[0]->SetOpacity(1.f);
 		ExplainText->SetText(ExplainArray[0]);
+	}
+}
+
+void UBuddhaMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// UI 이벤트 도중 피격 당할 시 UI 강제 종료
+	if (Player && PlayerController)
+	{
+		SekiroState AniStateValue = Player->GetAniState<SekiroState>();
+		if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitEnd)
+		{
+			PlayerController->SetInputMode(FInputModeGameOnly());
+			PlayerController->SetShowMouseCursor(false);
+
+			if (bFadeOut == false)
+			{
+				FadeOut(true);
+			}
+		}
 	}
 }
 
@@ -126,15 +158,12 @@ void UBuddhaMenuWidget::MenuEvent()
 
 void UBuddhaMenuWidget::ExitWidget()
 {
-	if (Player)
+	if (Player && PlayerController)
 	{
 		Player->SetAniState(SekiroState::SitEnd);
 
-		if (Player->Controller)
-		{
-			PlayerController->SetInputMode(FInputModeGameOnly());
-			PlayerController->SetShowMouseCursor(false);
-		}
+		PlayerController->SetInputMode(FInputModeGameOnly());
+		PlayerController->SetShowMouseCursor(false);
 
 		FadeOut(true);
 	}

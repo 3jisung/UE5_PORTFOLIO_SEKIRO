@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GlobalUI/BtnEventWidget.h"
+#include "GlobalUI/HPWidget.h"
 #include "Components/TextBlock.h"
 #include "Global/GlobalEnums.h"
 #include "BuddhaMenuWidget.generated.h"
@@ -19,6 +20,7 @@ class UE5_PORTFOLIO_SEKIRO_API UBuddhaMenuWidget : public UBtnEventWidget
 
 public:
 	void NativeConstruct() override;
+	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetMapName(FText _MapName)
@@ -41,6 +43,15 @@ public:
 
 	UPROPERTY(Category = "Text", EditAnywhere, BlueprintReadWrite)
 	UTextBlock* ExplainText = nullptr;
+
+	UPROPERTY(Category = "HP", EditAnywhere, BlueprintReadWrite)
+	UHPWidget* HPWidget = nullptr;
+
+	UPROPERTY(Category = "Stat", EditAnywhere, BlueprintReadWrite)
+	UTextBlock* PlayerVitality = nullptr;
+
+	UPROPERTY(Category = "Stat", EditAnywhere, BlueprintReadWrite)
+	UTextBlock* PlayerAttackPower = nullptr;
 
 	TArray<FText> ExplainArray;
 
