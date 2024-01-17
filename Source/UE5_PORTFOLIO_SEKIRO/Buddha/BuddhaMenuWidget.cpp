@@ -4,6 +4,7 @@
 #include "BuddhaMenuWidget.h"
 #include "Player/PlayerSekiro.h"
 #include "GameMode/GlobalGameMode.h"
+#include "BuddhaBossFightWidget.h"
 
 
 void UBuddhaMenuWidget::NativeConstruct()
@@ -53,7 +54,6 @@ void UBuddhaMenuWidget::NativeConstruct()
 
 	if (ExplainArray.IsValidIndex(0))
 	{
-		BtnHoveredImage[0]->SetOpacity(1.f);
 		ExplainText->SetText(ExplainArray[0]);
 	}
 }
@@ -134,7 +134,7 @@ void UBuddhaMenuWidget::MenuEvent()
 
 	case 1:
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), SoundEffects.FindRef(TEXT("Select")));
+		Super::MenuEvent();
 		
 		PlayerController->SetInputMode(FInputModeGameOnly());
 		FadeOut();
@@ -143,7 +143,19 @@ void UBuddhaMenuWidget::MenuEvent()
 		float DelayTime = 0.1f;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
-				// 새로운 위젯 생성(부모 지정도 해줘야 할 것 같음)
+				UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+				TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Buddha"), TEXT("BossFight"));
+
+				if (IsValid(WidgetClass))
+				{
+					UBuddhaBossFightWidget* BuddhaFightBossWidget = Cast<UBuddhaBossFightWidget>(CreateWidget(GetWorld(), WidgetClass));
+
+					if (IsValid(BuddhaFightBossWidget))
+					{
+						BuddhaFightBossWidget->SetParentWidget(this);
+						BuddhaFightBossWidget->AddToViewport();
+					}
+				}
 
 				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 			}), DelayTime, false);
