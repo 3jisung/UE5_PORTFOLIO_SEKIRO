@@ -66,7 +66,7 @@ void APlayerSekiro::BeginPlay()
 	// 캐릭터 기본 스탯 설정
 	StatData = Inst->GetPlayerStat(TEXT("Sekiro"));
 	MaxHP = StatData->MaxHP;
-	HP = MaxHP;
+	HP = MaxHP * 0.5;
 	MaxPosture = StatData->MaxPosture;
 	Posture = MaxPosture;
 	Power = StatData->Power;

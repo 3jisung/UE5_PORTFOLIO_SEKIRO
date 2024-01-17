@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GlobalUI/BtnEventWidget.h"
-#include "Components/TextBlock.h"
 #include "BuddhaBossFightWidget.generated.h"
 
 /**
@@ -27,12 +26,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ExitWidget();
 
+	void PopupWidgetReturn(int _PopupIndex) override;
+
 	void SetParentWidget(UFadeInOutWidget* _ParentWidget)
 	{
 		if (IsValid(_ParentWidget))
 		{
 			ParentWidget = _ParentWidget;
 		}
+	}
+
+	UFadeInOutWidget* GetParentWidget()
+	{
+		return ParentWidget;
 	}
 
 

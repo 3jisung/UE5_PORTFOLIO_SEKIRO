@@ -9,8 +9,17 @@
 
 void UBuddhaMenuWidget::NativeConstruct()
 {
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Rest"))));
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Fight"))));
+	UImage* Hover1 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Rest")));
+	if (IsValid(Hover1))
+	{
+		BtnHoveredImage.Add(Hover1);
+	}
+
+	UImage* Hover2 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Fight")));
+	if (IsValid(Hover2))
+	{
+		BtnHoveredImage.Add(Hover2);
+	}
 	
 	Super::NativeConstruct();
 
@@ -113,20 +122,27 @@ void UBuddhaMenuWidget::MenuEvent()
 
 		FadeOut();
 
-		Player->BuddhaRest();
-
-		FTimerHandle myTimerHandle;
-		float DelayTime = 3.f;
-		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
+		FTimerHandle myTimerHandle1;
+		float DelayTime = 0.5f;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle1, FTimerDelegate::CreateLambda([&]()
 			{
-				FadeIn();
+				Player->BuddhaRest();
 
-				PlayerController->SetInputMode(FInputModeUIOnly());
-				PlayerController->SetShowMouseCursor(true);
-				
-				SetFocus();
+				FTimerHandle myTimerHandle2;
+				float DelayTime = 3.f;
+				GetWorld()->GetTimerManager().SetTimer(myTimerHandle2, FTimerDelegate::CreateLambda([&]()
+					{
+						FadeIn();
 
-				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+						PlayerController->SetInputMode(FInputModeUIOnly());
+						PlayerController->SetShowMouseCursor(true);
+
+						SetFocus();
+
+						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle2);
+					}), DelayTime, false);
+
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle1);
 			}), DelayTime, false);
 
 		break;

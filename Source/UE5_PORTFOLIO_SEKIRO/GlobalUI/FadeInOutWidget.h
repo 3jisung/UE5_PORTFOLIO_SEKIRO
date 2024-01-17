@@ -60,6 +60,11 @@ public:
 		}
 	}
 
+	virtual void PopupWidgetReturn(int _PopupIndex)
+	{
+		FadeOut(true);
+	}
+
 	UPROPERTY(Category = "Canvas", EditAnywhere, BlueprintReadWrite)
 	UCanvasPanel* Canvas = nullptr;
 

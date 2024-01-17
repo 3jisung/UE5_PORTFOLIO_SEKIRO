@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GlobalUI/FadeInOutWidget.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Sound/SoundBase.h"
 #include "Global/GlobalGameInstance.h"
 #include "BtnEventWidget.generated.h"

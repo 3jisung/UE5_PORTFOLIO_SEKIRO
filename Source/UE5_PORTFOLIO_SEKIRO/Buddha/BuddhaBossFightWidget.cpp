@@ -2,13 +2,24 @@
 
 
 #include "BuddhaBossFightWidget.h"
+#include "GlobalUI/OKCancelWidget.h"
 #include "Player/PlayerSekiro.h"
+#include "GameMode/GlobalGameMode.h"
 
 
 void UBuddhaBossFightWidget::NativeConstruct()
 {
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Boss1"))));
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Boss2"))));
+	UImage* Hover1 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Boss1")));
+	if (IsValid(Hover1))
+	{
+		BtnHoveredImage.Add(Hover1);
+	}
+
+	UImage* Hover2 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Boss2")));
+	if (IsValid(Hover2))
+	{
+		BtnHoveredImage.Add(Hover2);
+	}
 
 	Super::NativeConstruct();
 
@@ -21,8 +32,17 @@ void UBuddhaBossFightWidget::NativeConstruct()
 	BossThumbnailImage = Cast<UImage>(GetWidgetFromName(TEXT("BossThumbnail")));
 	BossThumbnailImage->SetBrushResourceObject(nullptr);
 
-	BossNameArray.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("BossName1")))->GetText());
-	BossNameArray.Add(Cast<UTextBlock>(GetWidgetFromName(TEXT("BossName2")))->GetText());
+	UTextBlock* Name1 = Cast<UTextBlock>(GetWidgetFromName(TEXT("BossName1")));
+	if (IsValid(Name1))
+	{
+		BossNameArray.Add(Name1->GetText());
+	}
+
+	UTextBlock* Name2 = Cast<UTextBlock>(GetWidgetFromName(TEXT("BossName2")));
+	if (IsValid(Name2))
+	{
+		BossNameArray.Add(Name2->GetText());
+	}
 
 	MapNameArray.Add(FText::FromString(TEXT("아시나성 본성")));
 	MapNameArray.Add(FText::FromString(TEXT("기원의 궁")));
@@ -112,13 +132,39 @@ void UBuddhaBossFightWidget::MenuEvent()
 
 	Super::MenuEvent();
 
-	if (BossLevelArray.IsValidIndex(HoveredIndex))
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+
+	if (BossLevelArray.IsValidIndex(HoveredIndex) && BossNameArray.IsValidIndex(HoveredIndex))
 	{
-		// 위젯 생성
+		TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("OKCancel"));
+
+		if (IsValid(WidgetClass))
+		{
+			UOKCancelWidget* OKCancelWidget = Cast<UOKCancelWidget>(CreateWidget(GetWorld(), WidgetClass));
+
+			if (IsValid(OKCancelWidget))
+			{
+				OKCancelWidget->SetParentWidget(this);
+				OKCancelWidget->AddToViewport();
+				OKCancelWidget->SetNoticeText(FText::FromString(BossNameArray[HoveredIndex].ToString() + TEXT("(와)과의 싸움을 시작하시겠습니까?")));
+			}
+		}
 	}
 	else
 	{
-		// 위젯 생성
+		TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("OK"));
+		
+		if (IsValid(WidgetClass))
+		{
+			UOKCancelWidget* OKWidget = Cast<UOKCancelWidget>(CreateWidget(GetWorld(), WidgetClass));
+
+			if (IsValid(OKWidget))
+			{
+				OKWidget->SetParentWidget(this);
+				OKWidget->AddToViewport();
+				OKWidget->SetNoticeText(FText::FromString(TEXT("미구현 보스입니다")));
+			}
+		}
 	}
 }
 
@@ -138,4 +184,54 @@ void UBuddhaBossFightWidget::ExitWidget()
 
 			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 		}), DelayTime, false);
+}
+
+void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
+{
+	// 보스 맵 이동
+	if (_PopupIndex == 0)
+	{
+		if (IsValid(ParentWidget))
+		{
+			ParentWidget->FadeOut(true);
+			FadeOut(true);
+
+			FTimerHandle myTimerHandle1;
+			float DelayTime = 2.f;
+			GetWorld()->GetTimerManager().SetTimer(myTimerHandle1, FTimerDelegate::CreateLambda([&]()
+				{
+					AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+					GameMode->StopSound();
+
+					UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+					TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("SceneTransition"));
+
+					if (IsValid(WidgetClass))
+					{
+						UFadeInOutWidget* SceneTransitionWidget = Cast<UFadeInOutWidget>(CreateWidget(GetWorld(), WidgetClass));
+
+						if (IsValid(SceneTransitionWidget))
+						{
+							SceneTransitionWidget->AddToViewport();
+
+							SceneTransitionWidget->FadeOut();
+
+							FTimerHandle myTimerHandle2;
+							float DelayTime = 1.f;
+							GetWorld()->GetTimerManager().SetTimer(myTimerHandle2, FTimerDelegate::CreateLambda([&]()
+								{
+									if (BossLevelArray.IsValidIndex(HoveredIndex))
+									{
+										UGameplayStatics::OpenLevel(GetWorld(), BossLevelArray[HoveredIndex]);
+									}
+
+									GetWorld()->GetTimerManager().ClearTimer(myTimerHandle2);
+								}), DelayTime, false);
+						}
+					}
+
+					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle1);
+				}), DelayTime, false);
+		}
+	}
 }

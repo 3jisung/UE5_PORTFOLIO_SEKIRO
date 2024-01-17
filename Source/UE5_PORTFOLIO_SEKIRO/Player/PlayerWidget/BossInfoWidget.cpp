@@ -24,13 +24,45 @@ void UBossInfoWidget::NativeConstruct()
 		BossName->SetText(FText());
 	}
 
-	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1_Background"))));
-	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2_Background"))));
-	DeathblowBackgroundImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3_Background"))));
+	{
+		UImage* BackgroundImage1 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1_Background")));
+		if (IsValid(BackgroundImage1))
+		{
+			DeathblowBackgroundImage.Add(BackgroundImage1);
+		}
 
-	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1"))));
-	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2"))));
-	DeathblowImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3"))));
+		UImage* BackgroundImage2 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2_Background")));
+		if (IsValid(BackgroundImage2))
+		{
+			DeathblowBackgroundImage.Add(BackgroundImage2);
+		}
+
+		UImage* BackgroundImage3 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3_Background")));
+		if (IsValid(BackgroundImage3))
+		{
+			DeathblowBackgroundImage.Add(BackgroundImage3);
+		}
+	}
+
+	{
+		UImage* IconImage1 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow1")));
+		if (IsValid(IconImage1))
+		{
+			DeathblowImage.Add(IconImage1);
+		}
+
+		UImage* IconImage2 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow2")));
+		if (IsValid(IconImage2))
+		{
+			DeathblowImage.Add(IconImage2);
+		}
+
+		UImage* IconImage3 = Cast<UImage>(GetWidgetFromName(TEXT("Deathblow3")));
+		if (IsValid(IconImage3))
+		{
+			DeathblowImage.Add(IconImage3);
+		}
+	}
 
 	for (size_t i = 0; i < DeathblowImage.Num(); i++)
 	{

@@ -3,13 +3,21 @@
 
 #include "TitleWidget.h"
 #include "GameMode/GlobalGameMode.h"
-#include "GlobalUI/FadeInOutWidget.h"
 
 
 void UTitleWidget::NativeConstruct()
 {
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Start"))));
-	BtnHoveredImage.Add(Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Exit"))));
+	UImage* Hover1 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Start")));
+	if (IsValid(Hover1))
+	{
+		BtnHoveredImage.Add(Hover1);
+	}
+
+	UImage* Hover2 = Cast<UImage>(GetWidgetFromName(TEXT("Hovered_Exit")));
+	if (IsValid(Hover2))
+	{
+		BtnHoveredImage.Add(Hover2);
+	}
 
 	Super::NativeConstruct();
 

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GlobalUI/BtnEventWidget.h"
 #include "GlobalUI/HPWidget.h"
-#include "Components/TextBlock.h"
 #include "Global/GlobalEnums.h"
 #include "BuddhaMenuWidget.generated.h"
 
