@@ -55,6 +55,7 @@ enum class SekiroState : uint8
 	Trample UMETA(DisplayName = "밟기"),
 
 	SitStart UMETA(DisplayName = "정좌시작"),
+	SitLoop UMETA(DisplayName = "정좌중"),
 	SitEnd UMETA(DisplayName = "정좌끝"),
 
 	DeathblowNormal UMETA(DisplayName = "일반인살"),

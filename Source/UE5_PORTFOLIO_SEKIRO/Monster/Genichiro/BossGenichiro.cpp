@@ -105,6 +105,7 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 {
 	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 	UCustomDamageTypeBase* DamageType;
 
 	// 데미지 타입 확인 및 특수 이벤트 처리(찌르기, 간파하기, 트렘플, 뇌반)
@@ -219,6 +220,12 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
+		USoundBase* GuardSound = Inst->GetSoundData(TEXT("Player"), TEXT("AttackGuard"));
+		if (IsValid(GuardSound))
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), GuardSound);
+		}
+
 		if (Posture <= 0.f)
 		{
 			ExhaustAction();
@@ -244,6 +251,12 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 			Posture = 0.1f;
 		}
 
+		USoundBase* ParrySound = Inst->GetSoundData(TEXT("Monster"), TEXT("AttackParrying"));
+		if (IsValid(ParrySound))
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), ParrySound);
+		}
+
 		SetAniState((int)GenichiroState::Parrying1 + ParryingCount);
 
 		++ParryingCount;
@@ -267,6 +280,13 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 {
 	HP -= DamageAmount * (DamageType->HPDamageMultiple);
 	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
+
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	USoundBase* HitSound = Inst->GetSoundData(TEXT("Player"), TEXT("GetHit"));
+	if (IsValid(HitSound) && DamageType->GetClass() != UElectricSlashType::StaticClass())
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
+	}
 
 	if (HP <= 0.f)
 	{

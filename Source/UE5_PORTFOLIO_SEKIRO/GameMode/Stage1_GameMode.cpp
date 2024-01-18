@@ -10,7 +10,12 @@ void AStage1_GameMode::BeginPlay()
 
 	// 맵 사운드 목록 갱신
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	AllSound = Inst->GetSoundData(TEXT("Stage1"));
+	USoundBase* MapSound = Inst->GetSoundData(TEXT("Stage1"), TEXT("BGM"));
+
+	if (IsValid(MapSound))
+	{
+		AllSound.Add(MapSound);
+	}
 
 	Super::BeginPlay();
 }

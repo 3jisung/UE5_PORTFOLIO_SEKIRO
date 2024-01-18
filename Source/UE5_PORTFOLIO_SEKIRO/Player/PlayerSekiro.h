@@ -174,7 +174,9 @@ private:
 	bool bInputWASD = false;
 
 	UPROPERTY(Category = "Heal", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	int HealCount = 5;
+	int HealCount = 0;
+
+	const int MaxHealCount = 5;
 
 
 	float Speed = 0.f;

@@ -154,33 +154,38 @@ FMonsterData* UGlobalGameInstance::GetMonster(FName _Name)
 	return FindTable;
 }
 
-TArray<class USoundBase*> UGlobalGameInstance::GetSoundData(FName _Name)
+USoundBase* UGlobalGameInstance::GetSoundData(FName _RowName, FName _ColumnName)
 {
-	TArray<class USoundBase*> EmptyTArray;
-	
 	if (nullptr == SoundData)
 	{
-		return EmptyTArray;
+		return nullptr;
 	}
 
-	FSoundData* FindTable = SoundData->FindRow<FSoundData>(_Name, _Name.ToString());
+	FSoundData* FindTable = SoundData->FindRow<FSoundData>(_RowName, _RowName.ToString());
 
 	if (nullptr == FindTable)
 	{
-		return EmptyTArray;
+		return nullptr;
 	}
 
-	return FindTable->GameSound;
+	if (FindTable->GameSound.Contains(_ColumnName))
+	{
+		return FindTable->GameSound.FindRef(_ColumnName);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
-TSubclassOf<UUserWidget> UGlobalGameInstance::GetWidgetClassData(FName _Name, FName _ColumnName)
+TSubclassOf<UUserWidget> UGlobalGameInstance::GetWidgetClassData(FName _RowName, FName _ColumnName)
 {
 	if (nullptr == WidgetClassData)
 	{
 		return nullptr;
 	}
 
-	FWidgetClassData* FindTable = WidgetClassData->FindRow<FWidgetClassData>(_Name, _Name.ToString());
+	FWidgetClassData* FindTable = WidgetClassData->FindRow<FWidgetClassData>(_RowName, _RowName.ToString());
 
 	if (nullptr == FindTable)
 	{

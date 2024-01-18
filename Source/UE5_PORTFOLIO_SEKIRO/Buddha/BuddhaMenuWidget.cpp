@@ -75,7 +75,7 @@ void UBuddhaMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (Player && PlayerController)
 	{
 		SekiroState AniStateValue = Player->GetAniState<SekiroState>();
-		if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitEnd)
+		if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitLoop && AniStateValue != SekiroState::SitEnd)
 		{
 			PlayerController->SetInputMode(FInputModeGameOnly());
 			PlayerController->SetShowMouseCursor(false);

@@ -9,12 +9,13 @@ void UBtnEventWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	TArray<USoundBase*> AllSound = Inst->GetSoundData(TEXT("Global"));
+	USoundBase* Hover = Inst->GetSoundData(TEXT("Global"), TEXT("Hover"));
+	USoundBase* Select = Inst->GetSoundData(TEXT("Global"), TEXT("Select"));
 
-	if (AllSound.Num() >= 2)
+	if (IsValid(Hover), IsValid(Select))
 	{
-		SoundEffects.Add("Hover", AllSound[0]);
-		SoundEffects.Add("Select", AllSound[1]);
+		SoundEffects.Add("Hover", Hover);
+		SoundEffects.Add("Select", Select);
 	}
 
 	SetFocus();

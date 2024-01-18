@@ -8,7 +8,12 @@ void ATitle_GameMode::BeginPlay()
 {
 	// 맵 사운드 목록 갱신
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	AllSound = Inst->GetSoundData(TEXT("Title"));
+	USoundBase* MapSound = Inst->GetSoundData(TEXT("Title"), TEXT("BGM"));
+
+	if (IsValid(MapSound))
+	{
+		AllSound.Add(MapSound);
+	}
 
 	Super::BeginPlay();
 }

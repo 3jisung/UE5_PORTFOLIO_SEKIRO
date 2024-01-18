@@ -25,7 +25,7 @@ public:
 	UStaticMesh* GetPlayerMesh(FName _Name);
 	struct FPlayerAnimData* GetPlayerAnim(FName _Name);
 	struct FMonsterData* GetMonster(FName _Name);
-	TArray<class USoundBase*> GetSoundData(FName _Name);
+	USoundBase* GetSoundData(FName _RowName, FName _ColumnName);
 	TSubclassOf<UUserWidget> GetWidgetClassData(FName _RowName, FName _ColumnName);
 	TArray<class UTexture2D*> GetImageData(FName _Name);
 

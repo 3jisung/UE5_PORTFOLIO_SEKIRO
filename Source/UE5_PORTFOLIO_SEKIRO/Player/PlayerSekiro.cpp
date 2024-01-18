@@ -72,6 +72,7 @@ void APlayerSekiro::BeginPlay()
 	Power = StatData->Power;
 
 	Speed = DefaultSpeed;
+	HealCount = MaxHealCount;
 
 	// 캐릭터 무기 적용
 	StaticMeshArrays.Add(Inst->GetPlayerMesh(TEXT("Katana")));
@@ -214,10 +215,17 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 {
 	float Damage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
 	// 버퍼 초기화
 	ClearBuffer();
+
+	// 불상 이벤트 도중 피격 시 불상 락온 해제
+	if (bLockOn && IsValid(Cast<ABuddha>(LockedOnTarget)))
+	{
+		ToggleLockOn();
+	}
 
 	UCustomDamageTypeBase* DamageType;
 
@@ -344,6 +352,12 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		bEnablePostureRecovery = false;
 		GetWorld()->GetTimerManager().SetTimer(PostureRecoveryManagerTimerHandle, this, &AGlobalCharacter::PostureRecoveryManagerTimer, 0.5f, false);
 
+		USoundBase* GuardSound = Inst->GetSoundData(TEXT("Player"), TEXT("AttackGuard"));
+		if (IsValid(GuardSound))
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), GuardSound);
+		}
+		
 		if (Posture <= 0.f)
 		{
 			ExhaustAction();
@@ -368,6 +382,12 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		HitState = PlayerHitState::OFFGUARD;
 		SetAniState((int)SekiroState::Parrying1 + ParryingCount);
 
+		USoundBase* ParrySound = Inst->GetSoundData(TEXT("Player"), TEXT("AttackParrying"));
+		if (IsValid(ParrySound))
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), ParrySound);
+		}
+
 		++ParryingCount;
 		if (ParryingCount > 1)
 		{
@@ -390,6 +410,13 @@ void APlayerSekiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Dam
 {
 	HP -= DamageAmount * (DamageType->HPDamageMultiple);
 	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
+
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	USoundBase* HitSound = Inst->GetSoundData(TEXT("Player"), TEXT("GetHit"));
+	if (IsValid(HitSound) && DamageType->GetClass() != UElectricSlashType::StaticClass())
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
+	}
 
 	if (HP <= 0.f)
 	{
@@ -703,16 +730,15 @@ void APlayerSekiro::Landed(const FHitResult& Hit)
 
 	SekiroState AniStateValue = GetAniState<SekiroState>();
 
-	if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop)
-	{
-		SetAniState(SekiroState::JumpEnd);
-	}
-
 	// 뇌격을 되받아치지 못하고 땅에 발이 닿으면 타뢰 처리
 	if (AniStateValue == SekiroState::LightningReversal1)
 	{
 		GetHitExecute(SavedDamage, Cast<UElectricSlashType>(UElectricSlashType::StaticClass()->GetDefaultObject()), nullptr);
 		SavedDamage = 0.f;
+	}
+	else if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop)
+	{
+		SetAniState(SekiroState::JumpEnd);
 	}
 }
 
@@ -1186,7 +1212,21 @@ void APlayerSekiro::StartedPlayerAttack()
 		BasicAttackCount = 0;
 	}
 	
-	if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop)
+	if (AniStateValue == SekiroState::LightningReversal1)
+	{
+		if (bEnteredTransition == false)
+		{
+			CorrectedTime = GetWorld()->GetTimeSeconds();
+			BufferedAction = SekiroState::LightningReversal2;
+		}
+		else
+		{
+			SetAniState(SekiroState::LightningReversal2);
+		}
+
+		return;
+	}
+	else if (AniStateValue == SekiroState::JumpStart || AniStateValue == SekiroState::JumpLoop || GetMovementComponent()->IsFalling())
 	{
 		SetAniState(SekiroState::JumpAttack);
 
@@ -1199,20 +1239,6 @@ void APlayerSekiro::StartedPlayerAttack()
 		bDashAttackMove = true;
 
 		GetWorld()->GetTimerManager().SetTimer(DashAttackMoveTimerHandle, this, &APlayerSekiro::DashAttackMove, 0.001f, true);
-
-		return;
-	}
-	else if (AniStateValue == SekiroState::LightningReversal1)
-	{
-		if (bEnteredTransition == false)
-		{
-			CorrectedTime = GetWorld()->GetTimeSeconds();
-			BufferedAction = SekiroState::LightningReversal2;
-		}
-		else
-		{
-			SetAniState(SekiroState::LightningReversal2);
-		}
 
 		return;
 	}
@@ -1532,8 +1558,16 @@ void APlayerSekiro::GourdHeal()
 void APlayerSekiro::BuddhaRest()
 {
 	HP = MaxHP;
+	HealCount = MaxHealCount;
 
-	// 이펙트, 사운드 추가
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	USoundBase* HealSound = Inst->GetSoundData(TEXT("Player"), TEXT("Heal"));
+	if (IsValid(HealSound))
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), HealSound);
+	}
+
+	// 이펙트 추가
 }
 
 void APlayerSekiro::SitDown()
@@ -1659,6 +1693,10 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 	{
 		GourdMesh->SetStaticMesh(nullptr);
 		SetAniState(SekiroState::Idle);
+	}
+	else if (Anim == GetAnimMontage(SekiroState::SitStart))
+	{
+		SetAniState(SekiroState::SitLoop);
 	}
 	else if (Anim == GetAnimMontage(SekiroState::SitEnd))
 	{

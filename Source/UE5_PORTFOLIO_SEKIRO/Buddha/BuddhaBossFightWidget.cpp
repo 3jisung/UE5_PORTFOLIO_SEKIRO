@@ -83,7 +83,7 @@ void UBuddhaBossFightWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 	if (Player && PlayerController)
 	{
 		SekiroState AniStateValue = Player->GetAniState<SekiroState>();
-		if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitEnd)
+		if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitLoop && AniStateValue != SekiroState::SitEnd)
 		{
 			PlayerController->SetInputMode(FInputModeGameOnly());
 			PlayerController->SetShowMouseCursor(false);
@@ -204,6 +204,13 @@ void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
 					GameMode->StopSound();
 
 					UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+					USoundBase* TeleportSound = Inst->GetSoundData(TEXT("Global"), TEXT("Teleportation"));
+
+					if (IsValid(TeleportSound))
+					{
+						UGameplayStatics::PlaySound2D(GetWorld(), TeleportSound);
+					}
+
 					TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("SceneTransition"));
 
 					if (IsValid(WidgetClass))
@@ -217,7 +224,7 @@ void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
 							SceneTransitionWidget->FadeOut();
 
 							FTimerHandle myTimerHandle2;
-							float DelayTime = 1.f;
+							float DelayTime = 2.f;
 							GetWorld()->GetTimerManager().SetTimer(myTimerHandle2, FTimerDelegate::CreateLambda([&]()
 								{
 									if (BossLevelArray.IsValidIndex(HoveredIndex))

@@ -17,5 +17,5 @@ struct UE5_PORTFOLIO_SEKIRO_API FSoundData : public FTableRowBase
 	~FSoundData() {}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	TArray<class USoundBase*> GameSound;
+	TMap<FName, class USoundBase*> GameSound;
 };
