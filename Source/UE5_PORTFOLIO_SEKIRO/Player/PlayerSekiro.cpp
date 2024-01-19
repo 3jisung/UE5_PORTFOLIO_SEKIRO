@@ -174,11 +174,11 @@ void APlayerSekiro::Tick(float _Delta)
 	}
 	else if (HP > MaxHP * 0.4f)
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5f;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.75f;
 	}
 	else
 	{
-		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.25f;
+		PostureRecoveryAmount = MaxPostureRecoveryAmount * 0.5f;
 	}
 
 	if (bEnablePostureRecovery)
@@ -881,6 +881,7 @@ void APlayerSekiro::StartedPlayerDashMove()
 	}
 	else
 	{
+		Speed = DefaultSpeed;
 		bDash = false;
 		
 		GetWorld()->GetTimerManager().ClearTimer(StartedDashTimerHandle);
@@ -1878,6 +1879,7 @@ void APlayerSekiro::ClearBuffer()
 
 	bAttackEnable = false;
 	bDashAttackMove = false;
+	Speed = DefaultSpeed;
 	bDash = false;
 
 	bBufferedCompletedAttack = false;
