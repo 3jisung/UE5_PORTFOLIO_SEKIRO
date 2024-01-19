@@ -111,8 +111,4 @@ protected:
 	MonsterHitState HitState = MonsterHitState::OFFGUARD;
 
 	FTimerHandle AttackMoveTimerHandle;
-
-	// 체간 회복량
-	const float MaxPostureRecoveryAmount = 0.2f;
-	float PostureRecoveryAmount = 0.f;
 };

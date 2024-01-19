@@ -36,7 +36,7 @@ APlayerSekiro::APlayerSekiro()
 	// WarningWidgetComponent->SetWidgetClass(WarningClassPath.TryLoadClass<UWarningWidget>());
 	WarningWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	WarningWidgetComponent->SetDrawSize(FVector2D(200.f, 200.f));
-	WarningWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 110.f));
+	WarningWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 110.f));
 	WarningWidgetComponent->SetupAttachment(RootComponent);
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
@@ -66,13 +66,15 @@ void APlayerSekiro::BeginPlay()
 	// 캐릭터 기본 스탯 설정
 	StatData = Inst->GetPlayerStat(TEXT("Sekiro"));
 	MaxHP = StatData->MaxHP;
-	HP = MaxHP * 0.5;
+	HP = MaxHP;
 	MaxPosture = StatData->MaxPosture;
 	Posture = MaxPosture;
 	Power = StatData->Power;
 
 	Speed = DefaultSpeed;
 	HealCount = MaxHealCount;
+
+	MaxPostureRecoveryAmount = MaxPosture * 0.002f;
 
 	// 캐릭터 무기 적용
 	StaticMeshArrays.Add(Inst->GetPlayerMesh(TEXT("Katana")));
@@ -473,6 +475,13 @@ void APlayerSekiro::ShowWarningIcon()
 	UWarningWidget* WarningWidget = Cast<UWarningWidget>(WarningWidgetComponent->GetWidget());
 
 	WarningWidget->FadeIn();
+
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	USoundBase* WarningSound = Inst->GetSoundData(TEXT("Player"), TEXT("Warning"));
+	if (IsValid(WarningSound))
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), WarningSound);
+	}
 
 	float delayTime = 0.5f;
 	FTimerHandle myTimerHandle;

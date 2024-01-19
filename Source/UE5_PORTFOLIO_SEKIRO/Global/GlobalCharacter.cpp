@@ -3,6 +3,7 @@
 
 #include "GlobalCharacter.h"
 #include "GlobalAnimInstance.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AGlobalCharacter::AGlobalCharacter()
@@ -10,6 +11,12 @@ AGlobalCharacter::AGlobalCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// 타뢰(打雷) 컴포넌트 설정
+	ShockWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("ShockWidgetComponent"));
+	ShockWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	ShockWidgetComponent->SetDrawSize(FVector2D(150.f, 300.f));
+	ShockWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
+	ShockWidgetComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -18,6 +25,14 @@ void AGlobalCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	GlobalAnimInstance = Cast<UGlobalAnimInstance>(GetMesh()->GetAnimInstance());
+
+	// 타뢰(打雷) 문자 아이콘 설정
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("Shock"));
+	if (IsValid(WidgetClass))
+	{
+		ShockWidgetComponent->SetWidgetClass(WidgetClass);
+	}
 }
 
 // Called every frame
@@ -32,6 +47,22 @@ void AGlobalCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AGlobalCharacter::ShowShockIcon()
+{
+	UShockWidget* ShockWidget = Cast<UShockWidget>(ShockWidgetComponent->GetWidget());
+
+	ShockWidget->FadeIn();
+
+	float delayTime = 1.5f;
+	FTimerHandle myTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, ShockWidget]()
+		{
+			ShockWidget->FadeOut();
+
+			GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+		}), delayTime, false);
 }
 
 void AGlobalCharacter::AdjustAngle(FVector TargetPos)

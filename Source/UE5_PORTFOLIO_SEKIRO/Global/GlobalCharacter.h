@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GlobalAnimInstance.h"
+#include "GlobalGameInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +19,7 @@
 #include "DamageType/TrampleType.h"
 #include "DamageType/ParryType.h"
 #include "DamageType/DeathblowType.h"
+#include "GlobalUI/ShockWidget.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()
@@ -162,6 +164,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Damage() { UE_LOG(LogTemp, Error, TEXT("Global Damage")); }
 
+	UFUNCTION(BlueprintCallable)
+	void ShowShockIcon();
+
 	// 특정 액터와 Rotation 맞추는 함수
 	void AdjustAngle(FVector TargetPos);
 	void AdjustAngle(float DeltaSeconds, FVector TargetPos, float Angle);
@@ -210,6 +215,9 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	UPROPERTY(Category = "Components", EditAnywhere, BlueprintReadWrite, meta = (AllowProtectedAccess = "true"))
+	class UWidgetComponent* ShockWidgetComponent;
+
 	UPROPERTY(Category = "GlobalCharacterValue", EditAnywhere, BlueprintReadWrite)
 	TMap<int, class UAnimMontage*> AllAnimations;
 
@@ -234,6 +242,10 @@ protected:
 	// 가드 상태일 때 체간 회복 가능 상태인지 체크
 	bool bEnablePostureRecovery = true;
 	FTimerHandle PostureRecoveryManagerTimerHandle;
+
+	// 체간 회복량
+	float MaxPostureRecoveryAmount = 0.f;
+	float PostureRecoveryAmount = 0.f;
 
 
 private:

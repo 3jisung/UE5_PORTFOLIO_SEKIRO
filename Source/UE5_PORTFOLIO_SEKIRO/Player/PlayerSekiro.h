@@ -226,10 +226,6 @@ private:
 	// 뇌반 실패 시 받을 데미지 저장
 	float SavedDamage = 0.f;
 
-	// 체간 회복량
-	const float MaxPostureRecoveryAmount = 0.2f;
-	float PostureRecoveryAmount = 0.f;
-
 	FTimerHandle StartedDashTimerHandle;
 	FTimerHandle DashAttackMoveTimerHandle;
 	FTimerHandle AttackMoveTimerHandle;

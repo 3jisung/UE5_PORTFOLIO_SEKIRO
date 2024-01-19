@@ -5,6 +5,7 @@
 #include "Global/GlobalAnimInstance.h"
 #include "Global/GlobalGameInstance.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/WidgetComponent.h"
 
 
 ABossGenichiro::ABossGenichiro()
@@ -34,6 +35,10 @@ void ABossGenichiro::BeginPlay()
 	Power = MonsterData->Power;
 	MaxDeathblowCount = MonsterData->MaxDeathblowCount;
 	DeathblowCount = MaxDeathblowCount;
+
+	MaxPostureRecoveryAmount = MaxPosture * 0.002f;
+
+	ShockWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 160.f));
 
 	// 비헤이비어 트리 설정(현재는 블루프린트 클래스에 미리 넣는 구조)
 	BehaviorTree = MonsterData->AI;

@@ -18,7 +18,7 @@ ABuddha::ABuddha()
 	// BuddhaTriggerWidgetComponent->SetWidgetClass(BuddhaTriggerClassPath.TryLoadClass<UBuddhaTriggerWidget>());
 	BuddhaTriggerWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	BuddhaTriggerWidgetComponent->SetDrawSize(FVector2D(500.f, 100.f));
-	BuddhaTriggerWidgetComponent->AddRelativeLocation(FVector(0.f, 0.f, 150.f));
+	BuddhaTriggerWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
 	BuddhaTriggerWidgetComponent->SetupAttachment(RootComponent);
 }
 
