@@ -131,6 +131,11 @@ public:
 		return HealCount;
 	}
 
+	bool GetbLockOn()
+	{
+		return bLockOn;
+	}
+
 
 	const struct FPlayerStatData* StatData;
 

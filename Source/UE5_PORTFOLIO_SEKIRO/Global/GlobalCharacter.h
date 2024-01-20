@@ -193,6 +193,7 @@ public:
 		float _SphereRadius
 	);
 
+	// 디버그용 함수
 	TArray<AActor*> TraceObjectsDebug(
 		EObjectTypeQuery _ObjectType,
 		FVector _TraceDir,
@@ -201,6 +202,7 @@ public:
 		float _SphereRadius
 	);
 
+	// 피격 보정 함수
 	void GetHitImpulseManager(AActor* DamageCauser, float PushPower);
 
 

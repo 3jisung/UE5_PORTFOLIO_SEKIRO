@@ -28,7 +28,7 @@ void AGlobalCharacter::BeginPlay()
 
 	// 타뢰(打雷) 문자 아이콘 설정
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("Shock"));
+	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Character"), TEXT("Shock"));
 	if (IsValid(WidgetClass))
 	{
 		ShockWidgetComponent->SetWidgetClass(WidgetClass);
@@ -339,6 +339,7 @@ void AGlobalCharacter::GetHitImpulseManager(AActor* DamageCauser, float PushPowe
 {
 	FVector ImpulseVector = DamageCauser->GetActorForwardVector();
 
+	// 공중에서 맞을 경우 방향 및 power 조정
 	if (GetMovementComponent()->IsFalling())
 	{
 		ImpulseVector = ImpulseVector.RotateAngleAxis(60.f, DamageCauser->GetActorRightVector());

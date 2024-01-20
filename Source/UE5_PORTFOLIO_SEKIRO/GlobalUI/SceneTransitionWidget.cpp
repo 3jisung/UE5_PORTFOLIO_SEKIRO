@@ -8,10 +8,10 @@ void USceneTransitionWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	FadeInDeltaTime = 0.05f;
-	FadeOutDeltaTime = 0.05f;
-	FadeInDeltaOpacity = 0.1f;
-	FadeOutDeltaOpacity = 0.2f;
+	FadeInDeltaTime = 0.01f;
+	FadeOutDeltaTime = 0.01f;
+	FadeInDeltaOpacity = 0.02f;
+	FadeOutDeltaOpacity = 0.04f;
 }
 
 void USceneTransitionWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

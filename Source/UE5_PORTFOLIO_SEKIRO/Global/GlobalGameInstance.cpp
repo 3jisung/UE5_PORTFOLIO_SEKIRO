@@ -9,6 +9,7 @@
 #include "Data/SoundData.h"
 #include "Data/WidgetClassData.h"
 #include "Data/ImageData.h"
+#include "Data/EffectData.h"
 
 
 UGlobalGameInstance::UGlobalGameInstance()
@@ -80,6 +81,16 @@ UGlobalGameInstance::UGlobalGameInstance()
 		if (DataTable.Succeeded())
 		{
 			ImageData = DataTable.Object;
+		}
+	}
+
+	{
+		FString DataPath = TEXT("/Script/Engine.DataTable'/Game/Blueprint/Global/Data/DT_EffectData.DT_EffectData'");
+		ConstructorHelpers::FObjectFinder<UDataTable> DataTable(*DataPath);
+
+		if (DataTable.Succeeded())
+		{
+			EffectData = DataTable.Object;
 		}
 	}
 
@@ -219,4 +230,21 @@ TArray<class UTexture2D*> UGlobalGameInstance::GetImageData(FName _Name)
 	}
 
 	return FindTable->GameImage;
+}
+
+TSubclassOf<UObject> UGlobalGameInstance::GetEffect(FName _Name)
+{
+	if (nullptr == EffectData)
+	{
+		return nullptr;
+	}
+
+	FEffectData* FindTable = EffectData->FindRow<FEffectData>(_Name, _Name.ToString());
+
+	if (nullptr == FindTable)
+	{
+		return nullptr;
+	}
+
+	return FindTable->Object;
 }

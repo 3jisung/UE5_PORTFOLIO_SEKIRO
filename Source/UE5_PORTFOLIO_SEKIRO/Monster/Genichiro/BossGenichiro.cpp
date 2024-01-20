@@ -231,6 +231,25 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 			UGameplayStatics::PlaySound2D(GetWorld(), GuardSound);
 		}
 
+		TSubclassOf<UObject> GuardEffect = Inst->GetEffect(TEXT("AttackGuard"));
+		if (IsValid(GuardEffect))
+		{
+			AActor* Effect = GetWorld()->SpawnActor<AActor>(GuardEffect);
+			Effect->SetActorLocation(GetActorLocation());
+			Effect->SetActorRotation(GetActorRotation());
+			Effect->AddActorLocalOffset(FVector(0.f, -30.f, 30.f));
+
+			// DestroyTime 뒤 이펙트 액터 삭제
+			float DestroyTime = 1.f;
+			FTimerHandle myTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, Effect]()
+				{
+					Effect->Destroy();
+
+					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+				}), DestroyTime, false);
+		}
+
 		if (Posture <= 0.f)
 		{
 			ExhaustAction();

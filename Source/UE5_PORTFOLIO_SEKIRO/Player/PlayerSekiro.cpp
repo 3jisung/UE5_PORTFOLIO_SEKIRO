@@ -359,6 +359,25 @@ float APlayerSekiro::TakeDamage(float DamageAmount,
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), GuardSound);
 		}
+
+		TSubclassOf<UObject> GuardEffect = Inst->GetEffect(TEXT("AttackGuard"));
+		if (IsValid(GuardEffect))
+		{
+			AActor* Effect = GetWorld()->SpawnActor<AActor>(GuardEffect);
+			Effect->SetActorLocation(GetActorLocation());
+			Effect->SetActorRotation(GetActorRotation());
+			Effect->AddActorLocalOffset(FVector(0.f, -30.f, 30.f));
+
+			// DestroyTime 뒤 이펙트 액터 삭제
+			float DestroyTime = 1.f;
+			FTimerHandle myTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, Effect]()
+				{
+					Effect->Destroy();
+
+					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+				}), DestroyTime, false);
+		}
 		
 		if (Posture <= 0.f)
 		{
@@ -1638,6 +1657,14 @@ void APlayerSekiro::SitDown()
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
+				SekiroState AniStateValue = GetAniState<SekiroState>();
+
+				// 도중에 공격 받았을 시 불상 UI 표시하지 않음
+				if (AniStateValue != SekiroState::SitStart && AniStateValue != SekiroState::SitLoop)
+				{
+					return;
+				}
+				
 				UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 				TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Buddha"), TEXT("Menu"));
 
@@ -1702,11 +1729,6 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 	else if (Anim == GetAnimMontage(SekiroState::Heal))
 	{
 		GourdMesh->SetStaticMesh(nullptr);
-		SetAniState(SekiroState::Idle);
-	}
-	else if (Anim == GetAnimMontage(SekiroState::SitStart))
-	{
-		SetAniState(SekiroState::SitLoop);
 	}
 	else if (Anim == GetAnimMontage(SekiroState::SitEnd))
 	{
@@ -1714,8 +1736,6 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 		{
 			ToggleLockOn();	// 기존 락온이 있을 경우 해제
 		}
-
-		SetAniState(SekiroState::Idle);
 	}
 }
 
@@ -1738,6 +1758,16 @@ void APlayerSekiro::MontageEnd()
 		SetAniState(SekiroState::Idle);
 		GetHitExecute(SavedDamage, Cast<UElectricSlashType>(UElectricSlashType::StaticClass()->GetDefaultObject()), nullptr);
 		SavedDamage = 0.f;
+	}
+
+	else if (AniStateValue == SekiroState::Heal)
+	{
+		SetAniState(SekiroState::Idle);
+	}
+
+	else if (AniStateValue == SekiroState::SitStart)
+	{
+		SetAniState(SekiroState::SitLoop);
 	}
 
 	else
