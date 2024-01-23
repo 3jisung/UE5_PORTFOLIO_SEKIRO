@@ -97,24 +97,12 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 		else if (BehaviorState == GenichiroState::Deathblow2)
 		{
-			AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-			
 			if (Genichiro->GetDeathblowCount() >= 1)
 			{
-				if (IsValid(GameMode))
-				{
-					GameMode->ModifySound(1, 1.8f);
-				}
-				
 				SetStateChange(OwnerComp, GenichiroState::Deathblow3);
 			}
 			else
-			{
-				if (IsValid(GameMode))
-				{
-					GameMode->ModifySound(2, 3.f + 5.f);	// (Execution UI 문구 뜨기까지 걸리는 시간 + 연출 시간) 이후 변경된 배경음 재생
-				}
-				
+			{	
 				SetStateChange(OwnerComp, GenichiroState::Death);
 			}
 		}
