@@ -119,7 +119,9 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		}
 		else if (BehaviorState == GenichiroState::Phase2Intro2)
 		{
-			SetStateChange(OwnerComp, GenichiroState::ElectricSlash1);
+			// 페이즈2 시작하자마자 플레이어 탐색 후 뇌격 실행
+			GetBlackboardComponent(OwnerComp)->SetValueAsEnum(TEXT("StateBuffer"), static_cast<uint8>(GenichiroState::ElectricSlash1));
+			SetStateChange(OwnerComp, GenichiroState::ForwardRun);
 		}
 		else
 		{

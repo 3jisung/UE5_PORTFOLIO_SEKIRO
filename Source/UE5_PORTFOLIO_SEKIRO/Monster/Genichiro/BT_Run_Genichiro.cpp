@@ -129,6 +129,15 @@ void UBT_Run_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// 공격 범위까지 근접
 	if (AttackRange >= LastDir.Size())
 	{
+		// 버퍼에 등록된 상태(공격)값이 있을 경우 우선 실행
+		uint8 BufferedAttack = GetBlackboardComponent(OwnerComp)->GetValueAsEnum(TEXT("StateBuffer"));
+		if (BufferedAttack != 0)
+		{
+			SetStateChange(OwnerComp, BufferedAttack);
+			GetBlackboardComponent(OwnerComp)->SetValueAsEnum(TEXT("StateBuffer"), static_cast<uint8>(GenichiroState::None));
+			return;
+		}
+
 		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 4);
 		switch (BehaviorValue)
 		{
