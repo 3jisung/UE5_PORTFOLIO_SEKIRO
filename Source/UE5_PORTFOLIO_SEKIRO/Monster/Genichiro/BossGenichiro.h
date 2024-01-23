@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Monster/Monster.h"
 #include "Global/GlobalEnums.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "BossGenichiro.generated.h"
 
 /**
@@ -35,6 +36,16 @@ public:
 	void AttackMove() override;
 
 	void Damage() override;
+
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponEffectTemplate(class UParticleSystem* NewTemplate)
+	{
+		WeaponEffect->SetTemplate(NewTemplate);
+	}
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystemComponent* WeaponEffect;
 
 protected:
 	void BeginPlay() override;

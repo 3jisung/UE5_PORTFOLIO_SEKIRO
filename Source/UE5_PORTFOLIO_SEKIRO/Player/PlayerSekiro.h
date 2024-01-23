@@ -95,10 +95,10 @@ public:
 	void GourdHeal();
 
 	UFUNCTION(BlueprintCallable)
-	void BuddhaRest();
+	void SitDown();
 
 	UFUNCTION(BlueprintCallable)
-	void SitDown();
+	void BuddhaRest();
 
 	UFUNCTION(BlueprintCallable)
 	void MontageEnd();

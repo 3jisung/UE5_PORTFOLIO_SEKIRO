@@ -12,6 +12,13 @@ ABossGenichiro::ABossGenichiro()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	WeaponEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("WeaponEffect"));
+	WeaponEffect->SetRelativeLocation(FVector(0.f, -10.f, 0.f));
+	WeaponEffect->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
+	WeaponEffect->SetRelativeScale3D(FVector(0.4f, 0.4f, 0.45f));
+	WeaponEffect->SetTemplate(nullptr);
+	WeaponEffect->SetupAttachment(WeaponMesh);
 }
 
 void ABossGenichiro::BeginPlay()

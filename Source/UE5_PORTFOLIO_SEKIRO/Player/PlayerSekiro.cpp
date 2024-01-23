@@ -1580,23 +1580,6 @@ void APlayerSekiro::GourdHeal()
 	}
 
 	HealCount -= 1;
-
-	// 이펙트, 사운드 추가
-}
-
-void APlayerSekiro::BuddhaRest()
-{
-	HP = MaxHP;
-	HealCount = MaxHealCount;
-
-	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	USoundBase* HealSound = Inst->GetSoundData(TEXT("Player"), TEXT("Heal"));
-	if (IsValid(HealSound))
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), HealSound);
-	}
-
-	// 이펙트 추가
 }
 
 void APlayerSekiro::SitDown()
@@ -1680,6 +1663,38 @@ void APlayerSekiro::SitDown()
 
 				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 			}), delayTime, false);
+	}
+}
+
+void APlayerSekiro::BuddhaRest()
+{
+	HP = MaxHP;
+	HealCount = MaxHealCount;
+
+	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+	USoundBase* HealSound = Inst->GetSoundData(TEXT("Player"), TEXT("Heal"));
+	if (IsValid(HealSound))
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), HealSound);
+	}
+
+	TSubclassOf<UObject> HealEffect = Inst->GetEffect(TEXT("PlayerHeal"));
+	if (IsValid(HealEffect))
+	{
+		AActor* Effect = GetWorld()->SpawnActor<AActor>(HealEffect);
+		Effect->SetActorLocation(GetActorLocation());
+		Effect->SetActorRotation(GetActorRotation());
+		Effect->AddActorLocalOffset(FVector(0.f, 0.f, -100.f));
+
+		// DestroyTime 뒤 이펙트 액터 삭제
+		float DestroyTime = 3.f;
+		FTimerHandle myTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, Effect]()
+			{
+				Effect->Destroy();
+
+				GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
+			}), DestroyTime, false);
 	}
 }
 
@@ -1906,6 +1921,7 @@ void APlayerSekiro::CheckBufferedInput()
 void APlayerSekiro::ClearBuffer()
 {
 	BufferedAction = SekiroState::None;
+	CorrectedTime = 0.f;
 
 	bAttackEnable = false;
 	bDashAttackMove = false;
