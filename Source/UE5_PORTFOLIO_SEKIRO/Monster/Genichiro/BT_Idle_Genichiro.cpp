@@ -33,17 +33,22 @@ EBTNodeResult::Type UBT_Idle_Genichiro::ExecuteTask(UBehaviorTreeComponent& Owne
 		MoveCom->MaxWalkSpeed = 100.f;
 	}
 
-	// bIdleWait 값이 true일 시 offguard
-	bool bIdleWait = GetBlackboardComponent(OwnerComp)->GetValueAsBool(TEXT("bIdleWait"));
-	if (bIdleWait)
+	// IdleOffGuard 값이 true일 시 offguard
+	bool IdleOffGuard = GetBlackboardComponent(OwnerComp)->GetValueAsBool(TEXT("IdleOffGuard"));
+	if (IdleOffGuard)
 	{
-		GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("bIdleWait"), false);
+		GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("IdleOffGuard"), false);
 		Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::OFFGUARD);
 	}
 	else
 	{
 		Cast<AMonster>(GetGlobalCharacter(OwnerComp))->SetHitState(MonsterHitState::GUARD);
 	}
+
+	// IdleWaitTime 만큼 Idle 대기 시간 증가
+	float IdleWaitTime = GetBlackboardComponent(OwnerComp)->GetValueAsFloat(TEXT("IdleWaitTime"));
+	IdleTime = MinIdleTime + IdleWaitTime;
+	GetBlackboardComponent(OwnerComp)->SetValueAsFloat(TEXT("IdleWaitTime"), 0.f);
 
 	return EBTNodeResult::Type::InProgress;
 }
@@ -77,7 +82,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		return;
 	}
 
-	if (0.3f <= GetStateTime(OwnerComp))
+	if (IdleTime <= GetStateTime(OwnerComp))
 	{
 		ResetStateTime(OwnerComp);
 

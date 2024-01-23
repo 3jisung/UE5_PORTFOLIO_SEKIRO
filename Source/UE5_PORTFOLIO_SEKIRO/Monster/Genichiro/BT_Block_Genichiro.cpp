@@ -56,7 +56,7 @@ void UBT_Block_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	if (BehaviorState == GenichiroState::Guard)
 	{
 		// 가드 상태에 들어가면 0.6초 동안 가드 유지
-		// 이때 공격하면 패링 당한다.
+		// 0.6초 이내에 공격하면 패링 당한다.
 		if (0.6f <= GetStateTime(OwnerComp))
 		{
 			SetStateChange(OwnerComp, GenichiroState::ForwardRun);

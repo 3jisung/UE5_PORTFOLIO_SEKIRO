@@ -63,8 +63,13 @@ void UBT_GetHit_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		}
 		else if (BehaviorState == GenichiroState::MikiriCounter2)
 		{
-			GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("bIdleWait"), true);
-
+			GetBlackboardComponent(OwnerComp)->SetValueAsBool(TEXT("IdleOffGuard"), true);
+			SetStateChange(OwnerComp, GenichiroState::Idle);
+			return;
+		}
+		else if (BehaviorState == GenichiroState::Shock)
+		{
+			GetBlackboardComponent(OwnerComp)->SetValueAsFloat(TEXT("IdleWaitTime"), 1.f);
 			SetStateChange(OwnerComp, GenichiroState::Idle);
 			return;
 		}

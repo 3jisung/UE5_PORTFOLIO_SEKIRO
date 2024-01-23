@@ -60,7 +60,7 @@ void ABossGenichiro::BeginPlay()
 	// 항상 플레이어 락온 상태
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
-	GetBlackboardComponent()->SetValueAsBool(TEXT("bIdleWait"), true);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("IdleWaitTime"), 1.5f);
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), GetAniState());
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.f);
@@ -185,7 +185,8 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 		{
 			HP = 0.1f;
 		}
-		else if (Posture <= 0.f)
+		
+		if (Posture <= 0.f)
 		{
 			Posture = 0.1f;
 		}

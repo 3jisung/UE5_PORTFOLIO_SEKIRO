@@ -47,6 +47,7 @@ public:
 		return HitState;
 	}
 
+	UFUNCTION(BlueprintCallable)
 	void SetHitState(MonsterHitState _HitState)
 	{
 		HitState = _HitState;
@@ -60,12 +61,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void MontageEnd() { UE_LOG(LogTemp, Error, TEXT("Monster MontageEnd")); }
-
-	UFUNCTION(BlueprintCallable)
-	void OffGuard()
-	{
-		HitState = MonsterHitState::OFFGUARD;
-	}
 
 	const struct FMonsterData* MonsterData;
 

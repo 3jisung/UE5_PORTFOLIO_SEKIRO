@@ -18,4 +18,8 @@ protected:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds);
 
+
+private:
+	const float MinIdleTime = 0.3f;
+	float IdleTime = 0.f;
 };
