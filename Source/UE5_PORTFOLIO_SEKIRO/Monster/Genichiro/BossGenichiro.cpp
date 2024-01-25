@@ -60,7 +60,7 @@ void ABossGenichiro::BeginPlay()
 	// 항상 플레이어 락온 상태
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("IdleWaitTime"), 1.5f);
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("IdleWaitTime"), 1.f);
 	GetBlackboardComponent()->SetValueAsEnum(TEXT("GenichiroState"), GetAniState());
 	GetBlackboardComponent()->SetValueAsString(TEXT("TargetTag"), TEXT("Player"));
 	GetBlackboardComponent()->SetValueAsFloat(TEXT("SearchRange"), 10000.f);

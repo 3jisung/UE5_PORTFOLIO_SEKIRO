@@ -6,7 +6,7 @@
 
 void AStage1_GameMode::BeginPlay()
 {
-	MapName = FName(TEXT("아시나성 본성"));
+	MapName = FName(TEXT("아시나성 성하"));
 
 	// 맵 사운드 목록 갱신
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();

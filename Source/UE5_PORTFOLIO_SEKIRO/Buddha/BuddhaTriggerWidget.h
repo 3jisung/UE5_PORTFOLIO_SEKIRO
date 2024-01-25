@@ -18,7 +18,7 @@ class UE5_PORTFOLIO_SEKIRO_API UBuddhaTriggerWidget : public UFadeInOutWidget
 public:
 	void NativeConstruct() override;
 
-	void FadeIn() override
+	void FadeIn(bool Destruct = false) override
 	{
 		bFadeIn = true;
 		bFadeOut = false;

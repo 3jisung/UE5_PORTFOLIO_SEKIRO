@@ -53,7 +53,10 @@ public:
 		HitState = _HitState;
 	}
 
+	UFUNCTION(BlueprintCallable)
 	void LockOnIconOnOff(bool bLockOn);
+
+	UFUNCTION(BlueprintCallable)
 	void DeathblowIconOnOff(bool bExhaust);
 
 	UFUNCTION(BlueprintCallable)

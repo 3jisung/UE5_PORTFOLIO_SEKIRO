@@ -24,11 +24,16 @@ public:
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void FadeIn()
+	virtual void FadeIn(bool Destruct = false)
 	{
 		CanvasOpacity = 0.f;
 		bFadeIn = true;
 		bFadeOut = false;
+
+		if (Destruct)
+		{
+			bDestructWidget = Destruct;
+		}
 	}
 
 	UFUNCTION(BlueprintCallable)

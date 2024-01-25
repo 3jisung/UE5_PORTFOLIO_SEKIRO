@@ -198,6 +198,8 @@ void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
 	{
 		if (IsValid(ParentWidget))
 		{
+			Player->SetHitState(PlayerHitState::INVINCIBLE);
+			
 			ParentWidget->FadeOut(true);
 			FadeOut(true);
 
@@ -226,12 +228,14 @@ void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
 						{
 							SceneTransitionWidget->AddToViewport();
 
-							SceneTransitionWidget->FadeOut();
+							SceneTransitionWidget->FadeIn();
 
 							FTimerHandle myTimerHandle2;
 							float DelayTime = 2.f;
 							GetWorld()->GetTimerManager().SetTimer(myTimerHandle2, FTimerDelegate::CreateLambda([&]()
 								{
+									// Player->SetHitState(PlayerHitState::OFFGUARD);
+									
 									if (BossLevelArray.IsValidIndex(HoveredIndex))
 									{
 										UGameplayStatics::OpenLevel(GetWorld(), BossLevelArray[HoveredIndex]);

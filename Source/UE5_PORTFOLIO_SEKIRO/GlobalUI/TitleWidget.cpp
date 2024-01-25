@@ -46,7 +46,7 @@ void UTitleWidget::MenuEvent()
 		{
 			SceneTransitionWidget->AddToViewport();
 
-			SceneTransitionWidget->FadeOut();
+			SceneTransitionWidget->FadeIn();
 
 			FTimerHandle myTimerHandle;
 			float DelayTime = 1.f;

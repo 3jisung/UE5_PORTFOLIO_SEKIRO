@@ -17,19 +17,4 @@ class UE5_PORTFOLIO_SEKIRO_API USceneTransitionWidget : public UFadeInOutWidget
 
 public:
 	void NativeConstruct() override;
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-	void FadeIn() override
-	{
-		bFadeIn = true;
-		bFadeOut = false;
-		CanvasOpacity = 1.f;
-	}
-
-	void FadeOut(bool Destruct = false) override
-	{
-		bFadeOut = true;
-		bFadeIn = false;
-		CanvasOpacity = 0.f;
-	}
 };

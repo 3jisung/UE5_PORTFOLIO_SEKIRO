@@ -86,6 +86,14 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	{
 		ResetStateTime(OwnerComp);
 
+		// 버퍼에 등록된 상태(공격)값이 있을 경우 즉시 Run
+		uint8 BufferedAttack = GetBlackboardComponent(OwnerComp)->GetValueAsEnum(TEXT("StateBuffer"));
+		if (BufferedAttack != 0)
+		{
+			SetStateChange(OwnerComp, GenichiroState::ForwardRun);
+			return;
+		}
+
 		// Walk : 견제 / Run : 대상에게 바로 접근
 		int BehaviorValue = UGlobalFunctionLibrary::MainRandom.RandRange(0, 9);
 		switch (BehaviorValue)

@@ -137,12 +137,16 @@ void UBuddhaMenuWidget::MenuEvent()
 				float DelayTime = 3.f;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle2, FTimerDelegate::CreateLambda([&]()
 					{
-						FadeIn();
+						SekiroState AniStateValue = Player->GetAniState<SekiroState>();
+						if (AniStateValue == SekiroState::SitStart || AniStateValue == SekiroState::SitLoop || AniStateValue == SekiroState::SitEnd)
+						{
+							FadeIn();
 
-						PlayerController->SetInputMode(FInputModeUIOnly());
-						PlayerController->SetShowMouseCursor(true);
+							PlayerController->SetInputMode(FInputModeUIOnly());
+							PlayerController->SetShowMouseCursor(true);
 
-						SetFocus();
+							SetFocus();
+						}
 
 						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle2);
 					}), DelayTime, false);

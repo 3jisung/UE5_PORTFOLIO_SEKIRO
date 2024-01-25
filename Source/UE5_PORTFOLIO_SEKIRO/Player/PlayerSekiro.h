@@ -136,6 +136,11 @@ public:
 		return bLockOn;
 	}
 
+	void SetHitState(PlayerHitState _State)
+	{
+		HitState = _State;
+	}
+
 
 	const struct FPlayerStatData* StatData;
 

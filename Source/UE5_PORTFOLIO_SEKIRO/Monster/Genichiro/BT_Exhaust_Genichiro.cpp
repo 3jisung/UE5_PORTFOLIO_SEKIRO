@@ -26,7 +26,7 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	// 탈진 도중 인살 공격이 들어오면 상태 전환
+	// 상태 전환
 	if (AnimChangeCheck(OwnerComp))
 	{
 		return;
@@ -110,18 +110,17 @@ void UBT_Exhaust_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* N
 		{
 			Genichiro->SetHP(Genichiro->GetMaxHP());
 			Genichiro->SetPosture(Genichiro->GetMaxPosture());
-
-			SetStateChange(OwnerComp, GenichiroState::Phase2Intro1);
 		}
 		else if (BehaviorState == GenichiroState::Phase2Intro1)
 		{
-			SetStateChange(OwnerComp, GenichiroState::Phase2Intro2);
+			// SetStateChange(OwnerComp, GenichiroState::Phase2Intro2);
 		}
 		else if (BehaviorState == GenichiroState::Phase2Intro2)
 		{
-			// 페이즈2 시작하자마자 플레이어 탐색 후 뇌격 실행
+			// 플레이어 탐색 후 뇌격 실행
 			GetBlackboardComponent(OwnerComp)->SetValueAsEnum(TEXT("StateBuffer"), static_cast<uint8>(GenichiroState::ElectricSlash1));
-			SetStateChange(OwnerComp, GenichiroState::ForwardRun);
+			GetBlackboardComponent(OwnerComp)->SetValueAsFloat(TEXT("IdleWaitTime"), 1.5f);
+			SetStateChange(OwnerComp, GenichiroState::Idle);
 		}
 		else
 		{

@@ -38,10 +38,23 @@ void UFadeInOutWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 				CanvasOpacity = 1.f;
 				bFadeIn = false;
 
+				if (bDestructWidget && TimerDelayTime <= 0.f)
+				{
+					RemoveFromParent();
+					return;
+				}
+
 				FTimerHandle myTimerHandle;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
-						FadeOut();
+						if (bDestructWidget)
+						{
+							FadeOut(true);
+						}
+						else
+						{
+							FadeOut();
+						}
 
 						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 					}), TimerDelayTime, false);
