@@ -17,4 +17,9 @@ class UE5_PORTFOLIO_SEKIRO_API UBT_Block_Genichiro : public UBTTask_Genichiro
 protected:
 	EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 	void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds);
+
+
+private:
+	const float MaxBlockTime = 0.5f;
+	float BlockTime = 0.f;
 };

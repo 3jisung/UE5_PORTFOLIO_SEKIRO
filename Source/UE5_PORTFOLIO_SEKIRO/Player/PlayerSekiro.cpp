@@ -1161,7 +1161,7 @@ void APlayerSekiro::StartedPlayerAttack()
 	{
 		bAttackValid = false;
 
-		float delayTime = 0.1;
+		float delayTime = 0.1f;
 		FTimerHandle myTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 			{
@@ -1220,6 +1220,8 @@ void APlayerSekiro::StartedPlayerAttack()
 				BasicAttackCount = 0;
 			}
 
+			bAttackCombo = false;
+
 			// Transition 노티파이 이전에 키입력을 하면 선입력 버퍼에 입력
 			// Transition 노티파이 이후에 키입력을 하면 공격 바로 실행
 			if (bEnteredTransition == false)
@@ -1229,6 +1231,10 @@ void APlayerSekiro::StartedPlayerAttack()
 				bAttackEnable = true;
 
 				return;
+			}
+			else
+			{
+				int a = 1;
 			}
 		}
 		else
@@ -1700,8 +1706,10 @@ void APlayerSekiro::BuddhaRest()
 
 void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
-	bEnteredTransition = false;
-	bAttackCombo = false;
+	// bEnteredTransition = false;
+	// bAttackCombo = false;
+
+	UE_LOG(LogTemp, Error, TEXT("%s"), *Anim->GetName());
 	
 	if (Anim == GetAnimMontage(SekiroState::JumpAttack))
 	{
@@ -1794,6 +1802,8 @@ void APlayerSekiro::MontageEnd()
 void APlayerSekiro::AttackBegin()
 {
 	bEnteredTransition = false;
+	bAttackCombo = false;
+	UE_LOG(LogTemp, Error, TEXT("begin"));
 }
 
 void APlayerSekiro::AttackEnd()
@@ -1804,11 +1814,13 @@ void APlayerSekiro::AttackEnd()
 void APlayerSekiro::AttackComboBegin()
 {
 	bAttackCombo = true;
+	UE_LOG(LogTemp, Error, TEXT("start"));
 }
 
 void APlayerSekiro::AttackComboEnd()
 {
 	bAttackCombo = false;
+	UE_LOG(LogTemp, Error, TEXT("end"));
 }
 
 void APlayerSekiro::DashAttackMoveEnd()
@@ -1835,6 +1847,9 @@ void APlayerSekiro::DeathblowRecover()
 // 선입력 체크
 void APlayerSekiro::CheckBufferedInput()
 {
+	UE_LOG(LogTemp, Error, TEXT("tran"));
+	bEnteredTransition = true;
+
 	if (BufferedAction != SekiroState::None)
 	{
 		// 평타 선입력
@@ -1910,18 +1925,20 @@ void APlayerSekiro::CheckBufferedInput()
 		else if (BufferedAction == SekiroState::LightningReversal2)
 		{
 			SetAniState(SekiroState::LightningReversal2);
+			CorrectedTime = 0.f;
 		}
 
 		BufferedAction = SekiroState::None;
 	}
-
-	bEnteredTransition = true;
 }
 
 void APlayerSekiro::ClearBuffer()
 {
 	BufferedAction = SekiroState::None;
 	CorrectedTime = 0.f;
+
+	bAttackCombo = false;
+	bEnteredTransition = false;
 
 	bAttackEnable = false;
 	bDashAttackMove = false;
