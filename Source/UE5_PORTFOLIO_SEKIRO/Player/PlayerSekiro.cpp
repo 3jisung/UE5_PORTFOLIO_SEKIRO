@@ -1232,10 +1232,6 @@ void APlayerSekiro::StartedPlayerAttack()
 
 				return;
 			}
-			else
-			{
-				int a = 1;
-			}
 		}
 		else
 		{
@@ -1708,8 +1704,6 @@ void APlayerSekiro::MontageBlendingOut(UAnimMontage* Anim, bool _Inter)
 {
 	// bEnteredTransition = false;
 	// bAttackCombo = false;
-
-	UE_LOG(LogTemp, Error, TEXT("%s"), *Anim->GetName());
 	
 	if (Anim == GetAnimMontage(SekiroState::JumpAttack))
 	{
@@ -1803,7 +1797,6 @@ void APlayerSekiro::AttackBegin()
 {
 	bEnteredTransition = false;
 	bAttackCombo = false;
-	UE_LOG(LogTemp, Error, TEXT("begin"));
 }
 
 void APlayerSekiro::AttackEnd()
@@ -1814,13 +1807,11 @@ void APlayerSekiro::AttackEnd()
 void APlayerSekiro::AttackComboBegin()
 {
 	bAttackCombo = true;
-	UE_LOG(LogTemp, Error, TEXT("start"));
 }
 
 void APlayerSekiro::AttackComboEnd()
 {
 	bAttackCombo = false;
-	UE_LOG(LogTemp, Error, TEXT("end"));
 }
 
 void APlayerSekiro::DashAttackMoveEnd()
@@ -1847,7 +1838,6 @@ void APlayerSekiro::DeathblowRecover()
 // 선입력 체크
 void APlayerSekiro::CheckBufferedInput()
 {
-	UE_LOG(LogTemp, Error, TEXT("tran"));
 	bEnteredTransition = true;
 
 	if (BufferedAction != SekiroState::None)
