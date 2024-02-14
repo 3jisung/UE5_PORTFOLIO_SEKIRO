@@ -45,7 +45,7 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 						DeathUIOff();
 
 						AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-						if (GameMode != nullptr)
+						if (IsValid(GameMode))
 						{
 							GameMode->StopSound();
 						}

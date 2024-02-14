@@ -37,6 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ExitWidget();
 
+	void PopupWidgetReturn(int _PopupIndex) override;
+
 	UPROPERTY(Category = "Text", EditAnywhere, BlueprintReadWrite)
 	UTextBlock* MapNameText = nullptr;
 

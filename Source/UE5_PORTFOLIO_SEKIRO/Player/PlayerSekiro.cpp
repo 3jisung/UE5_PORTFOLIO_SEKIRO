@@ -50,7 +50,6 @@ void APlayerSekiro::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &APlayerSekiro::MontageBlendingOut);
 
 	SetAniState(SekiroState::Idle);
@@ -761,6 +760,7 @@ void APlayerSekiro::Landed(const FHitResult& Hit)
 	// 뇌격을 되받아치지 못하고 땅에 발이 닿으면 타뢰 처리
 	if (AniStateValue == SekiroState::LightningReversal1)
 	{
+		SetAniState(SekiroState::Idle);
 		GetHitExecute(SavedDamage, Cast<UElectricSlashType>(UElectricSlashType::StaticClass()->GetDefaultObject()), nullptr);
 		SavedDamage = 0.f;
 	}
@@ -970,6 +970,7 @@ void APlayerSekiro::StartedPlayerGuard()
 	}
 	else
 	{
+		// 패링 판정 최댓값(0.2초)
 		ParryingValidTime = 0.2f;
 	}
 

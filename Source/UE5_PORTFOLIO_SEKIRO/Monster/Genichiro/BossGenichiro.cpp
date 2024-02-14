@@ -25,7 +25,6 @@ void ABossGenichiro::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 애니메이션 종료 시 MontageEnd를 콜백한다.
 	GetGlobalAnimInstance()->OnMontageBlendingOut.AddDynamic(this, &ABossGenichiro::MontageBlendingOut);
 
 	Tags.Add(TEXT("보스"));

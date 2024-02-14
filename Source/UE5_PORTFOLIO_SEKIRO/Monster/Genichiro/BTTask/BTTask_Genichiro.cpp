@@ -39,7 +39,7 @@ AGlobalCharacter* UBTTask_Genichiro::GetGlobalCharacter(UBehaviorTreeComponent& 
 		return nullptr;
 	}
 
-	// 컨트롤러에게 내가 조작하는 Pawn은 GetPawn을 사용한다.
+	// 컨트롤러가 조작하는 Pawn은 GetPawn을 사용
 	AGlobalCharacter* Character = AiCon->GetPawn<AGlobalCharacter>();
 
 	if (nullptr == Character || false == Character->IsValidLowLevel())

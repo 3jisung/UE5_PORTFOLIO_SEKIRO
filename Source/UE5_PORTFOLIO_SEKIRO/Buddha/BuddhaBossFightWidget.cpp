@@ -208,7 +208,10 @@ void UBuddhaBossFightWidget::PopupWidgetReturn(int _PopupIndex)
 			GetWorld()->GetTimerManager().SetTimer(myTimerHandle1, FTimerDelegate::CreateLambda([&]()
 				{
 					AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-					GameMode->StopSound();
+					if (IsValid(GameMode))
+					{
+						GameMode->StopSound();
+					}
 
 					UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 					USoundBase* TeleportSound = Inst->GetSoundData(TEXT("Global"), TEXT("Teleportation"));

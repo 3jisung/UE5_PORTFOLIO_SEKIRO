@@ -34,7 +34,10 @@ void UTitleWidget::MenuEvent()
 	Super::MenuEvent();
 
 	AGlobalGameMode* GameMode = Cast<AGlobalGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameMode->StopSound();
+	if (IsValid(GameMode))
+	{
+		GameMode->StopSound();
+	}
 
 	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
 	TSubclassOf<UUserWidget> WidgetClass = Inst->GetWidgetClassData(TEXT("Global"), TEXT("SceneTransition"));
@@ -74,6 +77,4 @@ void UTitleWidget::MenuEvent()
 				}), DelayTime, false);
 		}
 	}
-
-	
 }

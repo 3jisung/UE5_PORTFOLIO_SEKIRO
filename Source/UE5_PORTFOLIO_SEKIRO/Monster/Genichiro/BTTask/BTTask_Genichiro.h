@@ -10,7 +10,7 @@
 #include "Global/GlobalCharacter.h"
 #include "Global/GlobalFunctionLibrary.h"
 #include "Player/PlayerSekiro.h"
-#include "BossGenichiro.h"
+#include "Monster/Genichiro/BossGenichiro.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "BTTask_Genichiro.generated.h"
