@@ -129,7 +129,8 @@ void UDeathWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 				float delayTime = 1.f;
 				GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&]()
 					{
-						UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+						// UKismetSystemLibrary::QuitGame(GetWorld(), nullptr, EQuitPreference::Quit, false);
+						UGameplayStatics::OpenLevel(GetWorld(), TEXT("Title"));
 
 						GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
 					}), delayTime, false);
