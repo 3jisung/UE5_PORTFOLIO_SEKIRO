@@ -238,23 +238,13 @@ float ABossGenichiro::TakeDamage(float DamageAmount,
 			UGameplayStatics::PlaySound2D(GetWorld(), GuardSound);
 		}
 
-		TSubclassOf<UObject> GuardEffect = Inst->GetEffect(TEXT("AttackGuard"));
-		if (IsValid(GuardEffect))
+		UParticleSystem* Effect = Inst->GetEffect(TEXT("AttackGuard"));
+		if (IsValid(Effect))
 		{
-			AActor* Effect = GetWorld()->SpawnActor<AActor>(GuardEffect);
-			Effect->SetActorLocation(GetActorLocation());
-			Effect->SetActorRotation(GetActorRotation());
-			Effect->AddActorLocalOffset(FVector(0.f, -30.f, 30.f));
-
-			// DestroyTime 뒤 이펙트 액터 삭제
-			float DestroyTime = 1.f;
-			FTimerHandle myTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(myTimerHandle, FTimerDelegate::CreateLambda([&, Effect]()
-				{
-					Effect->Destroy();
-
-					GetWorld()->GetTimerManager().ClearTimer(myTimerHandle);
-				}), DestroyTime, false);
+			FVector EffectLocation = GetActorLocation();
+			FVector AdjustLocation = GetActorRightVector() * -50.f + FVector::UpVector * 30.0;
+			EffectLocation = EffectLocation + AdjustLocation;
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, EffectLocation, GetActorRotation());
 		}
 
 		if (Posture <= 0.f)
@@ -312,11 +302,35 @@ void ABossGenichiro::GetHitExecute(float DamageAmount, UCustomDamageTypeBase* Da
 	HP -= DamageAmount * (DamageType->HPDamageMultiple);
 	Posture -= DamageAmount * (DamageType->PostureDamageMultiple);
 
-	UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
-	USoundBase* HitSound = Inst->GetSoundData(TEXT("Player"), TEXT("GetHit"));
-	if (IsValid(HitSound) && DamageType->GetClass() != UElectricSlashType::StaticClass())
+	// 피격 유효타 이펙트 및 효과음 처리
+	if (DamageType->GetClass() != UElectricSlashType::StaticClass())
 	{
-		UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
+		GenichiroState AniStateValue = GetAniState<GenichiroState>();
+		
+		FVector StartPoint = DamageCauser->GetActorLocation();
+		FVector EndPoint = GetActorLocation();
+
+		// 하단 베기가 들어올 경우 공격 상대와 본인의 오프셋 조정
+		if (DamageType->GetClass() == UBottomType::StaticClass())
+		{
+			StartPoint.Z -= 50.f;
+			EndPoint.Z -= 50.f;
+		}
+		// 본인이 하단 베기 도중일 경우 본인의 오프셋만 조정
+		else if (AniStateValue == GenichiroState::BottomAttack)
+		{
+			EndPoint.Z -= 50.f;
+		}
+
+		ApplyGetHitEffect(DamageCauser, StartPoint, EndPoint);
+
+		// 효과음 처리
+		UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+		USoundBase* HitSound = Inst->GetSoundData(TEXT("Player"), TEXT("GetHit"));
+		if (IsValid(HitSound))
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
+		}
 	}
 
 	if (HP <= 0.f)

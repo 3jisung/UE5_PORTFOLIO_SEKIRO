@@ -71,6 +71,7 @@ void UBT_Idle_Genichiro::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 		// 방향 조정
 		GetGlobalCharacter(OwnerComp)->AdjustAngle(DeltaSeconds, ResultActor->GetActorLocation(), 10.f);
 
+		// 보스 몬스터가 플레이어를 타겟으로 지정했을 경우 플레이어의 TargetBoss 변수에 보스 객체 업데이트
 		if (GetGlobalCharacter(OwnerComp)->ActorHasTag(TEXT("보스")))
 		{
 			APlayerSekiro* TargetActor = Cast<APlayerSekiro>(ResultActor);

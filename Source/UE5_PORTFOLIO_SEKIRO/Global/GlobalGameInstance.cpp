@@ -232,7 +232,7 @@ TArray<class UTexture2D*> UGlobalGameInstance::GetImageData(FName _Name)
 	return FindTable->GameImage;
 }
 
-TSubclassOf<UObject> UGlobalGameInstance::GetEffect(FName _Name)
+UParticleSystem* UGlobalGameInstance::GetEffect(FName _Name)
 {
 	if (nullptr == EffectData)
 	{
@@ -246,5 +246,5 @@ TSubclassOf<UObject> UGlobalGameInstance::GetEffect(FName _Name)
 		return nullptr;
 	}
 
-	return FindTable->Object;
+	return FindTable->Effect;
 }

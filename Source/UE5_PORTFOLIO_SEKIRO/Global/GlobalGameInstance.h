@@ -28,7 +28,7 @@ public:
 	USoundBase* GetSoundData(FName _RowName, FName _ColumnName);
 	TSubclassOf<UUserWidget> GetWidgetClassData(FName _RowName, FName _ColumnName);
 	TArray<class UTexture2D*> GetImageData(FName _Name);
-	TSubclassOf<UObject> GetEffect(FName _Name);
+	UParticleSystem* GetEffect(FName _Name);
 
 
 private:

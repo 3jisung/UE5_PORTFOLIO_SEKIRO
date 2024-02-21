@@ -19,5 +19,5 @@ struct UE5_PORTFOLIO_SEKIRO_API FEffectData : public FTableRowBase
 	~FEffectData() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	TSubclassOf<UObject> Object;
+	UParticleSystem* Effect;
 };

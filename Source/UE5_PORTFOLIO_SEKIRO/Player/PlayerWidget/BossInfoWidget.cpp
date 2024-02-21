@@ -80,6 +80,7 @@ void UBossInfoWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
+	// 보스가 플레이어를 타겟으로 지정했을 경우에만 UI On
 	if (IsValid(Player) && IsValid(Player->TargetBoss))
 	{
 		if (IsValid(HPWidget) && IsValid(BossPostureWidget) && IsValid(BossName))

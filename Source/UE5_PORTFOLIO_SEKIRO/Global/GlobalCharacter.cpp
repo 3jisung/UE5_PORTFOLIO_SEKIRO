@@ -335,6 +335,51 @@ TArray<AActor*> AGlobalCharacter::TraceObjectsDebug(
 	return HitActor;
 }
 
+void AGlobalCharacter::ApplyGetHitEffect(AActor* DamageCauser, FVector _StartPoint, FVector _EndPoint)
+{
+	TArray<AActor*> ActorsToNotTargeting;
+	ActorsToNotTargeting.Add(DamageCauser);
+
+	FVector StartPoint = _StartPoint;
+	FVector AdjustEndPoint = (_EndPoint - _StartPoint) * 3.f;
+	FVector EndPoint = _StartPoint + AdjustEndPoint;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeToLock;
+	EObjectTypeQuery ObjectType = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	ObjectTypeToLock.Emplace(ObjectType);
+
+	TArray<FHitResult> HitResult;
+	
+	bool bIsHit = UKismetSystemLibrary::LineTraceMultiForObjects(
+		GetWorld(), StartPoint, EndPoint, ObjectTypeToLock,
+		false, ActorsToNotTargeting, EDrawDebugTrace::None,
+		HitResult, true);
+
+	if (bIsHit == false)
+	{
+		return;
+	}
+
+	for (FHitResult Result : HitResult)
+	{
+		AActor* HitActor = Result.GetActor();
+
+		if (HitActor == this)
+		{
+			FVector EffectLocation = Result.ImpactPoint;
+
+			UGlobalGameInstance* Inst = GetGameInstance<UGlobalGameInstance>();
+			UParticleSystem* Effect = Inst->GetEffect(TEXT("GetHitEffect"));
+			if (IsValid(Effect))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, EffectLocation);
+			}
+
+			break;
+		}
+	}
+}
+
 void AGlobalCharacter::GetHitImpulseManager(AActor* DamageCauser, float PushPower)
 {
 	FVector ImpulseVector = DamageCauser->GetActorForwardVector();

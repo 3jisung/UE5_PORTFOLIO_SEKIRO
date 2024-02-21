@@ -20,6 +20,7 @@
 #include "DamageType/ParryType.h"
 #include "DamageType/DeathblowType.h"
 #include "GlobalUI/ShockWidget.h"
+#include "Particles/ParticleSystem.h"
 #include "GlobalCharacter.generated.h"
 
 UCLASS()
@@ -202,7 +203,10 @@ public:
 		float _SphereRadius
 	);
 
-	// 피격 보정 함수
+	// 유효타 피격 시 피격 이펙트 위치 계산 및 출력 담당 함수
+	void ApplyGetHitEffect(AActor* DamageCauser, FVector _StartPoint, FVector _EndPoint);
+
+	// 피격 후 밀리는 방향 보정 함수
 	void GetHitImpulseManager(AActor* DamageCauser, float PushPower);
 
 
